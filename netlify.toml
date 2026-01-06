@@ -1,0 +1,40 @@
+# Netlify config for Unity WebGL with multithreading support
+
+[build]
+  publish = "KlyraZombies2/docs"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Resource-Policy = "same-origin"
+
+# Compression for Unity WebGL files
+[[headers]]
+  for = "*.gz"
+  [headers.values]
+    Content-Encoding = "gzip"
+
+[[headers]]
+  for = "*.br"
+  [headers.values]
+    Content-Encoding = "br"
+
+# WASM MIME type
+[[headers]]
+  for = "*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"
+
+[[headers]]
+  for = "*.wasm.gz"
+  [headers.values]
+    Content-Type = "application/wasm"
+    Content-Encoding = "gzip"
+
+[[headers]]
+  for = "*.wasm.br"
+  [headers.values]
+    Content-Type = "application/wasm"
+    Content-Encoding = "br"

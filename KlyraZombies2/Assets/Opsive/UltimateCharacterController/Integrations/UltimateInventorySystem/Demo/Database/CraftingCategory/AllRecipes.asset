@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8b8911d6a750bc429ea3ef435ec4684, type: 3}
+  m_Name: AllRecipes
+  m_EditorClassIdentifier: 
+  m_ID: 974233308
+  m_ParentsData:
+    m_ObjectType: Opsive.Shared.Utility.ResizableArray`1[[Opsive.UltimateInventorySystem.Crafting.CraftingCategory,
+      Opsive.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
+    m_ValueHashes: 4c1e4f8e597ad536
+    m_ValuePositions: 0000000004000000
+    m_Values: 0000000000000000
+    m_UnityObjects: []
+    m_Version: 3.1
+  m_ChildrenData:
+    m_ObjectType: Opsive.Shared.Utility.ResizableArray`1[[Opsive.UltimateInventorySystem.Crafting.CraftingCategory,
+      Opsive.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
+    m_ValueHashes: 4c1e4f8e597ad536
+    m_ValuePositions: 0000000004000000
+    m_Values: 0000000000000000
+    m_UnityObjects: []
+    m_Version: 3.1
+  m_ElementsData:
+    m_ObjectType: Opsive.Shared.Utility.ResizableArray`1[[Opsive.UltimateInventorySystem.Crafting.CraftingRecipe,
+      Opsive.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
+    m_ValueHashes: 4c1e4f8e29fdbde2a5e125e828e025e8bbe625e84ee525e8d1db25e864da25e8f7d825e87adf25e80ddd25e8
+    m_ValuePositions: 0000000004000000080000000c0000001000000014000000180000001c000000200000002400000028000000
+    m_Values: 0900000009000000000000000100000002000000030000000400000005000000060000000700000008000000
+    m_UnityObjects:
+    - {fileID: 11400000, guid: a22b308751c926a4d815473d72fa2dac, type: 2}
+    - {fileID: 11400000, guid: d8c52ebfe97d63d43bab5c9672354efb, type: 2}
+    - {fileID: 11400000, guid: 358e28bdb56f1ee4eb16062f4ae87c0a, type: 2}
+    - {fileID: 11400000, guid: ea992368425adc14fb6132571592be09, type: 2}
+    - {fileID: 11400000, guid: 4b6f3ed356045d3439988e585feb22de, type: 2}
+    - {fileID: 11400000, guid: 72147ccd9fdfb1041aa822a065681b82, type: 2}
+    - {fileID: 11400000, guid: 4fd20460973228d4db00e94a932adada, type: 2}
+    - {fileID: 11400000, guid: b7ee3c072b1555f4294f0e2543c53994, type: 2}
+    - {fileID: 11400000, guid: 6db0d85dfc9b5ce40a6a1e59a3341122, type: 2}
+    m_Version: 3.1
+  m_IsAbstract: 0
+  m_Color: {r: 0.31724504, g: 0.083625324, b: 0.30288962, a: 1}
+  m_EditorIcon: {fileID: 0}
+  m_RecipeTypeAssemblyQualifiedName: Opsive.UltimateInventorySystem.Crafting.RecipeTypes.CraftingRecipeWithCurrency,
+    Opsive.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

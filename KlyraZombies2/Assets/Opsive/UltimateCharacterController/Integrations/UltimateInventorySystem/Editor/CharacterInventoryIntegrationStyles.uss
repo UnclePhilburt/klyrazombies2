@@ -1,0 +1,17 @@
+.states-reorderable-list__header
+{
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.states-reorderable-list-element
+{
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.states-reorderable-list-element > .unity-base-field
+{
+    flex-grow: 1;
+    width: 0;
+}

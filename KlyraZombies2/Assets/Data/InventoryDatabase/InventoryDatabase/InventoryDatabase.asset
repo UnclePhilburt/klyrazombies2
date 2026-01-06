@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573e9748875a7bb458e9b588519ef0e5, type: 3}
+  m_Name: InventoryDatabase
+  m_EditorClassIdentifier: Opsive.UltimateInventorySystem::Opsive.UltimateInventorySystem.Storage.InventorySystemDatabase
+  m_ItemCategories:
+  - {fileID: 11400000, guid: 73a3fedf5a3ed40e5b1b044d3bfd169e, type: 2}
+  - {fileID: 11400000, guid: 92794e04b07904f4d9b5343052bfb78c, type: 2}
+  - {fileID: 11400000, guid: f32cc01152ba646ada12cb475b07df93, type: 2}
+  - {fileID: 11400000, guid: 37ed9226ee5fb49bf9dc092503f3c856, type: 2}
+  - {fileID: 11400000, guid: 9c7874520bd55494d9ca2c952e996bec, type: 2}
+  - {fileID: 11400000, guid: 6d8f9bb05bfff4890b8f6ce076724562, type: 2}
+  m_ItemDefinitions:
+  - {fileID: 11400000, guid: dd3495bf1cacb45a3840ea85c7195655, type: 2}
+  - {fileID: 11400000, guid: c6d9e85ebbb034f069325daa2384c57f, type: 2}
+  - {fileID: 11400000, guid: 89d82fd5dde884cbca90978d26ad3b04, type: 2}
+  - {fileID: 11400000, guid: 83c32aa4898234c5fb08e13f2d2b19f3, type: 2}
+  - {fileID: 11400000, guid: de97fa8dc6e42437ebb394d08c2e7ee4, type: 2}
+  m_Currencies: []
+  m_CraftingRecipes: []
+  m_CraftingCategories:
+  - {fileID: 11400000, guid: 55cadf3d4d19f40c28b145171c1bc8d7, type: 2}

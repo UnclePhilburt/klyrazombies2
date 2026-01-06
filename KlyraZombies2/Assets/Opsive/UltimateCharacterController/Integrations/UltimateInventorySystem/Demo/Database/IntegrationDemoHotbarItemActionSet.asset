@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db1d5ef2651db947add76859e7476de, type: 3}
+  m_Name: IntegrationDemoHotbarItemActionSet
+  m_EditorClassIdentifier: 
+  m_CategoriesItemActions:
+  - {fileID: 11400000, guid: a73da0b531efefc4fbe8aef29bf16e5c, type: 2}
+  - {fileID: 11400000, guid: ab6620e15816dd1428f8d3c59b502ef8, type: 2}
+  - {fileID: 11400000, guid: 2045780ac6f10734a8a08b4cfd7367cf, type: 2}

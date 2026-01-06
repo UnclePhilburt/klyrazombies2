@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 69e0d11b11eb19742b495b145b20ad47
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_EquippableCategory: {instanceID: 0}
+  - m_ConsumableCategory: {instanceID: 0}
+  - m_MultiItemCategory: {instanceID: 0}
+  - m_ConsumableDropPrefab: {fileID: 1370764538901040189, guid: e5f6b64c8b4c6f14ea946caca5e89bb7,
+      type: 3}
+  executionOrder: -157
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

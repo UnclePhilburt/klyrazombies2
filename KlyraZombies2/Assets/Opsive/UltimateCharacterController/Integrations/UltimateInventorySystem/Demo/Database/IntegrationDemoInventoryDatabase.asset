@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 573e9748875a7bb458e9b588519ef0e5, type: 3}
+  m_Name: IntegrationDemoInventoryDatabase
+  m_EditorClassIdentifier: 
+  m_ItemCategories:
+  - {fileID: 11400000, guid: 1d2109c08d5386b40adce7c7a51e4b9c, type: 2}
+  - {fileID: 11400000, guid: 7e8c3232419a4ad4aa70e07e685caefc, type: 2}
+  - {fileID: 11400000, guid: 51a291bcf7ad5f4428009d9b7cc69908, type: 2}
+  - {fileID: 11400000, guid: 4d1e20aba3e019c439badc8e97515477, type: 2}
+  - {fileID: 11400000, guid: 84e64e8e9b8465549b6e755a6dda46e5, type: 2}
+  - {fileID: 11400000, guid: 29697c69ef0a94b4895806912de2019c, type: 2}
+  - {fileID: 11400000, guid: 227932e34c8fb7b4e9fcda91e526f367, type: 2}
+  - {fileID: 11400000, guid: 5b6932dbdeb5a1648910b5b4c21bf4fc, type: 2}
+  - {fileID: 11400000, guid: a86e73a788164dc42a01152ec8179014, type: 2}
+  - {fileID: 11400000, guid: f8b2438b8851850418a0d7e4d5cd67a8, type: 2}
+  - {fileID: 11400000, guid: 88f3fd7bfcc41694ea9c8d738ee345d9, type: 2}
+  - {fileID: 11400000, guid: 032aaed64ee853f46a9e5a035f161cdb, type: 2}
+  - {fileID: 11400000, guid: c4245c481b7fa584a97b98e417246251, type: 2}
+  - {fileID: 11400000, guid: c8c86c2abd5cb3545bedc1a19b4f1f99, type: 2}
+  - {fileID: 11400000, guid: f8be06aa7ab526f43b0ed2bc9cb8c264, type: 2}
+  - {fileID: 11400000, guid: 4d065668eada7204a87e3fe65c5b8411, type: 2}
+  - {fileID: 11400000, guid: b8fa31b29f7b1ed459b02029d81c59a2, type: 2}
+  - {fileID: 11400000, guid: 79175457f5c1e2444bf50dc384ff089a, type: 2}
+  - {fileID: 11400000, guid: 99834cb2a9c45b44b83a29c1a1813bae, type: 2}
+  - {fileID: 11400000, guid: cc6f0cd9ef9c1f240a7971aa95fbf208, type: 2}
+  - {fileID: 11400000, guid: 2bd30191b86ade94c92508c8633cded4, type: 2}
+  - {fileID: 11400000, guid: 546ad4e20c345744e9b0a73bc32516cf, type: 2}
+  - {fileID: 11400000, guid: e17f053eaa90cd14e8ec42c5c242a2bf, type: 2}
+  - {fileID: 11400000, guid: 07166160d7e848f4a8cf6c91538ee77c, type: 2}
+  - {fileID: 11400000, guid: 5e2fa7018bcce164496bf33283c31f0e, type: 2}
+  - {fileID: 11400000, guid: afbca15daf781584f9a80a4181a8e56d, type: 2}
+  - {fileID: 11400000, guid: 81ffb893cc225c845b460dff848e2ab3, type: 2}
+  m_ItemDefinitions:
+  - {fileID: 11400000, guid: d387d895134d4d74185d93409e07c5a8, type: 2}
+  - {fileID: 11400000, guid: b79fb48f1c0dfda4c8fcbcb9ffb809a8, type: 2}
+  - {fileID: 11400000, guid: a50324ad16607f9438f68e8ea279e1ed, type: 2}
+  - {fileID: 11400000, guid: d854a7791bf275d46bc74aeeeee4e970, type: 2}
+  - {fileID: 11400000, guid: 28f93d305ba4b2c45ab82096dd21c884, type: 2}
+  - {fileID: 11400000, guid: 00e5247af0454384aa4902139a5d8e49, type: 2}
+  - {fileID: 11400000, guid: 90dc946650a8b134984844a81fb66be2, type: 2}
+  - {fileID: 11400000, guid: c059b6f17da38554797ccf991c0ff3ef, type: 2}
+  - {fileID: 11400000, guid: 7cd85fca72339a041969f520898a0dba, type: 2}
+  - {fileID: 11400000, guid: 4c5f7c7603c7a444c8bddd1d9d47c7a4, type: 2}
+  - {fileID: 11400000, guid: 301226b6cfc16064baa56d4ca8cf38b8, type: 2}
+  - {fileID: 11400000, guid: 6997f550596369943920b6318642976c, type: 2}
+  - {fileID: 11400000, guid: 5c0f2083b8e2e8f448a046fbc46946d3, type: 2}
+  m_Currencies:
+  - {fileID: 11400000, guid: 8589ed258ad1a104d96ae8f1296d192f, type: 2}
+  - {fileID: 11400000, guid: 5227cae64d431fe4dabfb16f4035334f, type: 2}
+  - {fileID: 11400000, guid: b64e6dde72c1cbf47801bbf2b77abd83, type: 2}
+  m_CraftingRecipes:
+  - {fileID: 11400000, guid: a22b308751c926a4d815473d72fa2dac, type: 2}
+  - {fileID: 11400000, guid: d8c52ebfe97d63d43bab5c9672354efb, type: 2}
+  - {fileID: 11400000, guid: 358e28bdb56f1ee4eb16062f4ae87c0a, type: 2}
+  - {fileID: 11400000, guid: ea992368425adc14fb6132571592be09, type: 2}
+  - {fileID: 11400000, guid: 4b6f3ed356045d3439988e585feb22de, type: 2}
+  - {fileID: 11400000, guid: 72147ccd9fdfb1041aa822a065681b82, type: 2}
+  - {fileID: 11400000, guid: 4fd20460973228d4db00e94a932adada, type: 2}
+  - {fileID: 11400000, guid: b7ee3c072b1555f4294f0e2543c53994, type: 2}
+  - {fileID: 11400000, guid: 6db0d85dfc9b5ce40a6a1e59a3341122, type: 2}
+  m_CraftingCategories:
+  - {fileID: 11400000, guid: 93bd0c7e106dc9d4c9f37c7014d46731, type: 2}
+  - {fileID: 11400000, guid: 824a88cb50717a84e85165ad8e571f39, type: 2}

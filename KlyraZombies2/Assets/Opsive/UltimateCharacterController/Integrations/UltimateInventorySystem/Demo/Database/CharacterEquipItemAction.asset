@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1775bda1c0fed14478e41147acda094e, type: 3}
+  m_Name: CharacterEquipItemAction
+  m_EditorClassIdentifier: 
+  m_ItemCategory:
+    m_Name: Equippable
+    m_ItemCategory: {fileID: 11400000, guid: f32cc01152ba646ada12cb475b07df93, type: 2}
+  m_ExceptionCategories:
+    m_ItemCategories:
+    - m_Name: Magic
+      m_ItemCategory: {fileID: 11400000, guid: 2bd30191b86ade94c92508c8633cded4, type: 2}
+  m_ItemActionCollection:
+    m_ItemActionsData:
+    - m_ObjectType: Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.CharacterEquipUnequipItemAction
+      m_ValueHashes: 
+      m_LongValueHashes: 0d00eb254f8d1b2901d9727a0b33b5a788cb9c078949408a154baa98137ec435
+      m_ValuePositions: 00000000070000000c00000013000000
+      m_Values: 556e65717569704571756970556e657175697000
+      m_UnityObjects: []
+      m_Version: 3.4

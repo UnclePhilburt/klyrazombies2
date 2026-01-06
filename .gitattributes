@@ -1,0 +1,7 @@
+KlyraZombies2/docs/Build/*.data filter=lfs diff=lfs merge=lfs -text
+KlyraZombies2/docs/Build/*.wasm filter=lfs diff=lfs merge=lfs -text
+KlyraZombies2/docs/Build/*.data.gz filter=lfs diff=lfs merge=lfs -text
+KlyraZombies2/docs/Build/*.wasm.gz filter=lfs diff=lfs merge=lfs -text
+KlyraZombies2/docs/Build/*.data.br filter=lfs diff=lfs merge=lfs -text
+KlyraZombies2/docs/Build/*.wasm.br filter=lfs diff=lfs merge=lfs -text
+*.unity filter=lfs diff=lfs merge=lfs -text
