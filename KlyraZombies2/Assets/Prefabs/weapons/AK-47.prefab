@@ -235,6 +235,7 @@ MonoBehaviour:
     - rid: 1661606307302211672
     - rid: 1661606307302211673
     - rid: 1661606307302211674
+    - rid: 1661606335820333152
   m_DryFireEffectsModuleGroup:
     m_Modules:
     - rid: 1661606307302211675
@@ -390,7 +391,7 @@ MonoBehaviour:
         m_Enabled: 1
         m_ID: -1
         m_Name: 
-        m_MuzzleFlash: {fileID: 0}
+        m_MuzzleFlash: {fileID: 6359023954642242959, guid: 43d956f009eb92f4e9862e5a70bfbdc0, type: 3}
         m_PoolMuzzleFlash: 1
         m_MuzzleLocation:
           m_FirstPerson:
@@ -487,7 +488,8 @@ MonoBehaviour:
         m_ID: -1
         m_Name: 
         m_EffectGroup:
-          m_Effects: []
+          m_Effects:
+          - rid: 1661606335820333158
     - rid: 1661606307302211676
       type: {class: GenericShootableImpactModule, ns: Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable, asm: Opsive.UltimateCharacterController}
       data:
@@ -535,7 +537,21 @@ MonoBehaviour:
         m_ReloadAnimatorAudioStateSet:
           m_AnimatorAudioStateSelector:
             rid: 1661606307302211685
-          m_States: []
+          m_States:
+          - m_States:
+            - m_Name: Default
+              m_Preset: {fileID: 0}
+              m_BlockList: []
+              m_Default: 1
+            m_Enabled: 1
+            m_AllowDuringMovement: 1
+            m_RequireGrounded: 0
+            m_StateName: 
+            m_ItemSubstateIndex: 0
+            m_AudioClipSet:
+              m_AudioConfig: {fileID: 0}
+              m_AudioClips:
+              - {fileID: 8300000, guid: be4423a3f816841298cb7831df116b27, type: 3}
         m_ReloadEvent:
           m_WaitForAnimationEvent: 1
           m_Duration: 0
@@ -686,6 +702,54 @@ MonoBehaviour:
       type: {class: Sequence, ns: Opsive.UltimateCharacterController.Items.AnimatorAudioStates, asm: Opsive.UltimateCharacterController}
       data:
         m_ResetDelay: -1
+    - rid: 1661606335820333152
+      type: {class: GenericItemEffects, ns: Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable, asm: Opsive.UltimateCharacterController}
+      data:
+        m_States:
+        - m_Name: Default
+          m_Preset: {fileID: 0}
+          m_BlockList: []
+          m_Default: 1
+        m_Bindings:
+          m_Bindings: []
+        m_Enabled: 1
+        m_ID: 4
+        m_Name: 
+        m_EffectGroup:
+          m_Effects:
+          - rid: 1661606335820333153
+    - rid: 1661606335820333153
+      type: {class: PlayAudioClip, ns: Opsive.UltimateCharacterController.Items.Actions.Effect, asm: Opsive.UltimateCharacterController}
+      data:
+        m_States:
+        - m_Name: Default
+          m_Preset: {fileID: 0}
+          m_BlockList: []
+          m_Default: 1
+        m_Bindings:
+          m_Bindings: []
+        m_Enabled: 1
+        m_Delay: 0
+        m_AudioClipSet:
+          m_AudioConfig: {fileID: 0}
+          m_AudioClips:
+          - {fileID: 8300000, guid: 4562726b79ae34233b199879c7763099, type: 3}
+    - rid: 1661606335820333158
+      type: {class: PlayAudioClip, ns: Opsive.UltimateCharacterController.Items.Actions.Effect, asm: Opsive.UltimateCharacterController}
+      data:
+        m_States:
+        - m_Name: Default
+          m_Preset: {fileID: 0}
+          m_BlockList: []
+          m_Default: 1
+        m_Bindings:
+          m_Bindings: []
+        m_Enabled: 1
+        m_Delay: 0
+        m_AudioClipSet:
+          m_AudioConfig: {fileID: 0}
+          m_AudioClips:
+          - {fileID: 8300000, guid: d6788a6a983004950871b06583320329, type: 3}
 --- !u!114 &7442960042895871486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -724,7 +788,7 @@ Transform:
   m_GameObject: {fileID: 2931198588734607180}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.0008, y: 0.0865, z: 0.7195}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

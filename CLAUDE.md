@@ -114,6 +114,122 @@ To have multiple weapons stay visible on the character when switching between th
 - Each weapon needs a unique holster target ID matching an ObjectIdentifier on the character
 - When you switch weapons with 1/2/3, the previous weapon goes to its holster instead of disappearing
 
+### Input Bindings
+The project uses **both** input systems (`activeInputHandler: 2` in ProjectSettings).
+
+**Key Bindings:**
+- **Tab** = Open/Close Inventory Panel (Main Menu)
+- **T** = Toggle Item Equip (holster/unholster)
+- **1/2/3** = Equip First/Second/Third weapon
+- **R** = Reload
+- **Escape** = Close Panel
+
+**Input Configuration Files:**
+1. **New Input System**: `Packages/com.opsive.shared/Runtime/Input/InputSystem/CharacterInput.inputactions`
+   - Used by `Player Input` component on character
+   - This is where keyboard bindings like Tab for inventory are set
+2. **Legacy Input Manager**: `ProjectSettings/InputManager.asset`
+   - Also has "Open Panel" mapped to Tab
+   - Both systems are active, so both need matching bindings
+
+**To change a key binding:**
+1. Edit `CharacterInput.inputactions` for the new Input System
+2. Edit Input Manager (`Edit > Project Settings > Input Manager`) for legacy system
+
+### Item Icon Override System
+Custom system to override item icons at runtime (since UIS Icon attribute doesn't work well with generated icons).
+
+**Components:**
+1. **ItemIconDatabase** (`Assets/Scripts/Inventory/ItemIconDatabase.cs`)
+   - ScriptableObject mapping ItemDefinitions to Sprites
+   - Must be placed in `Assets/Resources/` and named `ItemIconDatabase`
+
+2. **IconDatabaseItemView** (`Assets/Scripts/UI/IconDatabaseItemView.cs`)
+   - ItemViewModule that displays icons from the database
+   - Add to ItemView prefabs, assign the Icon Image field
+   - Falls back to UIS Icon attribute if no database entry
+
+**Editor Tools:**
+- **Tools > Icon Generator** - Generates icon PNGs from 3D prefabs (SM_Item_*, SM_Wep_*, SM_Prop_*)
+- **Tools > Item Icon Assigner** - Auto-matches icons to ItemDefinitions by name, builds the database
+
+## Loot System
+
+### LootTable System
+Custom loot table system for container spawning:
+- **LootTable** (`Assets/Scripts/Loot/LootTable.cs`) - ScriptableObject defining possible loot
+- **LootableContainer** - Component for interactive loot containers
+- **SimpleLootUI** - Tarkov-style loot UI with search mechanics
+
+**LootTable Properties:**
+- `possibleItems` - List of items with weight, minAmount, maxAmount
+- `minItemTypes` / `maxItemTypes` - How many different items spawn
+- `emptyChance` - Percentage chance container is empty
+
+**LootTable Editor Features:**
+- **Add Items from Category** - Auto-populate from a UIS category
+- **Add ALL Items** - Add all non-weapon items to table (skips weapons, ammo, backpacks)
+- **Test Roll Loot** - Preview random loot rolls
+- **Drop Chances** - Shows percentage chance for each item
+
+**Location:** `Assets/Data/LootTables/`
+
+### SimpleLootUI (Tarkov-style Search)
+The loot UI features a search mechanic where players must search containers before seeing contents:
+- Progress circle animation during search
+- Items revealed one-by-one
+- **Container memory** - Already-searched containers don't need re-searching
+- Sound effects for searching, item reveals, and inventory actions
+- Drag-and-drop between container and player inventory
+- Equipment slot support with swap functionality
+
+### Office Item Categories
+Items are organized into categories under the `Office` parent:
+- **Documents and Papers** - Documents, Manila Folder, Notebook, Book, Magazine, Clipboard
+- **Office Supplies** - Pen, Pencil, Scissors, Stapler, Tape Roll, Rubber Bands, Paper Clips
+- **Electronics** - Batteries, Flashlight, USB Drive, Calculator, Laptop, Headphones, Smartphone, Walkie Talkie, SD Card
+- **Valuables** - Cash, Watch, Keys, ID Card, Briefcase, Trophy
+- **Food and Drink** - Candy Bar, Chips, Soda Can, Energy Drink, Water Bottle, Coffee Mug, Donut, Sandwich, Canned Food, Alcohol
+- **Office Medical** - Bandages, Painkillers, Hand Sanitizer, Pills
+- **Office Misc** - Lighter, Matches, String, Cloth Rag, Duct Tape, Cigarette
+
+**Editor Tools:**
+- **Tools > Generate Office Items** - Creates ItemDefinitions with proper category assignments
+
+## Backpack Equipment System
+
+Backpacks provide extra inventory slots when equipped:
+- **Small Backpack** - 5 extra slots
+- **Backpack** - 10 extra slots
+- **Large Backpack** - 15 extra slots
+
+**Key Components:**
+- `BackpackEquipHandler` - Spawns visual backpack model when equipped
+- `BackpackAttachmentHandler` - Manages attachment points by size
+- `HolsterPositionAdjuster` - Moves rifle holster based on equipped backpack size
+- Uses UIS `DynamicInventorySize` for slot management
+- `m_PreventRemoveBagItemIfWouldOverflow` prevents unequipping if items would be lost
+
+**Attachment Points:** Small/Medium/Large backpacks each have their own spine attachment point
+
+## Synty Asset Packs
+
+Imported packs with lootable content:
+- **PolygonApocalypse** - Base apocalypse assets, weapons, backpacks
+- **PolygonOffice** - Office building props (pens, laptops, donuts, etc.)
+- **PolygonPoliceStation** - Police gear, weapons, snacks
+- **PolygonMapsPlaza** - Mall/shopping items
+- **PolygonNatureBiomes** - Camping/outdoor items
+- **PolygonGeneric** - General purpose items
+- **SidekickCharacters** - Zombie variants (5 types)
+- **InterfaceApocalypseHUD** - UI icons for inventory items
+
+**Prefab Naming:**
+- `SM_Prop_*` - Props (office items, furniture)
+- `SM_Item_*` - Pickup items
+- `SM_Wep_*` - Weapons
+- `SM_Chr_Attach_*` - Character attachments (backpacks)
+
 ## Open Questions
 - Player count per session?
 - Networking solution? (Photon Fusion, Unity NGO, etc.)

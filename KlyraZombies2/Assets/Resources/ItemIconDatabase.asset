@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 572b2219ac92a428e8090486e1d22b41, type: 3}
+  m_Name: ItemIconDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ItemIconDatabase
+  m_Icons:
+  - itemDefinition: {fileID: 11400000, guid: 83c32aa4898234c5fb08e13f2d2b19f3, type: 2}
+    icon: {fileID: 21300000, guid: e0cfa1739a6b7144481ccffc2bc27b50, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: de97fa8dc6e42437ebb394d08c2e7ee4, type: 2}
+    icon: {fileID: 21300000, guid: 0d1d7555434a81249b9517a5dd637053, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: c6d9e85ebbb034f069325daa2384c57f, type: 2}
+    icon: {fileID: 21300000, guid: 888c6174f83d2c44692b0937cadc0113, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: f4fb1cb51dc564eff935c32da3346738, type: 2}
+    icon: {fileID: 21300000, guid: f74228f6804c06a4c88823bf85a2c7c1, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 895546940e7b340038eabbdf439b0a7f, type: 2}
+    icon: {fileID: 21300000, guid: b03f397c551d25a48b24314712ddbf2a, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 1d1c592f743404342bf5f67de0621550, type: 2}
+    icon: {fileID: 21300000, guid: cfb26a9c59cf6514485ff26c924787aa, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 3241528f1361b47e9858f365fee4cf70, type: 2}
+    icon: {fileID: 21300000, guid: d0ec2e65dadd70346b81af93bb4eb352, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 8538c24af0c6440558df990c2172d1b6, type: 2}
+    icon: {fileID: 21300000, guid: c64639281ee6147e4a56bc89e0d74468, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 61c62a204a4f548ad94622bdff730417, type: 2}
+    icon: {fileID: 21300000, guid: 327e4c705f530e9409d80aeca0c4c774, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: ba21910704af54c50adb04a47d5d44a2, type: 2}
+    icon: {fileID: 21300000, guid: e8bc6fe22a5c8440e9f02d234906628d, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 9d18c69ac835744eb80921dd643240ad, type: 2}
+    icon: {fileID: 21300000, guid: 1dee07cc468394093a28d73633454e31, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 9b97b5e840a0d402e8db5aa99acbaa63, type: 2}
+    icon: {fileID: 21300000, guid: a96b0024b43846948bc95c4b0a0d1c33, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 46c81dbb3bb2a489f9fe3d25b433c129, type: 2}
+    icon: {fileID: 21300000, guid: 9cf339796479e4b948dffef74e7a1219, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: b22b78f57868f49bc9242ec6d15eb83d, type: 2}
+    icon: {fileID: 21300000, guid: 8192f26646a0a92499a7503ccacae72d, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 76080b58bfddb4d5dabbf8fdafd93249, type: 2}
+    icon: {fileID: 21300000, guid: 327e4c705f530e9409d80aeca0c4c774, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: e06f358a044244e348cc001c843f6411, type: 2}
+    icon: {fileID: 21300000, guid: a96b0024b43846948bc95c4b0a0d1c33, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 4e99efe00f85c42afa20cf2917df335a, type: 2}
+    icon: {fileID: 21300000, guid: a854d07b08a5ade42ac5d0dc25acd489, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: e468543bee1f548afa747d68674e7739, type: 2}
+    icon: {fileID: 21300000, guid: 23230670d9b544bde9cae59c5bdc9814, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 1d05277c5ece84909a37e96e0d5c50d3, type: 2}
+    icon: {fileID: 21300000, guid: b2d3cfe383dee474894292bd2c1eed50, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 124bf61aef246455bbb7b87ed1af001d, type: 2}
+    icon: {fileID: 21300000, guid: 71c2aae20a433fc498da71248e974a9c, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: c2ebc27eaa659450eba58d75d7932835, type: 2}
+    icon: {fileID: 21300000, guid: 71c2aae20a433fc498da71248e974a9c, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 9fd3ab8707ddf47d386414c42361a632, type: 2}
+    icon: {fileID: 21300000, guid: 062eeb9d5e8ba8f45a9ddfea52518f82, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: f7255f97cfbc9403f827987fa7bfdfb5, type: 2}
+    icon: {fileID: 21300000, guid: 8192f26646a0a92499a7503ccacae72d, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 2d494a77a077d44f983ed50556e9d242, type: 2}
+    icon: {fileID: 21300000, guid: 062eeb9d5e8ba8f45a9ddfea52518f82, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: cb4439d8427f644a9b091716f88150c9, type: 2}
+    icon: {fileID: 21300000, guid: d0ec2e65dadd70346b81af93bb4eb352, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 0d323dffd67944fa4b1ac52b63199ec2, type: 2}
+    icon: {fileID: 21300000, guid: 8cad069114bdb6f45bd93e9b509f09d5, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 086fb3992112449b3880e610415b62f7, type: 2}
+    icon: {fileID: 21300000, guid: 47f134e6cecb46f4d979a1e589ca58bc, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 820cfd1b1b0ef4fedae843dbb2a75075, type: 2}
+    icon: {fileID: 21300000, guid: 0d1d7555434a81249b9517a5dd637053, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 642a9a850a05241298cc45457ea04afb, type: 2}
+    icon: {fileID: 21300000, guid: e3fb05b02c6d84087ac25f5141da6219, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 8979298a79fb144e1bac937cef99354e, type: 2}
+    icon: {fileID: 21300000, guid: 8cad069114bdb6f45bd93e9b509f09d5, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 92c211ce6a269410182a4211a507e5c0, type: 2}
+    icon: {fileID: 21300000, guid: 3fc7a34c6051b4b97bbaa0999ae1897f, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 900a426a2b2974e72b774909415fbd9c, type: 2}
+    icon: {fileID: 21300000, guid: 327e4c705f530e9409d80aeca0c4c774, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 89d82fd5dde884cbca90978d26ad3b04, type: 2}
+    icon: {fileID: 21300000, guid: 2d193da356502104ab1cb2d5da99ef54, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: f0873430899954f71b6fcf4ea3734529, type: 2}
+    icon: {fileID: 21300000, guid: a96b0024b43846948bc95c4b0a0d1c33, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: e5558e278e22c4abebaec42418a7aa9b, type: 2}
+    icon: {fileID: 21300000, guid: a96b0024b43846948bc95c4b0a0d1c33, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 417f05015711249bda81453845d76e71, type: 2}
+    icon: {fileID: 21300000, guid: 4cc5910f2776d45beb1dde2ba124553f, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 781bc6d79d6544960bcf8b3e4e84ae6c, type: 2}
+    icon: {fileID: 21300000, guid: 1e7a24f4eebe34aa0a40aa3c646a716d, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: d232abb2bfd7440e2870accb2608b7f8, type: 2}
+    icon: {fileID: 21300000, guid: d9f219d4b7668694799c766984888916, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: df4de418c70a54da8929a4fda34f6d4c, type: 2}
+    icon: {fileID: 21300000, guid: 529998e2511674642b86382d34daf8fc, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 660846d0a32af455da8df11cc1a8a864, type: 2}
+    icon: {fileID: 21300000, guid: 0d93693b79a040f45afb3225a1f0b8a6, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: fd1aaa4a6579f4707b4c14027c244613, type: 2}
+    icon: {fileID: 21300000, guid: ea4fcfc6c39de3047a90ef3617f5e431, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7, type: 2}
+    icon: {fileID: 21300000, guid: 8a65f66b8fbcf4248a5b819cb71edfeb, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8, type: 2}
+    icon: {fileID: 21300000, guid: 8a65f66b8fbcf4248a5b819cb71edfeb, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6, type: 2}
+    icon: {fileID: 21300000, guid: 8a65f66b8fbcf4248a5b819cb71edfeb, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: 014f6a94ec59a4d28bc9f4978d67e0d2, type: 2}
+    icon: {fileID: 21300000, guid: 68e651c7bd0c6d94088bcacf9d0d5f68, type: 3}
+  - itemDefinition: {fileID: 11400000, guid: da00a1548c16c461babba94165994962, type: 2}
+    icon: {fileID: 21300000, guid: 47f134e6cecb46f4d979a1e589ca58bc, type: 3}

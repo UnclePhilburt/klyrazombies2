@@ -146,7 +146,7 @@ Transform:
   m_GameObject: {fileID: 2136292197354098571}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.051, z: 0.181}
+  m_LocalPosition: {x: 0, y: 0.0532, z: 0.1857}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -626,7 +626,7 @@ MonoBehaviour:
         m_Enabled: 1
         m_ID: -1
         m_Name: 
-        m_MuzzleFlash: {fileID: 0}
+        m_MuzzleFlash: {fileID: 6359023954642242959, guid: 43d956f009eb92f4e9862e5a70bfbdc0, type: 3}
         m_PoolMuzzleFlash: 1
         m_MuzzleLocation:
           m_FirstPerson:
@@ -772,7 +772,21 @@ MonoBehaviour:
         m_ReloadAnimatorAudioStateSet:
           m_AnimatorAudioStateSelector:
             rid: 1661606306811478130
-          m_States: []
+          m_States:
+          - m_States:
+            - m_Name: Default
+              m_Preset: {fileID: 0}
+              m_BlockList: []
+              m_Default: 1
+            m_Enabled: 1
+            m_AllowDuringMovement: 1
+            m_RequireGrounded: 0
+            m_StateName: 
+            m_ItemSubstateIndex: 0
+            m_AudioClipSet:
+              m_AudioConfig: {fileID: 0}
+              m_AudioClips:
+              - {fileID: 8300000, guid: 9a1ae13ec67264ff6960ba67ad897904, type: 3}
         m_ReloadEvent:
           m_WaitForAnimationEvent: 0
           m_Duration: 0.5

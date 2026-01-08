@@ -1,0 +1,56 @@
+OFFICE ITEMS LIST - Copy these names into UIS Manager
+=====================================================
+
+DOCUMENTS & PAPERS:
+- Documents
+- Manila Folder
+- Notebook
+
+OFFICE SUPPLIES:
+- Pen
+- Scissors
+- Stapler
+- Tape Roll
+- Rubber Bands
+- Paper Clips
+
+ELECTRONICS:
+- Batteries
+- Flashlight
+- USB Drive
+- Calculator
+
+VALUABLES:
+- Cash
+- Watch
+- Keys
+
+FOOD & DRINK:
+- Candy Bar
+- Chips
+- Soda Can
+- Energy Drink
+- Water Bottle
+- Coffee Mug
+
+MEDICAL:
+- Bandages
+- Painkillers
+- Hand Sanitizer
+
+MISC:
+- Lighter
+- Matches
+- String
+- Cloth Rag
+
+=====================================================
+TOTAL: 32 items
+
+TO ADD THESE TO UIS:
+1. Window > Ultimate Inventory System > Main Manager
+2. Go to "Item Definitions" tab
+3. Click + to add new item
+4. Type the name from this list
+5. Set Category to your main category (or create "Office" category first)
+6. Repeat for each item

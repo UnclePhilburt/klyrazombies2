@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Meadows.unity
     guid: d4bf01c7fd0ca4c4dbd3ec0f37f58005
+  - enabled: 1
+    path: Assets/Scenes/MainMap.unity
+    guid: 93a49dd660269422c8502ca05e0340bf
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

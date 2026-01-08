@@ -1095,12 +1095,12 @@ InputManager:
     joyNum: 0
   - serializedVersion: 3
     m_Name: Open Panel
-    descriptiveName: 
-    descriptiveNegativeName: 
-    negativeButton: 
-    positiveButton: i
-    altNegativeButton: 
-    altPositiveButton: 
+    descriptiveName:
+    descriptiveNegativeName:
+    negativeButton:
+    positiveButton: tab
+    altNegativeButton:
+    altPositiveButton:
     gravity: 1000
     dead: 0.001
     sensitivity: 1000
@@ -1111,9 +1111,9 @@ InputManager:
     joyNum: 0
   - serializedVersion: 3
     m_Name: Open Panel
-    descriptiveName: 
-    descriptiveNegativeName: 
-    negativeButton: 
+    descriptiveName:
+    descriptiveNegativeName:
+    negativeButton:
     positiveButton: joystick button 9
     altNegativeButton: 
     altPositiveButton: 
