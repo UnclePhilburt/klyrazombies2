@@ -7,7 +7,7 @@ public class FixItemSetRule : EditorWindow
 {
     private ItemCategory m_RangedWeaponCategory;
 
-    [MenuItem("Tools/Fix Item Set Rule")]
+    [MenuItem("Project Klyra/Weapons/Fix Item Set Rule")]
     public static void ShowWindow()
     {
         GetWindow<FixItemSetRule>("Fix Item Set Rule");

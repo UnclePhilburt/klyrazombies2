@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782064d13caaf42fd96e0f140886bd08, type: 3}
+  m_Name: LootTable_Kitchen
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  tableName: Kitchen Loot
+  minItemTypes: 1
+  maxItemTypes: 3
+  emptyChance: 20
+  possibleItems:
+  - itemDefinition: {fileID: 11400000, guid: f4fb1cb51dc564eff935c32da3346738, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8538c24af0c6440558df990c2172d1b6, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 61c62a204a4f548ad94622bdff730417, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 7c8bdba70ee4940f8b43c486b22480bf, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 46c81dbb3bb2a489f9fe3d25b433c129, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 169636fb39ff8471f8eddb6b5596f9a7, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 76080b58bfddb4d5dabbf8fdafd93249, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 4e99efe00f85c42afa20cf2917df335a, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 49e6888b7d45a4cd4bbaae7b6167ee8f, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 900a426a2b2974e72b774909415fbd9c, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: d232abb2bfd7440e2870accb2608b7f8, type: 2}
+    weight: 20
+    minAmount: 1
+    maxAmount: 1

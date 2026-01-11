@@ -6,7 +6,7 @@ using UnityEditor;
 /// </summary>
 public class SimpleInventorySetup : EditorWindow
 {
-    [MenuItem("Tools/Setup Simple Inventory UI")]
+    [MenuItem("Project Klyra/Inventory/Setup Simple Inventory UI")]
     public static void SetupInventoryUI()
     {
         // Check if SimpleInventoryUI already exists
@@ -35,7 +35,7 @@ public class SimpleInventorySetup : EditorWindow
             "You can adjust grid size, colors, etc. in the Inspector.", "OK");
     }
 
-    [MenuItem("Tools/Disable Old Inventory Panels")]
+    [MenuItem("Project Klyra/Inventory/Disable Old Inventory Panels")]
     public static void DisableOldPanels()
     {
         int count = 0;

@@ -154,7 +154,7 @@ public class PrefabPainter : EditorWindow
         "Assets/Synty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Flowers_Flat_01.prefab",
     };
 
-    [MenuItem("Window/Level Design/Prefab Painter")]
+    [MenuItem("Project Klyra/Level Design/Prefab Painter")]
     public static void ShowWindow()
     {
         GetWindow<PrefabPainter>("Prefab Painter");

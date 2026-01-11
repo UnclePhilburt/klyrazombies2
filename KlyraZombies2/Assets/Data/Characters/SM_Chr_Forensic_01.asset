@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc1adcfca26e848c9bf6726f323b1492, type: 3}
+  m_Name: SM_Chr_Forensic_01
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  displayName: Forensic
+  portrait: {fileID: 0}
+  description: A forensic character.
+  characterPrefab: {fileID: 8458788703195577396, guid: e29580a7efcf9f8499f620d7ca5619e7, type: 3}
+  prefabPath: Assets/Synty/PolygonPoliceStation/Prefabs/Characters/SM_Chr_Forensic_01.prefab
+  healthModifier: 1
+  speedModifier: 1
+  staminaModifier: 1

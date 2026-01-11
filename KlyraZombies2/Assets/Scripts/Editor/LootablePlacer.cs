@@ -16,6 +16,9 @@ public class LootablePlacer : EditorWindow
         Store,
         Medical,
         Military,
+        Police,
+        Outdoor,
+        Bathroom,
         Misc,
         All
     }
@@ -58,23 +61,30 @@ public class LootablePlacer : EditorWindow
         "Assets/Synty/PolygonMilitary/Prefabs/Props",
         "Assets/Synty/PolygonMilitary/Prefabs/Props/Military",
         "Assets/Synty/PolygonCity/Prefabs/Props",
-        "Assets/Synty/PolygonGeneric/Prefabs/Props"
+        "Assets/Synty/PolygonGeneric/Prefabs/Props",
+        "Assets/Synty/PolygonOffice/Prefabs/Props",
+        "Assets/Synty/PolygonPoliceStation/Prefabs/Props",
+        "Assets/Synty/PolygonMapsPlaza/Prefabs",
+        "Assets/Synty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/Props"
     };
 
     // Keywords to identify furniture types
     private static readonly Dictionary<Category, string[]> CATEGORY_KEYWORDS = new Dictionary<Category, string[]>
     {
-        { Category.Office, new[] { "desk", "cabinet", "locker", "shelf", "drawer", "bin", "cardboard" } },
-        { Category.Kitchen, new[] { "fridge", "kitchen", "cooler", "vending" } },
-        { Category.Bedroom, new[] { "dresser", "drawer", "wardrobe" } },
-        { Category.Garage, new[] { "toolbox", "tool", "workbench", "barrel", "crate" } },
-        { Category.Store, new[] { "shop", "shelf", "fridge", "vending", "counter" } },
-        { Category.Medical, new[] { "medical", "first", "health" } },
-        { Category.Military, new[] { "ammo", "weapon", "gun", "locker", "crate_ammo", "ammocrate" } },
-        { Category.Misc, new[] { "bag", "box", "trash", "rubbish", "duffle", "backpack" } }
+        { Category.Office, new[] { "desk", "cabinet", "locker", "shelf", "drawer", "bin", "cardboard", "filing", "bookcase", "printer", "copier", "paper", "mailbox", "safe" } },
+        { Category.Kitchen, new[] { "fridge", "kitchen", "cooler", "vending", "microwave", "oven", "stove", "pantry", "cupboard", "coffee" } },
+        { Category.Bedroom, new[] { "dresser", "drawer", "wardrobe", "nightstand", "closet", "armoire", "chest" } },
+        { Category.Garage, new[] { "toolbox", "tool", "workbench", "barrel", "crate", "container", "pallet", "storage", "tank", "canister", "jerry" } },
+        { Category.Store, new[] { "shop", "shelf", "vending", "counter", "register", "display", "rack", "stand", "checkout", "cart", "basket" } },
+        { Category.Medical, new[] { "medical", "first", "health", "hospital", "pharma", "medicine", "pill", "bandage", "stretcher", "iv" } },
+        { Category.Military, new[] { "ammo", "weapon", "gun", "crate_ammo", "ammocrate", "munition", "grenade", "explosive", "military" } },
+        { Category.Police, new[] { "police", "evidence", "cell", "badge", "siren", "handcuff", "baton", "prison", "jail" } },
+        { Category.Outdoor, new[] { "camp", "tent", "cooler", "backpack", "hiking", "lantern", "sleeping", "picnic", "grill", "bbq", "log", "firewood", "fishing" } },
+        { Category.Bathroom, new[] { "toilet", "sink", "bath", "shower", "mirror", "towel", "soap", "vanity", "laundry", "hamper", "washer", "dryer" } },
+        { Category.Misc, new[] { "bag", "box", "trash", "rubbish", "duffle", "suitcase", "luggage", "purse", "briefcase", "dumpster", "garbage" } }
     };
 
-    [MenuItem("Tools/Lootable Placer")]
+    [MenuItem("Project Klyra/Loot/Container Placer")]
     public static void ShowWindow()
     {
         var window = GetWindow<LootablePlacer>("Lootable Placer");
@@ -141,9 +151,31 @@ public class LootablePlacer : EditorWindow
         name = name.ToLower();
 
         // Include these
-        string[] include = { "desk", "cabinet", "locker", "shelf", "drawer", "fridge", "dresser",
-                            "toolbox", "crate", "box", "bag", "bin", "medical", "ammo", "vending",
-                            "cooler", "barrel", "wardrobe", "counter", "duffle", "trash", "rubbish" };
+        string[] include = {
+            // Office
+            "desk", "cabinet", "locker", "shelf", "drawer", "filing", "bookcase", "safe", "mailbox",
+            // Kitchen
+            "fridge", "cooler", "vending", "microwave", "oven", "pantry", "cupboard", "coffee",
+            // Bedroom
+            "dresser", "wardrobe", "nightstand", "closet", "armoire", "chest",
+            // Garage/Industrial
+            "toolbox", "crate", "barrel", "container", "pallet", "storage", "tank", "canister", "workbench",
+            // Store/Shopping
+            "counter", "register", "display", "rack", "cart", "basket", "checkout",
+            // Medical
+            "medical", "pharma", "stretcher",
+            // Military
+            "ammo", "munition",
+            // Police
+            "evidence", "cell",
+            // Outdoor
+            "tent", "backpack", "lantern", "sleeping", "picnic", "grill", "cooler",
+            // Bathroom
+            "hamper", "laundry", "vanity",
+            // Misc containers
+            "box", "bag", "bin", "duffle", "trash", "rubbish", "suitcase", "luggage", "purse",
+            "briefcase", "dumpster", "garbage", "footlocker", "trunk"
+        };
 
         foreach (var keyword in include)
         {

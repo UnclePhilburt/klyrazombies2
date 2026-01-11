@@ -1,0 +1,259 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782064d13caaf42fd96e0f140886bd08, type: 3}
+  m_Name: LootTable_Bedroom
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  tableName: Bedroom Loot
+  minItemTypes: 1
+  maxItemTypes: 5
+  emptyChance: 0
+  possibleItems:
+  - itemDefinition: {fileID: 11400000, guid: 014f6a94ec59a4d28bc9f4978d67e0d2, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 660846d0a32af455da8df11cc1a8a864, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 3
+  - itemDefinition: {fileID: 11400000, guid: b83c4b89a91b941c28f2598bc06f955e, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 124bf61aef246455bbb7b87ed1af001d, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: c2ebc27eaa659450eba58d75d7932835, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 532131eaa49c04cd0aed668a2798d9e5, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: fd1aaa4a6579f4707b4c14027c244613, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 895546940e7b340038eabbdf439b0a7f, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1d1c592f743404342bf5f67de0621550, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f43a1d4156423424dab42af50b057a76, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: e468543bee1f548afa747d68674e7739, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1f51bfb8c857f4dffb63ceb2e9e2f0f9, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: dbae0b9dc997743f5bef6bc92ee74856, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 37f51e4d72f244fe68245ade0f2ab58a, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 92c211ce6a269410182a4211a507e5c0, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 417f05015711249bda81453845d76e71, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 781bc6d79d6544960bcf8b3e4e84ae6c, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: ba21910704af54c50adb04a47d5d44a2, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9b97b5e840a0d402e8db5aa99acbaa63, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9fd3ab8707ddf47d386414c42361a632, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 2d494a77a077d44f983ed50556e9d242, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f0873430899954f71b6fcf4ea3734529, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: a38390aa19ac34f3dbb6e865531b8a85, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 87a4588dd77dd4e5b82c0597c167414e, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: c162fdabcf3604b5a8467c46337ea4cf, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 62a3dd2b97b1345e9a4ca4ef1a20ec95, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 360c31548025d4414871e9eae2033180, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 26b6ceb80a54e4f9cadee1f8195d715a, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8c29c012e78414641b273582143b07c8, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 377c01686a0a648e0b278641bdecb959, type: 2}
+    weight: 50
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: e7e9d1519a6994ab2b918abcef23d7fd, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 6b218489dda8e44889e1d96999b20001, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 3366558ca67754eadb970c8535792cff, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: d59df279a4425432ab9881230ba917c1, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: b304632e0cf48458da0bffd09714c63a, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: da660f06ec6e945ccb2cf3d20956751b, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 324a95f6f6958421db108082d977fe2d, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 544aa5e861dbc4efb90011b1817f8b5c, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: ffea6fab7a86a4707a05c9a6a988c9ba, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 16208210f43b34dfa8f6949243fe646b, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f73fe6280f91f4f9eb663268e80e1b62, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 622244ea802264e748f642b234780490, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9766a971d1aa54b7598d8ff57f7337bf, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 74e46a7513573472daa616274b197b25, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 3c809107f7cfd47529ffa560c5774e84, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 32ffb979c260d4fea9dce10d45feedf4, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: eec17ad109acd4c4b9fd3d69ed49e74c, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8a9285e17a9674487bae8cf14665a881, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: ed8f03db95f0047f4ad1c40ff9a88395, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8c80cb76389d74a1cafeb0c23d08f5ef, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: c8501c7e904004f31a1a61ad157b5a35, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 3b5c5c7d6ceaf4708814485545b67245, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9fb57a8e275614c218c3b8948de55c0a, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 6821a6e2201284adaa6ff5e4d33141b5, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9ba36c55a35cf44aebf6ff4d495773d0, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 75374bb9fdaf8437083414d0d287c7e9, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: ce68a6c01bf674385a2eed1f9e404b50, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1e83ceaeecf3a44439fa018b3eb0b661, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 22fb403dc503d454e830c61f4a28d4b4, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 336947b1afe9148d3a6c4a43a526067d, type: 2}
+    weight: 30
+    minAmount: 1
+    maxAmount: 1

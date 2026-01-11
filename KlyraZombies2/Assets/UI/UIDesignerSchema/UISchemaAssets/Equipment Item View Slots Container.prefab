@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Chest
+  m_text: Shirt
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -156,7 +156,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2674463513573871567
 RectTransform:
   m_ObjectHideFlags: 0
@@ -465,7 +465,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 190, y: 98}
+  m_AnchoredPosition: {x: 130, y: 98}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5722145328398464753
@@ -492,7 +492,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 4436468724747505686}
-    m_SelectOnDown: {fileID: 7418451766698070425}
+    m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 4436468724747505686}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -618,7 +618,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -201, y: 98}
+  m_AnchoredPosition: {x: -130, y: 98}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5874280551925964086
@@ -645,7 +645,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 4436468724747505686}
-    m_SelectOnDown: {fileID: 51036265941869216}
+    m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 4436468724747505686}
   m_Transition: 1
@@ -947,10 +947,9 @@ MonoBehaviour:
   m_ItemSlotSet: {fileID: 11400000, guid: 015a81d8bf27bff46a8a2dbf3899169a, type: 2}
   m_AddViewSlotCategoryRestrictions: 1
   m_ItemSlotItemViewSlots:
-  - {fileID: 6656179806948726605}
   - {fileID: 4436468724747505686}
-  - {fileID: 7418451766698070425}
-  - {fileID: 51036265941869216}
+  - {fileID: 4806193571224829066}
+  - {fileID: 6656179806948726605}
 --- !u!114 &4043343970075602464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1085,7 +1084,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Legs
+  m_text: Pants
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1359,7 +1358,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 7418451766698070425}
+    m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 4806193571224829066}
     m_SelectOnRight: {fileID: 6656179806948726605}
   m_Transition: 1
@@ -1521,7 +1520,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4853589297516297462
 RectTransform:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ public class ZombiePrefabSetup : EditorWindow
     private float m_Health = 100f;
     private float m_AttackDamage = 10f;
 
-    [MenuItem("Tools/Zombie Prefab Setup")]
+    [MenuItem("Project Klyra/Zombies/Prefab Setup")]
     public static void ShowWindow()
     {
         GetWindow<ZombiePrefabSetup>("Zombie Setup");
@@ -287,6 +287,142 @@ public class ZombiePrefabSetup : EditorWindow
             "- 2 PolygonApocalypse Zombies\n" +
             "- 50 PolygonZombies variants",
             "OK");
+    }
+    [MenuItem("Project Klyra/Zombies/Make All Lootable")]
+    public static void MakeAllZombiesLootable()
+    {
+        // Find zombie loot table
+        LootTable zombieLootTable = null;
+
+        // Try Resources first
+        zombieLootTable = Resources.Load<LootTable>("LootTables/ZombieLootTable");
+
+        // Try finding in Assets
+        if (zombieLootTable == null)
+        {
+            string[] guids = AssetDatabase.FindAssets("ZombieLootTable t:LootTable");
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                zombieLootTable = AssetDatabase.LoadAssetAtPath<LootTable>(path);
+            }
+        }
+
+        if (zombieLootTable == null)
+        {
+            EditorUtility.DisplayDialog("Loot Table Not Found",
+                "Could not find ZombieLootTable asset.\n\n" +
+                "Please create one at:\nAssets/Resources/LootTables/ZombieLootTable.asset",
+                "OK");
+            return;
+        }
+
+        // Find all zombie prefabs
+        string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab");
+        int updatedCount = 0;
+        int totalZombies = 0;
+
+        foreach (string guid in prefabGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+
+            if (prefab == null) continue;
+
+            // Check if it has ZombieAI
+            ZombieAI zombieAI = prefab.GetComponent<ZombieAI>();
+            if (zombieAI == null) continue;
+
+            totalZombies++;
+
+            // Modify the prefab
+            using (var editScope = new PrefabUtility.EditPrefabContentsScope(path))
+            {
+                GameObject prefabRoot = editScope.prefabContentsRoot;
+                ZombieAI ai = prefabRoot.GetComponent<ZombieAI>();
+
+                if (ai != null)
+                {
+                    bool changed = false;
+                    SerializedObject so = new SerializedObject(ai);
+
+                    // Enable lootable on death
+                    var lootableProp = so.FindProperty("m_LootableOnDeath");
+                    if (lootableProp != null)
+                    {
+                        if (!lootableProp.boolValue)
+                        {
+                            lootableProp.boolValue = true;
+                            changed = true;
+                        }
+                    }
+
+                    // Set loot table
+                    var lootTableProp = so.FindProperty("m_LootTable");
+                    if (lootTableProp != null)
+                    {
+                        if (lootTableProp.objectReferenceValue == null)
+                        {
+                            lootTableProp.objectReferenceValue = zombieLootTable;
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        so.ApplyModifiedPropertiesWithoutUndo();
+                        updatedCount++;
+                        Debug.Log($"[ZombiePrefabSetup] Updated: {prefab.name}");
+                    }
+                }
+            }
+        }
+
+        EditorUtility.DisplayDialog("Zombie Setup Complete",
+            $"Found {totalZombies} zombie prefabs.\n" +
+            $"Updated {updatedCount} prefabs.\n\n" +
+            $"Loot Table: {zombieLootTable.name}",
+            "OK");
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Project Klyra/Zombies/List All Prefabs")]
+    public static void ListAllZombiePrefabs()
+    {
+        string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab");
+        string report = "Zombie Prefabs Found:\n\n";
+        int count = 0;
+
+        foreach (string guid in prefabGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+
+            if (prefab == null) continue;
+
+            ZombieAI zombieAI = prefab.GetComponent<ZombieAI>();
+            if (zombieAI == null) continue;
+
+            count++;
+
+            SerializedObject so = new SerializedObject(zombieAI);
+            var lootableProp = so.FindProperty("m_LootableOnDeath");
+            var lootTableProp = so.FindProperty("m_LootTable");
+
+            bool isLootable = lootableProp != null && lootableProp.boolValue;
+            bool hasLootTable = lootTableProp != null && lootTableProp.objectReferenceValue != null;
+            string tableName = hasLootTable ? lootTableProp.objectReferenceValue.name : "None";
+
+            report += $"• {prefab.name}\n";
+            report += $"  Lootable: {(isLootable ? "Yes" : "No")}, Table: {tableName}\n";
+        }
+
+        report += $"\nTotal: {count} zombie prefabs";
+        Debug.Log(report);
+
+        EditorUtility.DisplayDialog("Zombie Prefabs", report, "OK");
     }
 }
 #endif

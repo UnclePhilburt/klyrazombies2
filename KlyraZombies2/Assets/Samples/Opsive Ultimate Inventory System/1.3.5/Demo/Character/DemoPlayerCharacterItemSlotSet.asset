@@ -19,13 +19,5 @@ MonoBehaviour:
       m_ItemCategory: {fileID: 11400000, guid: af709a2c720e59949a5398cba38d76ac, type: 2}
   - m_Name: Head
     m_Category:
-      m_Name: Head Wear
-      m_ItemCategory: {fileID: 11400000, guid: df4f0fa87ec8ec1418f941460256de96, type: 2}
-  - m_Name: Chest
-    m_Category:
-      m_Name: Chest Wear
-      m_ItemCategory: {fileID: 11400000, guid: 8ac5f0b0f441d5f42b3811c47aadb181, type: 2}
-  - m_Name: Legs
-    m_Category:
-      m_Name: Leg Wear
-      m_ItemCategory: {fileID: 11400000, guid: 2a82ee6b466138549b3c8762698f8a8f, type: 2}
+      m_Name: Headwear
+      m_ItemCategory: {fileID: 11400000, guid: 05e8d3a0e47234353a19ef4a8edc1bc4, type: 2}

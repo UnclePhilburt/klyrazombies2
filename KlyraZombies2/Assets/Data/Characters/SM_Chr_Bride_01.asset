@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc1adcfca26e848c9bf6726f323b1492, type: 3}
+  m_Name: SM_Chr_Bride_01
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  displayName: Bride
+  portrait: {fileID: 0}
+  description: A bride character.
+  characterPrefab: {fileID: 6504250162417182711, guid: fa85f71c148386546b285f8d8453cdb8, type: 3}
+  prefabPath: Assets/PolygonCasino/Prefabs/Characters/SM_Chr_Bride_01.prefab
+  healthModifier: 1
+  speedModifier: 1
+  staminaModifier: 1

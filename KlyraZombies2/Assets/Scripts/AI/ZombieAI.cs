@@ -34,6 +34,14 @@ public class ZombieAI : MonoBehaviour
     [SerializeField] private float m_AttackDamage = 10f;
     [SerializeField] private float m_AttackCooldown = 1.5f;
 
+    [Header("Hit Reaction")]
+    [Tooltip("How long the zombie staggers when hit")]
+    [SerializeField] private float m_StaggerDuration = 0.3f;
+    [Tooltip("How far the zombie gets pushed back when hit")]
+    [SerializeField] private float m_KnockbackForce = 2f;
+    [Tooltip("Play hit animation when staggered")]
+    [SerializeField] private bool m_PlayHitAnimation = true;
+
     [Header("Behavior")]
     [SerializeField] private float m_AlertDuration = 5f;
     [SerializeField] private float m_LoseInterestDistance = 40f;
@@ -44,6 +52,19 @@ public class ZombieAI : MonoBehaviour
     [SerializeField] private AudioClip[] m_AlertSounds;
     [SerializeField] private AudioClip[] m_AttackSounds;
     [SerializeField] private AudioSource m_AudioSource;
+
+    [Header("Death Settings")]
+    [Tooltip("If true, corpse remains and can be looted. If false, destroyed after delay.")]
+    [SerializeField] private bool m_LootableOnDeath = true;
+
+    [Tooltip("Time before corpse is destroyed (only if not lootable)")]
+    [SerializeField] private float m_CorpseDestroyDelay = 10f;
+
+    [Tooltip("Loot table for zombie corpse drops")]
+    [SerializeField] private LootTable m_LootTable;
+
+    [Tooltip("Use ragdoll physics on death instead of death animation")]
+    [SerializeField] private bool m_UseRagdollOnDeath = true;
 
     [Header("Debug")]
     [SerializeField] private bool m_DebugMode = false;
@@ -61,6 +82,15 @@ public class ZombieAI : MonoBehaviour
     private float m_AttackTimer;
     private float m_SoundTimer;
     private float m_ChaseTimer;
+
+    // Last hit info for ragdoll direction
+    private Vector3 m_LastHitDirection;
+    private Vector3 m_LastHitPoint;
+
+    // Hit reaction
+    private bool m_IsStaggered = false;
+    private Coroutine m_StaggerCoroutine;
+    private static readonly int HitHash = Animator.StringToHash("Hit");
 
     // Animation hashes
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
@@ -416,6 +446,10 @@ public class ZombieAI : MonoBehaviour
             m_LastKnownTargetPosition = attacker.transform.position;
             m_ChaseTimer = 0;
 
+            // Store hit direction for ragdoll
+            m_LastHitDirection = (transform.position - attacker.transform.position).normalized;
+            m_LastHitPoint = transform.position + Vector3.up;
+
             if (m_DebugMode)
                 Debug.Log($"[ZombieAI] {gameObject.name} was hit! Aggroing on {attacker.name}");
 
@@ -425,6 +459,87 @@ public class ZombieAI : MonoBehaviour
                 SetState(ZombieState.Chase);
             }
         }
+    }
+
+    /// <summary>
+    /// Called when damaged with hit point info (for better ragdoll direction)
+    /// </summary>
+    public void OnDamagedAtPoint(GameObject attacker, Vector3 hitPoint, Vector3 hitDirection)
+    {
+        m_LastHitDirection = hitDirection;
+        m_LastHitPoint = hitPoint;
+
+        // Apply hit stagger
+        ApplyHitReaction(hitDirection);
+
+        OnDamaged(attacker);
+    }
+
+    /// <summary>
+    /// Apply hit reaction - stagger and knockback
+    /// </summary>
+    private void ApplyHitReaction(Vector3 hitDirection)
+    {
+        if (CurrentState == ZombieState.Dead) return;
+        if (m_IsStaggered) return; // Don't stack staggers
+
+        // Start stagger coroutine
+        if (m_StaggerCoroutine != null)
+            StopCoroutine(m_StaggerCoroutine);
+
+        m_StaggerCoroutine = StartCoroutine(StaggerCoroutine(hitDirection));
+    }
+
+    private System.Collections.IEnumerator StaggerCoroutine(Vector3 hitDirection)
+    {
+        m_IsStaggered = true;
+
+        // Stop movement
+        if (m_Agent != null && m_Agent.enabled)
+        {
+            m_Agent.isStopped = true;
+        }
+
+        // Play hit animation if enabled
+        if (m_PlayHitAnimation && m_Animator != null)
+        {
+            m_Animator.SetTrigger(HitHash);
+        }
+
+        // Apply knockback over the stagger duration
+        float elapsed = 0f;
+        Vector3 knockbackDir = -hitDirection.normalized; // Push away from hit
+        knockbackDir.y = 0; // Keep it horizontal
+
+        while (elapsed < m_StaggerDuration)
+        {
+            if (CurrentState == ZombieState.Dead) yield break;
+
+            // Move the zombie back
+            float knockbackThisFrame = (m_KnockbackForce / m_StaggerDuration) * Time.deltaTime;
+
+            // Use NavMeshAgent if available, otherwise transform
+            if (m_Agent != null && m_Agent.enabled && m_Agent.isOnNavMesh)
+            {
+                m_Agent.Move(knockbackDir * knockbackThisFrame);
+            }
+            else
+            {
+                transform.position += knockbackDir * knockbackThisFrame;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Resume movement
+        if (m_Agent != null && m_Agent.enabled && CurrentState != ZombieState.Dead)
+        {
+            m_Agent.isStopped = false;
+        }
+
+        m_IsStaggered = false;
+        m_StaggerCoroutine = null;
     }
 
     private void OnGunshotHeard(Vector3 position, float range)
@@ -483,16 +598,116 @@ public class ZombieAI : MonoBehaviour
         m_Agent.isStopped = true;
         m_Agent.enabled = false;
 
-        if (m_Animator != null)
+        // Use ragdoll or death animation
+        if (m_UseRagdollOnDeath)
+        {
+            // Enable ragdoll physics
+            ZombieRagdoll.EnableRagdollOnZombie(gameObject, m_LastHitDirection, m_LastHitPoint);
+        }
+        else if (m_Animator != null)
+        {
+            // Fallback to death animation
+            m_Animator.SetFloat(SpeedHash, 0f);
+            m_Animator.ResetTrigger(AttackHash);
+            m_Animator.ResetTrigger(AlertHash);
             m_Animator.SetTrigger(DeadHash);
+            m_Animator.SetBool("IsDead", true);
+            StartCoroutine(ForceDeathAnimation());
+        }
 
-        // Disable collider after death
+        // Handle corpse based on lootable setting
+        if (m_LootableOnDeath)
+        {
+            // Make corpse lootable
+            SetupLootableCorpse();
+        }
+        else
+        {
+            // Disable collider and destroy after delay
+            var collider = GetComponent<Collider>();
+            if (collider != null)
+                collider.enabled = false;
+
+            Destroy(gameObject, m_CorpseDestroyDelay);
+        }
+    }
+
+    /// <summary>
+    /// Sets up the dead zombie as a lootable corpse
+    /// </summary>
+    private void SetupLootableCorpse()
+    {
+        // Keep collider but make it a trigger for interaction
         var collider = GetComponent<Collider>();
         if (collider != null)
-            collider.enabled = false;
+        {
+            collider.isTrigger = true;
+        }
+        else
+        {
+            // Add a collider for interaction
+            var capsule = gameObject.AddComponent<CapsuleCollider>();
+            capsule.height = 0.5f;
+            capsule.radius = 0.5f;
+            capsule.center = new Vector3(0, 0.25f, 0);
+            capsule.isTrigger = true;
+        }
 
-        // Destroy after delay
-        Destroy(gameObject, 10f);
+        // Add lootable component
+        var lootable = ZombieLootable.MakeZombieLootable(gameObject, m_LootTable);
+
+        if (m_DebugMode)
+            Debug.Log($"[ZombieAI] {gameObject.name} is now a lootable corpse");
+    }
+
+    /// <summary>
+    /// Get the loot table for this zombie (used by spawners to assign tables)
+    /// </summary>
+    public LootTable LootTable
+    {
+        get => m_LootTable;
+        set => m_LootTable = value;
+    }
+
+    /// <summary>
+    /// Force death animation if trigger didn't work
+    /// </summary>
+    private System.Collections.IEnumerator ForceDeathAnimation()
+    {
+        // Wait a frame to let the trigger attempt first
+        yield return null;
+
+        if (m_Animator == null) yield break;
+
+        // Check if we're still not in a death state
+        var stateInfo = m_Animator.GetCurrentAnimatorStateInfo(0);
+        bool inDeathState = stateInfo.IsName("Death") || stateInfo.IsName("Dead") ||
+                           stateInfo.IsName("Die") || stateInfo.IsTag("Death");
+
+        if (!inDeathState)
+        {
+            // Try common death state names
+            string[] deathStateNames = { "Death", "Dead", "Die", "death", "dead", "die" };
+
+            foreach (string stateName in deathStateNames)
+            {
+                // Check if state exists by trying to get its hash
+                int stateHash = Animator.StringToHash(stateName);
+                if (m_Animator.HasState(0, stateHash))
+                {
+                    m_Animator.CrossFadeInFixedTime(stateName, 0.1f, 0);
+                    if (m_DebugMode)
+                        Debug.Log($"[ZombieAI] Forced death animation: {stateName}");
+                    yield break;
+                }
+            }
+
+            // If no death state found, just stop the animator to freeze in place
+            if (m_DebugMode)
+                Debug.LogWarning($"[ZombieAI] {gameObject.name} has no death animation state!");
+
+            m_Animator.enabled = false;
+        }
     }
 
     #endregion

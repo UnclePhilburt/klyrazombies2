@@ -27,7 +27,7 @@ public class TerrainGenerator : EditorWindow
     // Seed for randomization
     private int seed = 12345;
 
-    [MenuItem("Tools/Terrain Generator")]
+    [MenuItem("Project Klyra/Level Design/Terrain Generator")]
     public static void ShowWindow()
     {
         GetWindow<TerrainGenerator>("Terrain Generator");

@@ -15,7 +15,7 @@ using OpsiveEditorUtility = Opsive.Shared.Editor.Utility.EditorUtility;
 /// </summary>
 public class ItemIconAssigner : EditorWindow
 {
-    [MenuItem("Tools/Item Icon Assigner")]
+    [MenuItem("Project Klyra/Inventory/Item Icon Assigner")]
     public static void ShowWindow()
     {
         GetWindow<ItemIconAssigner>("Item Icon Assigner");

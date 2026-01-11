@@ -15,7 +15,7 @@ public class DatabaseRegistrationTool : EditorWindow
     private List<ScriptableObject> unregisteredItems = new List<ScriptableObject>();
     private bool scanned = false;
 
-    [MenuItem("Tools/UIS Database Registration")]
+    [MenuItem("Project Klyra/Inventory/UIS Database Registration")]
     public static void ShowWindow()
     {
         GetWindow<DatabaseRegistrationTool>("Database Registration");

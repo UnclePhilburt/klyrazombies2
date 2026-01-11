@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782064d13caaf42fd96e0f140886bd08, type: 3}
+  m_Name: LootTable_Garage
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  tableName: Garage Loot
+  minItemTypes: 1
+  maxItemTypes: 4
+  emptyChance: 10
+  possibleItems:
+  - itemDefinition: {fileID: 11400000, guid: 895546940e7b340038eabbdf439b0a7f, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1d1c592f743404342bf5f67de0621550, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f43a1d4156423424dab42af50b057a76, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: e468543bee1f548afa747d68674e7739, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1f51bfb8c857f4dffb63ceb2e9e2f0f9, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: dbae0b9dc997743f5bef6bc92ee74856, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 37f51e4d72f244fe68245ade0f2ab58a, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 92c211ce6a269410182a4211a507e5c0, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 417f05015711249bda81453845d76e71, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 781bc6d79d6544960bcf8b3e4e84ae6c, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: ba21910704af54c50adb04a47d5d44a2, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9b97b5e840a0d402e8db5aa99acbaa63, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9fd3ab8707ddf47d386414c42361a632, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 2d494a77a077d44f983ed50556e9d242, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f0873430899954f71b6fcf4ea3734529, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1

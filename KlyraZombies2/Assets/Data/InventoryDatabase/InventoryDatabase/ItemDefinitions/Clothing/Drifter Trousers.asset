@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53ac5fa5da8102b468a92c21620db0d0, type: 3}
+  m_Name: Drifter Trousers
+  m_EditorClassIdentifier: Opsive.UltimateInventorySystem::Opsive.UltimateInventorySystem.Core.ItemDefinition
+  m_ID: 1000058
+  m_Category: {fileID: 11400000, guid: 479ced862ae1444e0bfd5e602e982ba2, type: 2}
+  m_Parent: {fileID: 0}
+  m_ChildrenData:
+    m_ObjectType:
+    m_ValueHashes:
+    m_LongValueHashes:
+    m_ValuePositions:
+    m_Values:
+    m_UnityObjects: []
+    m_Version:
+  m_ItemDefinitionAttributeCollection:
+    m_AttributeCollectionData: []
+  m_DefaultItem:
+    m_ID: 1000059
+    m_Name:
+    m_ItemDefinitionID: 1000058
+    m_ItemDefinition: {fileID: 0}
+    m_ItemAttributeCollection:
+      m_AttributeCollectionData: []
+  m_EditorIcon: {fileID: 21300000, guid: f297bde50bcee7c478a7f6372b8758f5, type: 3}

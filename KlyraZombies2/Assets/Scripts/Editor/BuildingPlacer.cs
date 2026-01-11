@@ -62,7 +62,7 @@ public class BuildingPlacer : EditorWindow
     private Texture2D[] prefabPreviews;
     private int previewSize = 80;
 
-    [MenuItem("Tools/Building Placer")]
+    [MenuItem("Project Klyra/Level Design/Building Placer")]
     public static void ShowWindow()
     {
         var window = GetWindow<BuildingPlacer>("Building Placer");

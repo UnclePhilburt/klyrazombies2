@@ -7,7 +7,7 @@ using UnityEditor;
 /// </summary>
 public class ZombieComponentAdder : EditorWindow
 {
-    [MenuItem("Tools/Add Damage Bridge to All Zombies")]
+    [MenuItem("Project Klyra/Zombies/Add Damage Bridge to All")]
     public static void AddDamageBridgeToAll()
     {
         int prefabsFixed = 0;
@@ -66,7 +66,7 @@ public class ZombieComponentAdder : EditorWindow
             "OK");
     }
 
-    [MenuItem("Tools/Validate Zombie Setup")]
+    [MenuItem("Project Klyra/Zombies/Validate Setup")]
     public static void ValidateZombieSetup()
     {
         ZombieHealth[] zombies = Object.FindObjectsByType<ZombieHealth>(FindObjectsSortMode.None);

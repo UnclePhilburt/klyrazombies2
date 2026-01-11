@@ -82,7 +82,7 @@ public class RoadBuilder : EditorWindow
         public GameObject sourceRoad;
     }
 
-    [MenuItem("Tools/Road Builder")]
+    [MenuItem("Project Klyra/Level Design/Road Builder")]
     public static void ShowWindow()
     {
         var window = GetWindow<RoadBuilder>("Road Builder");

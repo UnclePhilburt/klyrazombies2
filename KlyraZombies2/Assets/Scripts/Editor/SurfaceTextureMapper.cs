@@ -26,7 +26,7 @@ public class SurfaceTextureMapper : EditorWindow
         public bool include = true;
     }
 
-    [MenuItem("Tools/Surface Texture Mapper")]
+    [MenuItem("Project Klyra/Level Design/Surface Texture Mapper")]
     public static void ShowWindow()
     {
         var window = GetWindow<SurfaceTextureMapper>("Surface Texture Mapper");

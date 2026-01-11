@@ -15,6 +15,6 @@ MonoBehaviour:
   likelihood: 1
   clipType: 0
   chances: []
-  clip: {fileID: 8300000, guid: dd66058015ce63d4fb3d528bac66ed19, type: 3}
+  clip: {fileID: 8300000, guid: b99b726c6dc4e42c681f929ffd45a633, type: 3}
   playlist: []
   volume: 1

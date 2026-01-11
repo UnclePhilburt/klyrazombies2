@@ -16,7 +16,7 @@ public class ZombieAnimatorSetup : EditorWindow
     private AnimationClip m_DeathClip;
     private AnimationClip m_AlertClip;
 
-    [MenuItem("Tools/Create Zombie Animator Controller")]
+    [MenuItem("Project Klyra/Zombies/Create Animator Controller")]
     public static void ShowWindow()
     {
         GetWindow<ZombieAnimatorSetup>("Zombie Animator Setup");

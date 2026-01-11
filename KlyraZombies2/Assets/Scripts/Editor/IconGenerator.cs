@@ -11,7 +11,7 @@ using System.Reflection;
 /// </summary>
 public class IconGenerator : EditorWindow
 {
-    [MenuItem("Tools/Icon Generator")]
+    [MenuItem("Project Klyra/Inventory/Icon Generator")]
     public static void ShowWindow()
     {
         var window = GetWindow<IconGenerator>("Icon Generator");

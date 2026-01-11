@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782064d13caaf42fd96e0f140886bd08, type: 3}
+  m_Name: LootTable_Bathroom
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  tableName: Bathroom Loot
+  minItemTypes: 0
+  maxItemTypes: 2
+  emptyChance: 40
+  possibleItems:
+  - itemDefinition: {fileID: 11400000, guid: df4de418c70a54da8929a4fda34f6d4c, type: 2}
+    weight: 4
+    minAmount: 1
+    maxAmount: 3
+  - itemDefinition: {fileID: 11400000, guid: 1d05277c5ece84909a37e96e0d5c50d3, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 0d323dffd67944fa4b1ac52b63199ec2, type: 2}
+    weight: 1
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8979298a79fb144e1bac937cef99354e, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 3
+  - itemDefinition: {fileID: 11400000, guid: ba21910704af54c50adb04a47d5d44a2, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9b97b5e840a0d402e8db5aa99acbaa63, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9fd3ab8707ddf47d386414c42361a632, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 2d494a77a077d44f983ed50556e9d242, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: f0873430899954f71b6fcf4ea3734529, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1

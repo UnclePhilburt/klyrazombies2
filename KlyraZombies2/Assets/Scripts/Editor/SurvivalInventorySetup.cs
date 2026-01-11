@@ -10,7 +10,7 @@ public class SurvivalInventorySetup : EditorWindow
     private InventorySystemDatabase m_Database;
     private Vector2 m_ScrollPos;
 
-    [MenuItem("Tools/Survival Inventory Setup")]
+    [MenuItem("Project Klyra/Inventory/Survival Inventory Setup")]
     public static void ShowWindow()
     {
         GetWindow<SurvivalInventorySetup>("Survival Inventory Setup");

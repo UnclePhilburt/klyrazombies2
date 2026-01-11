@@ -7,7 +7,7 @@ using Opsive.UltimateInventorySystem.Core.InventoryCollections;
 /// </summary>
 public class LootableHighlightSetup : EditorWindow
 {
-    [MenuItem("Tools/Interaction System/Add Highlight to All Lootables")]
+    [MenuItem("Project Klyra/Loot/Add Highlight to All")]
     public static void AddHighlightToAllLootables()
     {
         int added = 0;
@@ -65,7 +65,7 @@ public class LootableHighlightSetup : EditorWindow
             "OK");
     }
 
-    [MenuItem("Tools/Interaction System/Add Highlight to Selected")]
+    [MenuItem("Project Klyra/Loot/Add Highlight to Selected")]
     public static void AddHighlightToSelected()
     {
         int added = 0;

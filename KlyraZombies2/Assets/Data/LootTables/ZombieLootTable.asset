@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782064d13caaf42fd96e0f140886bd08, type: 3}
+  m_Name: ZombieLootTable
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  tableName: Zombie Corpse
+  minItemTypes: 1
+  maxItemTypes: 3
+  emptyChance: 20
+  possibleItems:
+  - itemDefinition: {fileID: 11400000, guid: 83c32aa4898234c5fb08e13f2d2b19f3, type: 2}
+    weight: 3
+    minAmount: 5
+    maxAmount: 15
+  - itemDefinition: {fileID: 11400000, guid: de97fa8dc6e42437ebb394d08c2e7ee4, type: 2}
+    weight: 3
+    minAmount: 5
+    maxAmount: 15
+  - itemDefinition: {fileID: 11400000, guid: c6d9e85ebbb034f069325daa2384c57f, type: 2}
+    weight: 1
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: df4de418c70a54da8929a4fda34f6d4c, type: 2}
+    weight: 5
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1d1c592f743404342bf5f67de0621550, type: 2}
+    weight: 12
+    minAmount: 1
+    maxAmount: 2
+  - itemDefinition: {fileID: 11400000, guid: 660846d0a32af455da8df11cc1a8a864, type: 2}
+    weight: 15
+    minAmount: 1
+    maxAmount: 5
+  - itemDefinition: {fileID: 11400000, guid: ba21910704af54c50adb04a47d5d44a2, type: 2}
+    weight: 15
+    minAmount: 1
+    maxAmount: 3
+  - itemDefinition: {fileID: 11400000, guid: e468543bee1f548afa747d68674e7739, type: 2}
+    weight: 3
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 1f51bfb8c857f4dffb63ceb2e9e2f0f9, type: 2}
+    weight: 5
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: b83c4b89a91b941c28f2598bc06f955e, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: c2ebc27eaa659450eba58d75d7932835, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 9fd3ab8707ddf47d386414c42361a632, type: 2}
+    weight: 8
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 2d494a77a077d44f983ed50556e9d242, type: 2}
+    weight: 8
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 0d323dffd67944fa4b1ac52b63199ec2, type: 2}
+    weight: 3
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 8979298a79fb144e1bac937cef99354e, type: 2}
+    weight: 3
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 37f51e4d72f244fe68245ade0f2ab58a, type: 2}
+    weight: 10
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 92c211ce6a269410182a4211a507e5c0, type: 2}
+    weight: 5
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 89d82fd5dde884cbca90978d26ad3b04, type: 2}
+    weight: 1
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: fd1aaa4a6579f4707b4c14027c244613, type: 2}
+    weight: 5
+    minAmount: 1
+    maxAmount: 1

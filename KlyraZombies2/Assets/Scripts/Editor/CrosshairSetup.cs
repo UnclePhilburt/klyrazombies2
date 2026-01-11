@@ -4,7 +4,7 @@ using UnityEditor;
 
 public class CrosshairSetup : EditorWindow
 {
-    [MenuItem("Tools/Create Crosshair")]
+    [MenuItem("Project Klyra/Weapons/Create Crosshair")]
     public static void CreateCrosshair()
     {
         // Find or create Canvas

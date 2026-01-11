@@ -15,7 +15,7 @@ public class InventoryBackpackSetup : EditorWindow
     private bool showResults = false;
     private string resultMessage = "";
 
-    [MenuItem("Tools/Inventory Backpack Setup")]
+    [MenuItem("Project Klyra/Inventory/Backpack Setup")]
     public static void ShowWindow()
     {
         GetWindow<InventoryBackpackSetup>("Backpack Setup");

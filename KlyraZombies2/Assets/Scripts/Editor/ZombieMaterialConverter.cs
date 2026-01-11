@@ -9,7 +9,7 @@ using System.Collections.Generic;
 /// </summary>
 public class ZombieMaterialConverter : EditorWindow
 {
-    [MenuItem("Tools/Convert Zombie Materials to URP")]
+    [MenuItem("Project Klyra/Zombies/Convert Materials to URP")]
     public static void ConvertMaterials()
     {
         string[] materialsPaths = new string[]
@@ -132,7 +132,7 @@ public class ZombieMaterialConverter : EditorWindow
             "OK");
     }
 
-    [MenuItem("Tools/Find and Assign Zombie Textures")]
+    [MenuItem("Project Klyra/Zombies/Find and Assign Textures")]
     public static void FindAndAssignTextures()
     {
         string materialsPath = "Assets/PolygonZombies/Materials";

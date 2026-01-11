@@ -7,7 +7,7 @@ public class FixInventoryBridgeSetup : EditorWindow
 {
     private GameObject m_Character;
 
-    [MenuItem("Tools/Fix Inventory Bridge Setup")]
+    [MenuItem("Project Klyra/Inventory/Fix Inventory Bridge Setup")]
     public static void ShowWindow()
     {
         GetWindow<FixInventoryBridgeSetup>("Fix Inventory Bridge");

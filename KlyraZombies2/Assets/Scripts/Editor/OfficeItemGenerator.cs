@@ -110,7 +110,7 @@ public class OfficeItemGenerator : EditorWindow
     // Cached categories
     private Dictionary<ItemType, ItemCategory> categoryCache = new Dictionary<ItemType, ItemCategory>();
 
-    [MenuItem("Tools/Generate Office Items")]
+    [MenuItem("Project Klyra/Items/Generate Office Items")]
     public static void ShowWindow()
     {
         GetWindow<OfficeItemGenerator>("Office Item Generator");

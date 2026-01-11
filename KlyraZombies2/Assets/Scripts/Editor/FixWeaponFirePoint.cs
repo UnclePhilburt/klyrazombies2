@@ -5,7 +5,7 @@ public class FixWeaponFirePoint : EditorWindow
 {
     private GameObject m_WeaponPrefab;
 
-    [MenuItem("Tools/Fix Weapon Fire Point")]
+    [MenuItem("Project Klyra/Weapons/Fix Weapon Fire Point")]
     public static void ShowWindow()
     {
         GetWindow<FixWeaponFirePoint>("Fix Weapon Fire Point");

@@ -11,7 +11,7 @@ public class ZombieSoundAssigner : EditorWindow
 {
     private static string SoundBasePath = "Assets/ZombieHorrorPackageFree/WAV";
 
-    [MenuItem("Tools/Assign Zombie Sounds")]
+    [MenuItem("Project Klyra/Zombies/Assign Sounds")]
     public static void AssignSounds()
     {
         // Load all sounds
@@ -150,7 +150,7 @@ public class ZombieSoundAssigner : EditorWindow
         }
     }
 
-    [MenuItem("Tools/Test Zombie Sounds")]
+    [MenuItem("Project Klyra/Zombies/Test Sounds")]
     public static void TestSounds()
     {
         // Quick test to verify sounds are loaded

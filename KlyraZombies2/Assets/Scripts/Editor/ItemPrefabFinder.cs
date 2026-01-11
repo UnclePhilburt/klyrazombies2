@@ -9,7 +9,7 @@ using System.Linq;
 /// </summary>
 public class ItemPrefabFinder : EditorWindow
 {
-    [MenuItem("Tools/Item Prefab Finder")]
+    [MenuItem("Project Klyra/Items/Item Prefab Finder")]
     public static void ShowWindow()
     {
         GetWindow<ItemPrefabFinder>("Item Prefab Finder");

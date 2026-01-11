@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using Opsive.UltimateInventorySystem.Core;
 using Opsive.UltimateInventorySystem.Core.DataStructures;
 using Opsive.UltimateInventorySystem.Core.InventoryCollections;
+using Opsive.Shared.Input;
 using TMPro;
 
 /// <summary>
@@ -39,6 +40,9 @@ public class SimpleInventoryUI : MonoBehaviour
     [Header("References (Auto-found if empty)")]
     [SerializeField] private Inventory m_PlayerInventory;
 
+    [Header("Settings UI")]
+    [SerializeField] private Sprite m_SettingsIcon; // Assign T_23_gear_.png from Clean Vector Icons
+
     // Generated UI elements
     private Canvas m_Canvas;
     private GameObject m_OverlayPanel;
@@ -68,6 +72,14 @@ public class SimpleInventoryUI : MonoBehaviour
     private string m_DragSourceEquipSlot = null;
     private ItemInfo m_DraggedItem;
     public bool IsDragging => m_IsDragging;
+
+    // Settings panel
+    private GameObject m_SettingsButton;
+    private GameObject m_SettingsPanel;
+    private Slider m_SensitivitySlider;
+    private TextMeshProUGUI m_SensitivityValueText;
+    private PlayerInput m_PlayerInput;
+    private const string SENSITIVITY_PREF_KEY = "MouseSensitivity";
 
     private class InventorySlot
     {
@@ -186,6 +198,13 @@ public class SimpleInventoryUI : MonoBehaviour
 
         // Create drag icon (hidden by default)
         CreateDragIcon();
+
+        // Create settings button and panel
+        CreateSettingsButton();
+        CreateSettingsPanel();
+
+        // Find player input for sensitivity control
+        FindPlayerInput();
     }
 
     private void CreateOverlay()
@@ -224,8 +243,8 @@ public class SimpleInventoryUI : MonoBehaviour
         float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
         float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
 
-        // Add space for equipment slots on left
-        float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
+        // Add space for equipment slots on left (2 columns now)
+        float equipWidth = 2 * m_EquipSlotSize + m_EquipSlotSpacing + m_EquipSlotSpacing; // 2 cols + spacing between cols + gap to grid
         float totalWidth = equipWidth + gridWidth;
 
         rect.sizeDelta = new Vector2(totalWidth, gridHeight);
@@ -249,15 +268,125 @@ public class SimpleInventoryUI : MonoBehaviour
         rect.pivot = new Vector2(0, 0.5f);
         rect.anchoredPosition = Vector2.zero;
 
-        // Calculate height for 3 equipment slots
+        // Single column layout: Backpack, Rifle, Pistol (3 slots)
         float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
-        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing;
-        rect.sizeDelta = new Vector2(m_EquipSlotSize, totalHeight);
+        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing; // 3 rows
+        float totalWidth = m_EquipSlotSize + m_EquipSlotSpacing; // 1 column
+        rect.sizeDelta = new Vector2(totalWidth, totalHeight);
 
-        // Create the three equipment slots (top to bottom: Backpack, Rifle, Pistol)
-        m_BackpackSlot = CreateEquipmentSlot("Backpack", 0);
-        m_RifleHolsterSlot = CreateEquipmentSlot("Rifle", 1);
-        m_PistolHolsterSlot = CreateEquipmentSlot("Pistol", 2);
+        // Create equipment slots in single column
+        m_BackpackSlot = CreateEquipmentSlotAt("Backpack", 0, 0);  // col 0, row 0
+        m_RifleHolsterSlot = CreateEquipmentSlotAt("Rifle", 0, 1); // col 0, row 1
+        m_PistolHolsterSlot = CreateEquipmentSlotAt("Pistol", 0, 2); // col 0, row 2
+    }
+
+    private EquipmentSlot CreateEquipmentSlotAt(string slotType, int col, int row)
+    {
+        var slot = new EquipmentSlot();
+        slot.SlotType = slotType;
+
+        float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
+        float x = col * (m_EquipSlotSize + m_EquipSlotSpacing);
+        float y = -row * (equipTotalHeight + m_EquipSlotSpacing);
+
+        // Slot container
+        slot.SlotObject = new GameObject($"EquipSlot_{slotType}");
+        slot.SlotObject.transform.SetParent(m_EquipmentContainer.transform, false);
+
+        var rect = slot.SlotObject.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0, 1);
+        rect.anchorMax = new Vector2(0, 1);
+        rect.pivot = new Vector2(0, 1);
+        rect.anchoredPosition = new Vector2(x, y);
+        rect.sizeDelta = new Vector2(m_EquipSlotSize, m_EquipSlotSize);
+
+        // Border (slightly different color for equipment)
+        var borderObj = new GameObject("Border");
+        borderObj.transform.SetParent(slot.SlotObject.transform, false);
+        var borderRect = borderObj.AddComponent<RectTransform>();
+        borderRect.anchorMin = Vector2.zero;
+        borderRect.anchorMax = Vector2.one;
+        borderRect.offsetMin = Vector2.zero;
+        borderRect.offsetMax = Vector2.zero;
+        slot.Border = borderObj.AddComponent<Image>();
+        slot.Border.color = new Color(0.6f, 0.5f, 0.3f, 0.8f); // Goldenish border for equipment
+
+        // Background
+        var bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(slot.SlotObject.transform, false);
+        var bgRect = bgObj.AddComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = new Vector2(2, 2);
+        bgRect.offsetMax = new Vector2(-2, -2);
+        slot.Background = bgObj.AddComponent<Image>();
+        slot.Background.color = new Color(0.15f, 0.15f, 0.2f, 0.9f); // Slightly blue tint
+
+        // Slot type label (top of slot)
+        var labelObj = new GameObject("Label");
+        labelObj.transform.SetParent(slot.SlotObject.transform, false);
+        var labelRect = labelObj.AddComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0.5f, 1);
+        labelRect.anchorMax = new Vector2(0.5f, 1);
+        labelRect.pivot = new Vector2(0.5f, 1);
+        labelRect.anchoredPosition = new Vector2(0, -4);
+        labelRect.sizeDelta = new Vector2(m_EquipSlotSize, 16);
+        slot.LabelText = labelObj.AddComponent<TextMeshProUGUI>();
+        slot.LabelText.text = slotType;
+        slot.LabelText.fontSize = 10;
+        slot.LabelText.color = new Color(0.7f, 0.7f, 0.7f, 0.8f);
+        slot.LabelText.alignment = TextAlignmentOptions.Top;
+        slot.LabelText.raycastTarget = false;
+
+        // Icon
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(slot.SlotObject.transform, false);
+        var iconRect = iconObj.AddComponent<RectTransform>();
+        iconRect.anchorMin = Vector2.zero;
+        iconRect.anchorMax = Vector2.one;
+        iconRect.offsetMin = new Vector2(8, 8);
+        iconRect.offsetMax = new Vector2(-8, -18); // Leave room for label at top
+        slot.IconImage = iconObj.AddComponent<Image>();
+        slot.IconImage.preserveAspect = true;
+        slot.IconImage.raycastTarget = false;
+        slot.IconImage.enabled = false;
+
+        // Item name text (below the slot)
+        var nameObj = new GameObject("Name");
+        nameObj.transform.SetParent(slot.SlotObject.transform, false);
+        var nameRect = nameObj.AddComponent<RectTransform>();
+        nameRect.anchorMin = new Vector2(0.5f, 0);
+        nameRect.anchorMax = new Vector2(0.5f, 0);
+        nameRect.pivot = new Vector2(0.5f, 1);
+        nameRect.anchoredPosition = new Vector2(0, -2);
+        nameRect.sizeDelta = new Vector2(m_EquipSlotSize + 10, m_NameHeight);
+        slot.NameText = nameObj.AddComponent<TextMeshProUGUI>();
+        slot.NameText.fontSize = 10;
+        slot.NameText.color = m_TextColor;
+        slot.NameText.alignment = TextAlignmentOptions.Top;
+        slot.NameText.enableWordWrapping = false;
+        slot.NameText.overflowMode = TextOverflowModes.Ellipsis;
+        slot.NameText.raycastTarget = false;
+
+        // Button for interaction
+        slot.Button = slot.SlotObject.AddComponent<Button>();
+        slot.Button.transition = Selectable.Transition.None;
+        string capturedType = slotType;
+        slot.Button.onClick.AddListener(() => OnEquipmentSlotClicked(capturedType));
+
+        // Hover effect
+        var hoverHandler = slot.SlotObject.AddComponent<SlotHoverHandler>();
+        hoverHandler.Initialize(slot.Background, new Color(0.15f, 0.15f, 0.2f, 0.9f), new Color(0.25f, 0.25f, 0.3f, 0.95f));
+
+        // Drag handler (to drag equipped items out)
+        var dragHandler = slot.SlotObject.AddComponent<EquipmentSlotDragHandler>();
+        dragHandler.Initialize(this, slotType, slot.IconImage);
+
+        // Drop handler (to drop items into equipment slot)
+        var dropHandler = slot.SlotObject.AddComponent<EquipmentSlotDropHandler>();
+        dropHandler.Initialize(this, slotType, slot.Border);
+
+        return slot;
     }
 
     private EquipmentSlot CreateEquipmentSlot(string slotType, int index)
@@ -613,6 +742,299 @@ public class SimpleInventoryUI : MonoBehaviour
         m_DragIcon.SetActive(false);
     }
 
+    private void CreateSettingsButton()
+    {
+        m_SettingsButton = new GameObject("SettingsButton");
+        m_SettingsButton.transform.SetParent(m_OverlayPanel.transform, false);
+
+        var rect = m_SettingsButton.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(1, 1); // Top-right
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(1, 1);
+        rect.anchoredPosition = new Vector2(-20, -20);
+        rect.sizeDelta = new Vector2(40, 40);
+
+        // Background
+        var image = m_SettingsButton.AddComponent<Image>();
+        image.color = new Color(0.3f, 0.3f, 0.3f, 0.9f);
+
+        // Button
+        var button = m_SettingsButton.AddComponent<Button>();
+        button.targetGraphic = image;
+        button.onClick.AddListener(ToggleSettingsPanel);
+
+        // Gear icon
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(m_SettingsButton.transform, false);
+        var iconRect = iconObj.AddComponent<RectTransform>();
+        iconRect.anchorMin = Vector2.zero;
+        iconRect.anchorMax = Vector2.one;
+        iconRect.offsetMin = new Vector2(6, 6);
+        iconRect.offsetMax = new Vector2(-6, -6);
+
+        var iconImage = iconObj.AddComponent<Image>();
+        iconImage.preserveAspect = true;
+        iconImage.raycastTarget = false;
+
+        // Use assigned sprite or try to load from Resources
+        if (m_SettingsIcon != null)
+        {
+            iconImage.sprite = m_SettingsIcon;
+            iconImage.color = Color.white;
+        }
+        else
+        {
+            // Try to load from Resources as fallback
+            var loadedIcon = Resources.Load<Sprite>("Icons/T_23_gear_");
+            if (loadedIcon != null)
+            {
+                iconImage.sprite = loadedIcon;
+                iconImage.color = Color.white;
+            }
+            else
+            {
+                // Last fallback - just show a white square with "S" text
+                iconImage.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+
+                var textObj = new GameObject("FallbackText");
+                textObj.transform.SetParent(iconObj.transform, false);
+                var textRect = textObj.AddComponent<RectTransform>();
+                textRect.anchorMin = Vector2.zero;
+                textRect.anchorMax = Vector2.one;
+                textRect.offsetMin = Vector2.zero;
+                textRect.offsetMax = Vector2.zero;
+
+                var tmp = textObj.AddComponent<TextMeshProUGUI>();
+                tmp.text = "S";
+                tmp.fontSize = 20;
+                tmp.fontStyle = FontStyles.Bold;
+                tmp.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.raycastTarget = false;
+            }
+        }
+    }
+
+    private void CreateSettingsPanel()
+    {
+        m_SettingsPanel = new GameObject("SettingsPanel");
+        m_SettingsPanel.transform.SetParent(m_OverlayPanel.transform, false);
+
+        var rect = m_SettingsPanel.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(1, 1); // Top-right
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(1, 1);
+        rect.anchoredPosition = new Vector2(-20, -70);
+        rect.sizeDelta = new Vector2(280, 120);
+
+        // Background
+        var image = m_SettingsPanel.AddComponent<Image>();
+        image.color = new Color(0.15f, 0.15f, 0.15f, 0.95f);
+
+        // Title
+        var titleObj = new GameObject("Title");
+        titleObj.transform.SetParent(m_SettingsPanel.transform, false);
+        var titleRect = titleObj.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0, 1);
+        titleRect.anchorMax = new Vector2(1, 1);
+        titleRect.pivot = new Vector2(0.5f, 1);
+        titleRect.anchoredPosition = new Vector2(0, -10);
+        titleRect.sizeDelta = new Vector2(0, 25);
+
+        var titleText = titleObj.AddComponent<TextMeshProUGUI>();
+        titleText.text = "Settings";
+        titleText.fontSize = 18;
+        titleText.fontStyle = FontStyles.Bold;
+        titleText.color = Color.white;
+        titleText.alignment = TextAlignmentOptions.Center;
+        titleText.raycastTarget = false;
+
+        // Sensitivity label
+        var labelObj = new GameObject("SensitivityLabel");
+        labelObj.transform.SetParent(m_SettingsPanel.transform, false);
+        var labelRect = labelObj.AddComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0, 1);
+        labelRect.anchorMax = new Vector2(1, 1);
+        labelRect.pivot = new Vector2(0, 1);
+        labelRect.anchoredPosition = new Vector2(15, -40);
+        labelRect.sizeDelta = new Vector2(200, 20);
+
+        var labelText = labelObj.AddComponent<TextMeshProUGUI>();
+        labelText.text = "Mouse Sensitivity";
+        labelText.fontSize = 14;
+        labelText.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        labelText.alignment = TextAlignmentOptions.Left;
+        labelText.raycastTarget = false;
+
+        // Sensitivity value display
+        var valueObj = new GameObject("SensitivityValue");
+        valueObj.transform.SetParent(m_SettingsPanel.transform, false);
+        var valueRect = valueObj.AddComponent<RectTransform>();
+        valueRect.anchorMin = new Vector2(1, 1);
+        valueRect.anchorMax = new Vector2(1, 1);
+        valueRect.pivot = new Vector2(1, 1);
+        valueRect.anchoredPosition = new Vector2(-15, -40);
+        valueRect.sizeDelta = new Vector2(50, 20);
+
+        m_SensitivityValueText = valueObj.AddComponent<TextMeshProUGUI>();
+        m_SensitivityValueText.text = "1.0";
+        m_SensitivityValueText.fontSize = 14;
+        m_SensitivityValueText.color = Color.white;
+        m_SensitivityValueText.alignment = TextAlignmentOptions.Right;
+        m_SensitivityValueText.raycastTarget = false;
+
+        // Slider
+        CreateSensitivitySlider();
+
+        m_SettingsPanel.SetActive(false);
+    }
+
+    private void CreateSensitivitySlider()
+    {
+        var sliderObj = new GameObject("SensitivitySlider");
+        sliderObj.transform.SetParent(m_SettingsPanel.transform, false);
+
+        var sliderRect = sliderObj.AddComponent<RectTransform>();
+        sliderRect.anchorMin = new Vector2(0, 1);
+        sliderRect.anchorMax = new Vector2(1, 1);
+        sliderRect.pivot = new Vector2(0.5f, 1);
+        sliderRect.anchoredPosition = new Vector2(0, -70);
+        sliderRect.sizeDelta = new Vector2(-30, 30);
+
+        m_SensitivitySlider = sliderObj.AddComponent<Slider>();
+        m_SensitivitySlider.minValue = 0.1f;
+        m_SensitivitySlider.maxValue = 3.0f;
+        m_SensitivitySlider.wholeNumbers = false;
+
+        // Load saved sensitivity
+        float savedSensitivity = PlayerPrefs.GetFloat(SENSITIVITY_PREF_KEY, 1.0f);
+        m_SensitivitySlider.value = savedSensitivity;
+
+        // Background
+        var bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(sliderObj.transform, false);
+        var bgRect = bgObj.AddComponent<RectTransform>();
+        bgRect.anchorMin = new Vector2(0, 0.25f);
+        bgRect.anchorMax = new Vector2(1, 0.75f);
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+
+        var bgImage = bgObj.AddComponent<Image>();
+        bgImage.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+
+        // Fill area
+        var fillAreaObj = new GameObject("Fill Area");
+        fillAreaObj.transform.SetParent(sliderObj.transform, false);
+        var fillAreaRect = fillAreaObj.AddComponent<RectTransform>();
+        fillAreaRect.anchorMin = new Vector2(0, 0.25f);
+        fillAreaRect.anchorMax = new Vector2(1, 0.75f);
+        fillAreaRect.offsetMin = new Vector2(5, 0);
+        fillAreaRect.offsetMax = new Vector2(-5, 0);
+
+        var fillObj = new GameObject("Fill");
+        fillObj.transform.SetParent(fillAreaObj.transform, false);
+        var fillRect = fillObj.AddComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = Vector2.zero;
+        fillRect.offsetMax = Vector2.zero;
+
+        var fillImage = fillObj.AddComponent<Image>();
+        fillImage.color = new Color(0.4f, 0.6f, 0.8f, 1f);
+
+        m_SensitivitySlider.fillRect = fillRect;
+
+        // Handle slide area
+        var handleAreaObj = new GameObject("Handle Slide Area");
+        handleAreaObj.transform.SetParent(sliderObj.transform, false);
+        var handleAreaRect = handleAreaObj.AddComponent<RectTransform>();
+        handleAreaRect.anchorMin = Vector2.zero;
+        handleAreaRect.anchorMax = Vector2.one;
+        handleAreaRect.offsetMin = new Vector2(10, 0);
+        handleAreaRect.offsetMax = new Vector2(-10, 0);
+
+        var handleObj = new GameObject("Handle");
+        handleObj.transform.SetParent(handleAreaObj.transform, false);
+        var handleRect = handleObj.AddComponent<RectTransform>();
+        handleRect.sizeDelta = new Vector2(20, 0);
+
+        var handleImage = handleObj.AddComponent<Image>();
+        handleImage.color = Color.white;
+
+        m_SensitivitySlider.targetGraphic = handleImage;
+        m_SensitivitySlider.handleRect = handleRect;
+
+        // Add listener
+        m_SensitivitySlider.onValueChanged.AddListener(OnSensitivityChanged);
+
+        // Update initial display
+        UpdateSensitivityDisplay(savedSensitivity);
+    }
+
+    private void FindPlayerInput()
+    {
+        // Find PlayerInput on the player character
+        if (m_PlayerInventory != null)
+        {
+            m_PlayerInput = m_PlayerInventory.GetComponent<PlayerInput>();
+        }
+
+        if (m_PlayerInput == null)
+        {
+            // Try to find on player tagged object
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                m_PlayerInput = player.GetComponent<PlayerInput>();
+            }
+        }
+
+        if (m_PlayerInput == null)
+        {
+            // Last resort - find any PlayerInput
+            m_PlayerInput = FindFirstObjectByType<PlayerInput>();
+        }
+
+        // Apply saved sensitivity
+        if (m_PlayerInput != null)
+        {
+            float savedSensitivity = PlayerPrefs.GetFloat(SENSITIVITY_PREF_KEY, 1.0f);
+            m_PlayerInput.LookSensitivityMultiplier = savedSensitivity;
+        }
+    }
+
+    private void ToggleSettingsPanel()
+    {
+        if (m_SettingsPanel != null)
+        {
+            m_SettingsPanel.SetActive(!m_SettingsPanel.activeSelf);
+        }
+    }
+
+    private void OnSensitivityChanged(float value)
+    {
+        // Apply to player input
+        if (m_PlayerInput != null)
+        {
+            m_PlayerInput.LookSensitivityMultiplier = value;
+        }
+
+        // Save preference
+        PlayerPrefs.SetFloat(SENSITIVITY_PREF_KEY, value);
+        PlayerPrefs.Save();
+
+        // Update display
+        UpdateSensitivityDisplay(value);
+    }
+
+    private void UpdateSensitivityDisplay(float value)
+    {
+        if (m_SensitivityValueText != null)
+        {
+            m_SensitivityValueText.text = value.ToString("F1");
+        }
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(m_ToggleKey))
@@ -655,7 +1077,12 @@ public class SimpleInventoryUI : MonoBehaviour
         if (m_OverlayPanel != null)
             m_OverlayPanel.SetActive(open);
 
-        m_ContextMenu?.SetActive(false);
+        if (m_ContextMenu != null)
+            m_ContextMenu.SetActive(false);
+
+        // Close settings panel when closing inventory
+        if (!open && m_SettingsPanel != null)
+            m_SettingsPanel.SetActive(false);
 
         Cursor.visible = open;
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
@@ -672,6 +1099,13 @@ public class SimpleInventoryUI : MonoBehaviour
         if (open)
         {
             RefreshUI();
+
+            // Refresh sensitivity display from current value
+            if (m_PlayerInput != null && m_SensitivitySlider != null)
+            {
+                m_SensitivitySlider.SetValueWithoutNotify(m_PlayerInput.LookSensitivityMultiplier);
+                UpdateSensitivityDisplay(m_PlayerInput.LookSensitivityMultiplier);
+            }
         }
     }
 
@@ -782,6 +1216,7 @@ public class SimpleInventoryUI : MonoBehaviour
             if (category == null) continue;
 
             string categoryName = category.name;
+            string itemName = item.name.ToLower();
 
             // Determine which slot this item goes in
             EquipmentSlot targetSlot = null;
@@ -794,7 +1229,6 @@ public class SimpleInventoryUI : MonoBehaviour
             // Check for ranged weapons - try to distinguish rifle vs pistol by name
             else if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
             {
-                string itemName = item.name.ToLower();
                 if (itemName.Contains("pistol") || itemName.Contains("handgun") ||
                     itemName.Contains("revolver") || itemName.Contains("sr-9") ||
                     itemName.Contains("9mm") || itemName.Contains("glock"))
@@ -846,6 +1280,14 @@ public class SimpleInventoryUI : MonoBehaviour
         slot.EquippedItem = default;
     }
 
+    private EquipmentSlot GetEquipmentSlotByType(string slotType)
+    {
+        if (slotType == "Backpack") return m_BackpackSlot;
+        if (slotType == "Rifle") return m_RifleHolsterSlot;
+        if (slotType == "Pistol") return m_PistolHolsterSlot;
+        return null;
+    }
+
     #region Drag and Drop
 
     public void BeginDragFromInventory(int slotIndex, Sprite icon)
@@ -874,11 +1316,7 @@ public class SimpleInventoryUI : MonoBehaviour
 
     public void BeginDragFromEquipment(string slotType, Sprite icon)
     {
-        EquipmentSlot slot = null;
-        if (slotType == "Backpack") slot = m_BackpackSlot;
-        else if (slotType == "Rifle") slot = m_RifleHolsterSlot;
-        else if (slotType == "Pistol") slot = m_PistolHolsterSlot;
-
+        EquipmentSlot slot = GetEquipmentSlotByType(slotType);
         if (slot == null || slot.EquippedItem.Item == null) return;
 
         m_DraggedItem = slot.EquippedItem;
@@ -918,6 +1356,7 @@ public class SimpleInventoryUI : MonoBehaviour
             if (category == null) return;
 
             string categoryName = category.name;
+            string itemName = m_DraggedItem.Item.name.ToLower();
             bool canEquip = false;
 
             if (slotType == "Backpack" && (categoryName.Contains("Backpack") || categoryName.Contains("Bag")))
@@ -929,7 +1368,6 @@ public class SimpleInventoryUI : MonoBehaviour
                 if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
                 {
                     // Check if pistol should go to pistol slot
-                    string itemName = m_DraggedItem.Item.name.ToLower();
                     bool isPistol = itemName.Contains("pistol") || itemName.Contains("handgun") ||
                                     itemName.Contains("revolver") || itemName.Contains("sr-9") ||
                                     itemName.Contains("9mm") || itemName.Contains("glock");
@@ -944,10 +1382,7 @@ public class SimpleInventoryUI : MonoBehaviour
             if (canEquip)
             {
                 // Unequip current item in slot if any
-                EquipmentSlot targetSlot = null;
-                if (slotType == "Backpack") targetSlot = m_BackpackSlot;
-                else if (slotType == "Rifle") targetSlot = m_RifleHolsterSlot;
-                else if (slotType == "Pistol") targetSlot = m_PistolHolsterSlot;
+                EquipmentSlot targetSlot = GetEquipmentSlotByType(slotType);
 
                 if (targetSlot != null && targetSlot.EquippedItem.Item != null)
                 {
@@ -955,23 +1390,19 @@ public class SimpleInventoryUI : MonoBehaviour
                 }
 
                 // Equip the dragged item
-                TryEquipItem(m_DraggedItem);
+                TryEquipItem(m_DraggedItem, slotType);
             }
         }
         // If dragging from another equipment slot, swap or move
         else if (m_DragSourceEquipSlot != null && m_DragSourceEquipSlot != slotType)
         {
             // For now, just unequip and re-equip to the new slot
-            // This is a simplified swap - in reality you'd want smarter logic
-            EquipmentSlot sourceSlot = null;
-            if (m_DragSourceEquipSlot == "Backpack") sourceSlot = m_BackpackSlot;
-            else if (m_DragSourceEquipSlot == "Rifle") sourceSlot = m_RifleHolsterSlot;
-            else if (m_DragSourceEquipSlot == "Pistol") sourceSlot = m_PistolHolsterSlot;
+            EquipmentSlot sourceSlot = GetEquipmentSlotByType(m_DragSourceEquipSlot);
 
             if (sourceSlot != null)
             {
                 UnequipItem(sourceSlot);
-                TryEquipItem(m_DraggedItem);
+                TryEquipItem(m_DraggedItem, slotType);
             }
         }
 
@@ -986,10 +1417,7 @@ public class SimpleInventoryUI : MonoBehaviour
         // If dragging from equipment slot, unequip it
         if (m_DragSourceEquipSlot != null)
         {
-            EquipmentSlot sourceSlot = null;
-            if (m_DragSourceEquipSlot == "Backpack") sourceSlot = m_BackpackSlot;
-            else if (m_DragSourceEquipSlot == "Rifle") sourceSlot = m_RifleHolsterSlot;
-            else if (m_DragSourceEquipSlot == "Pistol") sourceSlot = m_PistolHolsterSlot;
+            EquipmentSlot sourceSlot = GetEquipmentSlotByType(m_DragSourceEquipSlot);
 
             if (sourceSlot != null)
             {
@@ -1005,11 +1433,7 @@ public class SimpleInventoryUI : MonoBehaviour
 
     private void OnEquipmentSlotClicked(string slotType)
     {
-        EquipmentSlot slot = null;
-        if (slotType == "Backpack") slot = m_BackpackSlot;
-        else if (slotType == "Rifle") slot = m_RifleHolsterSlot;
-        else if (slotType == "Pistol") slot = m_PistolHolsterSlot;
-
+        EquipmentSlot slot = GetEquipmentSlotByType(slotType);
         if (slot == null) return;
 
         m_SelectedEquipSlot = slot;
@@ -1072,7 +1496,7 @@ public class SimpleInventoryUI : MonoBehaviour
         RefreshUI();
     }
 
-    private void TryEquipItem(ItemInfo itemInfo)
+    private void TryEquipItem(ItemInfo itemInfo, string targetSlotType = null)
     {
         if (itemInfo.Item == null) return;
 
@@ -1084,25 +1508,33 @@ public class SimpleInventoryUI : MonoBehaviour
         }
 
         string categoryName = category.name;
+        string itemName = itemInfo.Item.name.ToLower();
         EquipmentSlot targetSlot = null;
 
-        // Determine target slot based on category
-        if (categoryName.Contains("Backpack") || categoryName.Contains("Bag"))
+        // If target slot type is specified, use that
+        if (!string.IsNullOrEmpty(targetSlotType))
         {
-            targetSlot = m_BackpackSlot;
+            targetSlot = GetEquipmentSlotByType(targetSlotType);
         }
-        else if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
+        else
         {
-            string itemName = itemInfo.Item.name.ToLower();
-            if (itemName.Contains("pistol") || itemName.Contains("handgun") ||
-                itemName.Contains("revolver") || itemName.Contains("sr-9") ||
-                itemName.Contains("9mm") || itemName.Contains("glock"))
+            // Determine target slot based on category
+            if (categoryName.Contains("Backpack") || categoryName.Contains("Bag"))
             {
-                targetSlot = m_PistolHolsterSlot;
+                targetSlot = m_BackpackSlot;
             }
-            else
+            else if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
             {
-                targetSlot = m_RifleHolsterSlot;
+                if (itemName.Contains("pistol") || itemName.Contains("handgun") ||
+                    itemName.Contains("revolver") || itemName.Contains("sr-9") ||
+                    itemName.Contains("9mm") || itemName.Contains("glock"))
+                {
+                    targetSlot = m_PistolHolsterSlot;
+                }
+                else
+                {
+                    targetSlot = m_RifleHolsterSlot;
+                }
             }
         }
 
@@ -1129,6 +1561,13 @@ public class SimpleInventoryUI : MonoBehaviour
             // Add to equippable
             equipCollection.AddItem(itemInfo);
             Debug.Log($"[SimpleInventoryUI] Equipped {itemInfo.Item.name} to {targetSlot.SlotType}");
+
+            // Notify clothing handler directly (UIS events may not fire properly)
+            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+            if (clothingHandler != null)
+            {
+                clothingHandler.OnClothingEquipped(itemInfo.Item.ItemDefinition);
+            }
         }
     }
 
@@ -1144,6 +1583,13 @@ public class SimpleInventoryUI : MonoBehaviour
 
         if (defaultCollection != null && equipCollection != null)
         {
+            // Notify clothing handler BEFORE removing (so it knows what to unequip)
+            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+            if (clothingHandler != null)
+            {
+                clothingHandler.OnClothingUnequipped(itemInfo.Item.ItemDefinition);
+            }
+
             // Remove from equippable
             equipCollection.RemoveItem(itemInfo);
             // Add to default
@@ -1223,8 +1669,9 @@ public class InventorySlotDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (m_IconImage == null || !m_IconImage.enabled) return;
-        m_InventoryUI.BeginDragFromInventory(m_SlotIndex, m_IconImage.sprite);
+        // Allow dragging even without an icon (for items without icons like clothing)
+        Sprite sprite = (m_IconImage != null && m_IconImage.enabled) ? m_IconImage.sprite : null;
+        m_InventoryUI.BeginDragFromInventory(m_SlotIndex, sprite);
     }
 
     public void OnDrag(PointerEventData eventData)

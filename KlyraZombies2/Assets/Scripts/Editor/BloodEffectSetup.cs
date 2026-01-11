@@ -8,7 +8,7 @@ using System.Collections.Generic;
 /// </summary>
 public class BloodEffectSetup : EditorWindow
 {
-    [MenuItem("Tools/Setup Blood Effects")]
+    [MenuItem("Project Klyra/Effects/Setup Blood Effects")]
     public static void SetupBloodEffects()
     {
         // Find or create BloodEffectManager in scene

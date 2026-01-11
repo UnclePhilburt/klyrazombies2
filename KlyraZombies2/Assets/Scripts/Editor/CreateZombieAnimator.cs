@@ -5,7 +5,7 @@ using UnityEditor.Animations;
 
 public class CreateZombieAnimator
 {
-    [MenuItem("Tools/Create Zombie Animator (Kevin Iglesias)")]
+    [MenuItem("Project Klyra/Zombies/Create Animator (Kevin Iglesias)")]
     public static void Create()
     {
         string animPath = "Assets/Kevin Iglesias/Zombie Animations/Animations";

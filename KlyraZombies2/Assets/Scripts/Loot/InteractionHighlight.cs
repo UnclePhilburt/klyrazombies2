@@ -192,6 +192,12 @@ public class InteractionHighlight : MonoBehaviour
             {
                 m_SearchIcon = Resources.Load<Sprite>("Icons/Search");
             }
+            if (m_SearchIcon == null)
+            {
+                // Create a fallback circle sprite
+                m_SearchIcon = CreateCircleSprite(64, Color.white);
+                Debug.Log("[InteractionHighlight] Created fallback circle sprite");
+            }
         }
 
         m_IconObject = new GameObject("SearchIcon");
@@ -201,6 +207,7 @@ public class InteractionHighlight : MonoBehaviour
         m_IconRenderer = m_IconObject.AddComponent<SpriteRenderer>();
         m_IconRenderer.sprite = m_SearchIcon;
         m_IconRenderer.sortingOrder = 32767;
+        m_IconRenderer.color = Color.white;
 
         Material iconMaterial = CreateOverlaySpriteMaterial();
         if (iconMaterial != null)
@@ -219,6 +226,84 @@ public class InteractionHighlight : MonoBehaviour
         {
             m_IconObject.transform.localScale = Vector3.one * m_IconSize;
         }
+    }
+
+    private Sprite CreateCircleSprite(int size, Color color)
+    {
+        // Create a magnifying glass icon
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+
+        // Clear the texture
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+                texture.SetPixel(x, y, Color.clear);
+
+        float center = size * 0.38f; // Offset center for the glass part
+        float glassRadius = size * 0.32f;
+        float ringThickness = size * 0.08f;
+
+        // Draw the magnifying glass circle (ring)
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x - center;
+                float dy = y - (size - center);
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+
+                // Outer edge of ring
+                if (dist <= glassRadius + ringThickness / 2 && dist >= glassRadius - ringThickness / 2)
+                {
+                    float edgeDist = Mathf.Min(
+                        Mathf.Abs(dist - (glassRadius - ringThickness / 2)),
+                        Mathf.Abs(dist - (glassRadius + ringThickness / 2))
+                    );
+                    float alpha = Mathf.Clamp01(edgeDist / 1.5f + 0.3f);
+                    texture.SetPixel(x, y, new Color(color.r, color.g, color.b, alpha));
+                }
+                // Glass interior (slightly transparent)
+                else if (dist < glassRadius - ringThickness / 2)
+                {
+                    texture.SetPixel(x, y, new Color(color.r, color.g, color.b, 0.15f));
+                }
+            }
+        }
+
+        // Draw the handle (diagonal line from bottom-left of glass)
+        float handleStartX = center - glassRadius * 0.7f;
+        float handleStartY = size - center - glassRadius * 0.7f;
+        float handleLength = size * 0.35f;
+        float handleThickness = size * 0.1f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                // Distance from handle line (45 degree angle going to bottom-left)
+                float px = x - handleStartX;
+                float py = y - handleStartY;
+
+                // Project onto handle direction (normalized: -0.707, -0.707)
+                float proj = (-px - py) * 0.707f;
+
+                if (proj > 0 && proj < handleLength)
+                {
+                    // Distance from handle center line
+                    float perpDist = Mathf.Abs((-py + px) * 0.707f);
+
+                    if (perpDist < handleThickness / 2)
+                    {
+                        float alpha = Mathf.Clamp01(1f - perpDist / (handleThickness / 2) * 0.3f);
+                        Color existing = texture.GetPixel(x, y);
+                        if (existing.a < alpha)
+                            texture.SetPixel(x, y, new Color(color.r, color.g, color.b, alpha));
+                    }
+                }
+            }
+        }
+
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
     }
 
     private Material CreateOverlaySpriteMaterial()
@@ -276,12 +361,11 @@ public class InteractionHighlight : MonoBehaviour
                     meshToUse = meshFilter.sharedMesh;
                 }
             }
-            else if (renderer is SkinnedMeshRenderer skinnedRenderer)
+            else if (renderer is SkinnedMeshRenderer)
             {
-                if (skinnedRenderer.sharedMesh != null)
-                {
-                    meshToUse = skinnedRenderer.sharedMesh;
-                }
+                // Skip skinned meshes - they deform with animation/ragdoll
+                // and would show T-pose outline instead of current pose
+                continue;
             }
 
             if (meshToUse == null) continue;
@@ -482,6 +566,33 @@ public class InteractionHighlight : MonoBehaviour
             {
                 m_IconObject.SetActive(false);
             }
+        }
+    }
+
+    /// <summary>
+    /// Force the icon to show/hide (used by LootableInteraction for proximity-based detection)
+    /// </summary>
+    public void ForceShowIcon(bool show)
+    {
+        Debug.Log($"[InteractionHighlight] ForceShowIcon({show}) on {gameObject.name}, m_IconObject: {(m_IconObject != null ? "EXISTS" : "NULL")}");
+
+        m_IsTargeted = show;
+
+        // If icon hasn't been created yet (Start() hasn't run), create it now
+        if (m_IconObject == null && show)
+        {
+            Debug.Log($"[InteractionHighlight] Creating icon for {gameObject.name}");
+            // Initialize everything we need
+            m_PlayerCamera = Camera.main;
+            CalculateBounds();
+            CreateIcon();
+            Debug.Log($"[InteractionHighlight] Icon created: {(m_IconObject != null ? "SUCCESS" : "FAILED")}, sprite: {(m_SearchIcon != null ? m_SearchIcon.name : "NULL")}");
+        }
+
+        if (m_IconObject != null)
+        {
+            m_IconObject.SetActive(show);
+            Debug.Log($"[InteractionHighlight] Icon active: {m_IconObject.activeSelf}, position: {m_IconObject.transform.position}");
         }
     }
 

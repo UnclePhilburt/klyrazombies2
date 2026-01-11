@@ -440,8 +440,8 @@ MonoBehaviour:
   m_SpawnParent:
     m_ID: -1
     m_Object: {fileID: 0}
-  m_LocalSpawnPosition: {x: 0, y: 0, z: 0}
-  m_LocalSpawnRotation: {x: 359, y: 134, z: 275}
+  m_LocalSpawnPosition: {x: 0.14, y: 0.03, z: -0.03}
+  m_LocalSpawnRotation: {x: 359, y: 99, z: 275}
   m_LocalSpawnScale: {x: 1, y: 1, z: 1}
   m_NonDominantHandIKTarget: {fileID: 0}
   m_NonDominantHandIKTargetHint: {fileID: 0}
@@ -471,7 +471,7 @@ MonoBehaviour:
   m_DebugLogger:
     m_DebugAction: 0
     m_CharacterItemActionDebugModuleType: 0
-  m_UseRate: 0.1
+  m_UseRate: 0.15
   m_FaceTarget: 1
   m_StopUseAbilityOnCompleteDelay: 1
   m_UseEvent:
@@ -894,7 +894,7 @@ MonoBehaviour:
         m_SetDamageImpactData: 1
         m_InvokeOnObjectImpact: 0
         m_DamageProcessor: {fileID: 0}
-        m_DamageAmount: 10
+        m_DamageAmount: 15
         m_ImpactForce: 2
         m_ImpactForceFrames: 15
         m_ImpactRadius: 0

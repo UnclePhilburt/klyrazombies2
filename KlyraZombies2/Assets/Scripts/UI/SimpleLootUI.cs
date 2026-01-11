@@ -43,8 +43,8 @@ public class SimpleLootUI : MonoBehaviour
     [SerializeField] [Range(0f, 1f)] private float m_InventorySoundVolume = 0.6f;
 
     [Header("Equipment Slots")]
-    [SerializeField] private float m_EquipSlotSize = 80f;
-    [SerializeField] private float m_EquipSlotSpacing = 20f;
+    [SerializeField] private float m_EquipSlotSize = 70f;
+    [SerializeField] private float m_EquipSlotSpacing = 10f;
 
     [Header("Colors")]
     [SerializeField] private Color m_OverlayColor = new Color(0, 0, 0, 0.85f);
@@ -147,12 +147,19 @@ public class SimpleLootUI : MonoBehaviour
 
     private void Initialize()
     {
-        if (m_Initialized) return;
+        if (m_Initialized)
+        {
+            Debug.Log("[SimpleLootUI] Already initialized, skipping");
+            return;
+        }
 
+        Debug.Log("[SimpleLootUI] Initializing...");
         CreateUI();
+        Debug.Log($"[SimpleLootUI] CreateUI complete. OverlayPanel: {(m_OverlayPanel != null ? "EXISTS" : "NULL")}");
         SetOpen(false);
 
         m_Initialized = true;
+        Debug.Log("[SimpleLootUI] Initialization complete");
     }
 
     private void CreateUI()
@@ -196,8 +203,10 @@ public class SimpleLootUI : MonoBehaviour
 
     private void CreateOverlay()
     {
+        Debug.Log($"[SimpleLootUI] CreateOverlay - Canvas: {(m_Canvas != null ? m_Canvas.name : "NULL")}");
         m_OverlayPanel = new GameObject("LootOverlay");
         m_OverlayPanel.transform.SetParent(m_Canvas.transform, false);
+        Debug.Log($"[SimpleLootUI] Created LootOverlay, parent: {m_OverlayPanel.transform.parent?.name}");
 
         var rect = m_OverlayPanel.AddComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
@@ -224,11 +233,12 @@ public class SimpleLootUI : MonoBehaviour
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
 
-        // Calculate size: Equipment + Player Grid + Gap + Container Grid
+        // Calculate size: Equipment (1 col) + Player Grid + Gap + Container Grid
         float slotTotalHeight = m_SlotSize + m_NameHeight;
         float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
         float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
 
+        // Equipment is now 1 column: 1 slot + gap to inventory grid
         float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
         float totalWidth = equipWidth + gridWidth + m_GridGap + gridWidth;
         float totalHeight = gridHeight + 40;
@@ -242,37 +252,40 @@ public class SimpleLootUI : MonoBehaviour
         m_EquipmentContainer.transform.SetParent(m_ContentPanel.transform, false);
 
         var rect = m_EquipmentContainer.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0, 0.5f);
-        rect.anchorMax = new Vector2(0, 0.5f);
-        rect.pivot = new Vector2(0, 0.5f);
-        rect.anchoredPosition = Vector2.zero;
+        rect.anchorMin = new Vector2(0, 1);
+        rect.anchorMax = new Vector2(0, 1);
+        rect.pivot = new Vector2(0, 1);
+        rect.anchoredPosition = new Vector2(0, -35); // Below the label
 
+        // Single column layout: Backpack, Rifle, Pistol (3 slots)
         float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
-        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing;
-        rect.sizeDelta = new Vector2(m_EquipSlotSize, totalHeight);
+        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing; // 3 rows
+        float totalWidth = m_EquipSlotSize + m_EquipSlotSpacing; // 1 column
+        rect.sizeDelta = new Vector2(totalWidth, totalHeight);
 
-        // Create slots: Backpack, Rifle, Pistol
-        m_BackpackSlot = CreateEquipSlot("Backpack", 0);
-        m_RifleSlot = CreateEquipSlot("Rifle", 1);
-        m_PistolSlot = CreateEquipSlot("Pistol", 2);
+        // Create equipment slots in single column
+        m_BackpackSlot = CreateEquipSlotAt("Backpack", 0, 0);  // col 0, row 0
+        m_RifleSlot = CreateEquipSlotAt("Rifle", 0, 1);        // col 0, row 1
+        m_PistolSlot = CreateEquipSlotAt("Pistol", 0, 2);      // col 0, row 2
     }
 
-    private EquipSlot CreateEquipSlot(string slotType, int index)
+    private EquipSlot CreateEquipSlotAt(string slotType, int col, int row)
     {
         var slot = new EquipSlot();
         slot.SlotType = slotType;
 
         float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
-        float y = -index * (equipTotalHeight + m_EquipSlotSpacing);
+        float x = col * (m_EquipSlotSize + m_EquipSlotSpacing);
+        float y = -row * (equipTotalHeight + m_EquipSlotSpacing);
 
         slot.SlotObject = new GameObject($"EquipSlot_{slotType}");
         slot.SlotObject.transform.SetParent(m_EquipmentContainer.transform, false);
 
         var rect = slot.SlotObject.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 1);
-        rect.anchorMax = new Vector2(0.5f, 1);
-        rect.pivot = new Vector2(0.5f, 1);
-        rect.anchoredPosition = new Vector2(0, y);
+        rect.anchorMin = new Vector2(0, 1);
+        rect.anchorMax = new Vector2(0, 1);
+        rect.pivot = new Vector2(0, 1);
+        rect.anchoredPosition = new Vector2(x, y);
         rect.sizeDelta = new Vector2(m_EquipSlotSize, m_EquipSlotSize);
 
         // Border
@@ -366,7 +379,7 @@ public class SimpleLootUI : MonoBehaviour
 
     private void CreatePlayerGrid()
     {
-        // Player label - positioned after equipment slots
+        // Player label - positioned after equipment slots (1 column now)
         float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
 
         var labelObj = new GameObject("PlayerLabel");
@@ -639,9 +652,15 @@ public class SimpleLootUI : MonoBehaviour
         m_DragIcon.SetActive(false);
     }
 
+    // Track when we opened to prevent same-frame close
+    private float m_OpenTime;
+
     private void Update()
     {
         if (!m_IsOpen) return;
+
+        // Don't allow closing on the same frame we opened (F key would trigger both open and close)
+        if (Time.time - m_OpenTime < 0.1f) return;
 
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Tab))
         {
@@ -700,6 +719,63 @@ public class SimpleLootUI : MonoBehaviour
 
     #region Public API
 
+    /// <summary>
+    /// Open the loot UI with a LootableContainer (convenience method)
+    /// </summary>
+    public void Open(LootableContainer container)
+    {
+        Debug.Log($"[SimpleLootUI] Open called with container: {(container != null ? container.gameObject.name : "NULL")}");
+
+        if (container == null)
+        {
+            Debug.LogWarning("[SimpleLootUI] Container is null!");
+            return;
+        }
+
+        // Find player inventory
+        var player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogWarning("[SimpleLootUI] No player found with tag 'Player'!");
+            return;
+        }
+
+        var playerInventory = player.GetComponent<Inventory>();
+        if (playerInventory == null)
+        {
+            playerInventory = player.GetComponentInChildren<Inventory>();
+        }
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("[SimpleLootUI] No player inventory found!");
+            return;
+        }
+
+        var containerInventory = container.GetComponent<Inventory>();
+        if (containerInventory == null)
+        {
+            Debug.LogWarning($"[SimpleLootUI] Container {container.gameObject.name} has no Inventory component!");
+            return;
+        }
+
+        Debug.Log($"[SimpleLootUI] Container inventory found. MainItemCollection: {(containerInventory.MainItemCollection != null ? "OK" : "NULL")}");
+
+        // Get display name from ZombieLootable if present
+        string displayName = "Container";
+        var zombieLootable = container.GetComponent<ZombieLootable>();
+        if (zombieLootable != null)
+        {
+            displayName = zombieLootable.DisplayName;
+        }
+        else
+        {
+            displayName = container.gameObject.name;
+        }
+
+        Open(playerInventory, containerInventory, displayName);
+    }
+
     public void Open(Inventory playerInventory, Inventory containerInventory, string containerName = "Container")
     {
         if (!m_Initialized) Initialize();
@@ -751,8 +827,23 @@ public class SimpleLootUI : MonoBehaviour
     {
         m_IsOpen = open;
 
+        // Record open time to prevent same-frame close
+        if (open)
+        {
+            m_OpenTime = Time.time;
+        }
+
+        Debug.Log($"[SimpleLootUI] SetOpen({open}) - OverlayPanel: {(m_OverlayPanel != null ? "EXISTS" : "NULL")}, Canvas: {(m_Canvas != null ? m_Canvas.name : "NULL")}");
+
         if (m_OverlayPanel != null)
+        {
             m_OverlayPanel.SetActive(open);
+            Debug.Log($"[SimpleLootUI] OverlayPanel.activeSelf: {m_OverlayPanel.activeSelf}");
+        }
+        else
+        {
+            Debug.LogError("[SimpleLootUI] OverlayPanel is NULL! UI was not created properly.");
+        }
 
         Cursor.visible = open;
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
@@ -1050,9 +1141,15 @@ public class SimpleLootUI : MonoBehaviour
     private void ClearEquipSlot(EquipSlot slot)
     {
         if (slot == null) return;
-        slot.IconImage.sprite = null;
-        slot.IconImage.enabled = false;
-        slot.NameText.text = "";
+        if (slot.IconImage != null)
+        {
+            slot.IconImage.sprite = null;
+            slot.IconImage.enabled = false;
+        }
+        if (slot.NameText != null)
+        {
+            slot.NameText.text = "";
+        }
         slot.EquippedItem = default;
     }
 
@@ -1060,11 +1157,14 @@ public class SimpleLootUI : MonoBehaviour
     {
         foreach (var slot in m_ContainerSlots)
         {
-            slot.IconImage.sprite = null;
-            slot.IconImage.enabled = false;
-            slot.AmountText.text = "";
-            slot.NameText.text = "";
-            slot.SlotObject.SetActive(true);
+            if (slot.IconImage != null)
+            {
+                slot.IconImage.sprite = null;
+                slot.IconImage.enabled = false;
+            }
+            if (slot.AmountText != null) slot.AmountText.text = "";
+            if (slot.NameText != null) slot.NameText.text = "";
+            if (slot.SlotObject != null) slot.SlotObject.SetActive(true);
         }
 
         if (m_ContainerInventory == null) return;
@@ -1282,6 +1382,9 @@ public class SimpleLootUI : MonoBehaviour
 
         if (defaultCollection == null || equipCollection == null) return;
 
+        // Get clothing handler for visual updates
+        var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+
         // Check for existing equipped item
         ItemInfo oldEquippedItem = default;
         if (targetSlot.EquippedItem.Item != null)
@@ -1297,10 +1400,18 @@ public class SimpleLootUI : MonoBehaviour
         {
             equipCollection.RemoveItem(oldEquippedItem);
             defaultCollection.AddItem(oldEquippedItem);
+
+            // Notify clothing handler of unequip
+            if (clothingHandler != null)
+                clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
         }
 
         // Equip the new item
         equipCollection.AddItem(itemInfo);
+
+        // Notify clothing handler of equip
+        if (clothingHandler != null)
+            clothingHandler.OnClothingEquipped(itemInfo.Item.ItemDefinition);
 
         // Play equip sound
         if (m_EquipSound != null && m_AudioSource != null)
@@ -1317,6 +1428,11 @@ public class SimpleLootUI : MonoBehaviour
 
         if (defaultCollection != null && equipCollection != null)
         {
+            // Notify clothing handler before unequip
+            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+            if (clothingHandler != null)
+                clothingHandler.OnClothingUnequipped(itemInfo.Item.ItemDefinition);
+
             equipCollection.RemoveItem(itemInfo);
             defaultCollection.AddItem(itemInfo);
 
@@ -1548,6 +1664,9 @@ public class SimpleLootUI : MonoBehaviour
             oldEquippedItem = targetSlot.EquippedItem;
         }
 
+        // Get clothing handler for visual updates
+        var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+
         // If from container
         if (m_DragFromContainer)
         {
@@ -1561,10 +1680,18 @@ public class SimpleLootUI : MonoBehaviour
             {
                 equipCollection.RemoveItem(oldEquippedItem);
                 containerCollection.AddItem(oldEquippedItem);
+
+                // Notify clothing handler of unequip
+                if (clothingHandler != null)
+                    clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
             }
 
             // Equip the new item
             equipCollection.AddItem(m_DraggedItem);
+
+            // Notify clothing handler of equip
+            if (clothingHandler != null)
+                clothingHandler.OnClothingEquipped(m_DraggedItem.Item.ItemDefinition);
 
             // Play equip sound
             if (m_EquipSound != null && m_AudioSource != null)
@@ -1583,10 +1710,18 @@ public class SimpleLootUI : MonoBehaviour
             {
                 equipCollection.RemoveItem(oldEquippedItem);
                 defaultCollection.AddItem(oldEquippedItem);
+
+                // Notify clothing handler of unequip
+                if (clothingHandler != null)
+                    clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
             }
 
             // Equip the new item
             equipCollection.AddItem(m_DraggedItem);
+
+            // Notify clothing handler of equip
+            if (clothingHandler != null)
+                clothingHandler.OnClothingEquipped(m_DraggedItem.Item.ItemDefinition);
 
             // Play equip sound
             if (m_EquipSound != null && m_AudioSource != null)

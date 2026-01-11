@@ -24,6 +24,10 @@ public class ZombieHealth : MonoBehaviour, IHealth
     [SerializeField] private AudioClip[] m_HitSounds;
     [SerializeField] private AudioClip[] m_DeathSounds;
 
+    [Header("Health Bar")]
+    [SerializeField] private bool m_ShowHealthBar = true;
+    [SerializeField] private float m_HealthBarHeight = 2.2f;
+
     public event Action<float, float> OnHealthChanged; // current, max
     public event Action OnDeath;
 
@@ -32,6 +36,7 @@ public class ZombieHealth : MonoBehaviour, IHealth
     public bool IsDead => m_CurrentHealth <= 0;
 
     private AudioSource m_AudioSource;
+    private ZombieHealthBar m_HealthBar;
 
     private void Awake()
     {
@@ -73,6 +78,19 @@ public class ZombieHealth : MonoBehaviour, IHealth
 
         OnHealthChanged?.Invoke(m_CurrentHealth, m_MaxHealth);
 
+        // Show/update floating health bar
+        if (m_ShowHealthBar)
+        {
+            if (m_HealthBar == null)
+            {
+                Debug.Log($"[ZombieHealth] Creating health bar for {gameObject.name}");
+                m_HealthBar = ZombieHealthBar.Create(transform);
+            }
+            float normalizedHealth = m_CurrentHealth / m_MaxHealth;
+            Debug.Log($"[ZombieHealth] {gameObject.name} health: {m_CurrentHealth}/{m_MaxHealth} ({normalizedHealth:P0})");
+            m_HealthBar.SetHealth(normalizedHealth);
+        }
+
         // Play hit sound
         PlaySound(m_HitSounds);
 
@@ -87,10 +105,10 @@ public class ZombieHealth : MonoBehaviour, IHealth
             Instantiate(m_BloodEffectPrefab, hitPoint, Quaternion.LookRotation(hitNormal));
         }
 
-        // Aggro on attacker
+        // Aggro on attacker and pass hit info for ragdoll
         if (m_ZombieAI != null && attacker != null)
         {
-            m_ZombieAI.OnDamaged(attacker);
+            m_ZombieAI.OnDamagedAtPoint(attacker, hitPoint, -hitNormal);
         }
 
         if (m_CurrentHealth <= 0)
@@ -142,28 +160,19 @@ public class ZombieHealth : MonoBehaviour, IHealth
 
     private void Die()
     {
+        // Destroy health bar
+        if (m_HealthBar != null)
+        {
+            Destroy(m_HealthBar.gameObject);
+            m_HealthBar = null;
+        }
+
         if (m_ZombieAI != null)
         {
             m_ZombieAI.Die();
         }
 
         PlaySound(m_DeathSounds);
-
-        // Spawn multiple large blood pools on death
-        if (BloodEffectManager.Instance != null)
-        {
-            // Spawn 3-5 pools around the body
-            int poolCount = UnityEngine.Random.Range(3, 6);
-            for (int i = 0; i < poolCount; i++)
-            {
-                Vector3 offset = new Vector3(
-                    UnityEngine.Random.Range(-0.5f, 0.5f),
-                    0f,
-                    UnityEngine.Random.Range(-0.5f, 0.5f)
-                );
-                BloodEffectManager.Instance.SpawnBloodPool(transform.position + offset, true); // true = large pool
-            }
-        }
 
         OnDeath?.Invoke();
     }

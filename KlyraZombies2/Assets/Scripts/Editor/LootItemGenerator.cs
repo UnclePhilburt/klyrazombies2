@@ -21,7 +21,7 @@ public class LootItemGenerator : EditorWindow
     // Track what's been created
     private HashSet<string> existingItems = new HashSet<string>();
 
-    [MenuItem("Tools/Loot Item Generator")]
+    [MenuItem("Project Klyra/Loot/Item Generator")]
     public static void ShowWindow()
     {
         var window = GetWindow<LootItemGenerator>("Loot Item Generator");
