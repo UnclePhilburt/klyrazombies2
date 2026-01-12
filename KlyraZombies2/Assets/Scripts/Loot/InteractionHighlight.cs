@@ -72,6 +72,36 @@ public class InteractionHighlight : MonoBehaviour
 
         // Start hidden
         SetHighlightActive(false);
+
+        // Check if player is already inside trigger (e.g., zombie died near player)
+        StartCoroutine(CheckForPlayerAlreadyInside());
+    }
+
+    private System.Collections.IEnumerator CheckForPlayerAlreadyInside()
+    {
+        // Wait a frame for physics to settle
+        yield return new WaitForFixedUpdate();
+
+        if (m_TriggerCollider == null) yield break;
+
+        // Check for overlapping colliders
+        Collider[] overlaps = Physics.OverlapSphere(
+            transform.position + m_TriggerCollider.center,
+            m_TriggerCollider.radius,
+            ~0, // All layers
+            QueryTriggerInteraction.Ignore
+        );
+
+        foreach (var col in overlaps)
+        {
+            if (IsPlayer(col))
+            {
+                Debug.Log($"[InteractionHighlight] Player already inside trigger for {gameObject.name}");
+                s_ActiveHighlights.Add(this);
+                SetHighlightActive(true);
+                yield break;
+            }
+        }
     }
 
     private void SetupTrigger()

@@ -38,8 +38,16 @@ public class LootableInteraction : MonoBehaviour
         }
     }
 
+    [Header("Fallback Detection")]
+    [SerializeField] private float m_MaxInteractDistance = 3f;
+
+    private Camera m_Camera;
+
     private void FindClosestZombie()
     {
+        if (m_Camera == null)
+            m_Camera = Camera.main;
+
         // Use the crosshair target from InteractionHighlight instead of distance-based search
         var crosshairTarget = InteractionHighlight.CurrentTarget;
 
@@ -56,6 +64,51 @@ public class LootableInteraction : MonoBehaviour
             if (targetZombie == null)
             {
                 targetZombie = crosshairTarget.transform.root.GetComponentInChildren<ZombieLootable>();
+            }
+        }
+
+        // Fallback: Raycast from camera center to find zombie corpses
+        if (targetZombie == null && m_Camera != null)
+        {
+            Ray ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            RaycastHit[] hits = Physics.RaycastAll(ray, m_MaxInteractDistance);
+
+            float closestDist = float.MaxValue;
+            foreach (var hit in hits)
+            {
+                var lootable = hit.transform.GetComponentInParent<ZombieLootable>();
+                if (lootable == null)
+                    lootable = hit.transform.root.GetComponentInChildren<ZombieLootable>();
+
+                if (lootable != null && lootable.Container != null && hit.distance < closestDist)
+                {
+                    targetZombie = lootable;
+                    closestDist = hit.distance;
+                }
+            }
+
+            // Extra fallback: Check for nearby zombie corpses within range
+            if (targetZombie == null)
+            {
+                var allZombieLootables = FindObjectsByType<ZombieLootable>(FindObjectsSortMode.None);
+                foreach (var lootable in allZombieLootables)
+                {
+                    if (lootable.Container == null) continue;
+
+                    float dist = Vector3.Distance(transform.position, lootable.transform.position);
+                    if (dist < m_MaxInteractDistance)
+                    {
+                        // Check if roughly looking at it
+                        Vector3 dirToZombie = (lootable.transform.position - m_Camera.transform.position).normalized;
+                        float angle = Vector3.Angle(m_Camera.transform.forward, dirToZombie);
+
+                        if (angle < 45f && dist < closestDist)
+                        {
+                            targetZombie = lootable;
+                            closestDist = dist;
+                        }
+                    }
+                }
             }
         }
 
