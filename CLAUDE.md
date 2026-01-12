@@ -41,6 +41,7 @@ This project uses **Git LFS** for large files. WebGL builds produce files over 1
 
 **LFS-tracked file types:**
 - `*.unityweb` - Compressed WebGL build files
+- `*.zip` - Build archives
 
 **Before pushing:**
 ```bash
@@ -224,6 +225,20 @@ The loot UI features a search mechanic where players must search containers befo
 - **F** = Interact with lootable (open container/corpse)
 - **F/Escape/Tab** = Close loot UI
 
+**Inspector Settings (all adjustable at runtime):**
+- `m_UIScaleMultiplier` - Scale factor for high-DPI displays (default 1.0)
+- `m_SlotSize` - Grid slot size (default 79.2)
+- `m_SlotSpacing` - Space between slots (default 16.3)
+- `m_NameHeight` - Item name text height (default 18.8)
+- `m_GridGap` - Gap between player/container grids (default 124.9)
+- Text auto-sizing with `m_NameFontSizeMin` (default 6)
+
+**Editor Setup Tools:**
+- **Project Klyra > UI > Create Simple Loot UI** - Creates SimpleLootUI GameObject in scene
+- **Project Klyra > UI > Create Simple Inventory UI** - Creates SimpleInventoryUI GameObject
+- **Project Klyra > UI > Create Character Info Popup** - Creates CharacterInfoPopup GameObject
+- Use `[ContextMenu("Force Refresh UI")]` in Inspector to rebuild UI at runtime
+
 ### InteractionHighlight System
 Visual feedback for lootable objects (magnifying glass icon above objects):
 - **InteractionHighlight** (`Assets/Scripts/Loot/InteractionHighlight.cs`) - Shows icon when player looks at lootable
@@ -241,6 +256,12 @@ Makes zombie corpses lootable after death:
 - Uses prefab from `Resources/Prefabs/ZombieLootContainer` for inventory setup
 - Auto-adds InteractionHighlight and collider
 - Call `ZombieLootable.MakeZombieLootable(zombieGameObject)` to make a corpse lootable
+
+**Interaction Detection:**
+- `LootableInteraction` (`Assets/Scripts/Loot/LootableInteraction.cs`) handles E key for zombie corpses
+- Uses crosshair targeting via `InteractionHighlight.CurrentTarget`
+- Fallback detection: raycast + proximity check (3m range, 45° view angle)
+- `InteractionHighlight` checks if player already inside trigger on Start() (fixes zombie dying near player)
 
 ### Office Item Categories
 Items are organized into categories under the `Office` parent:
@@ -630,17 +651,50 @@ Main menu controller for game start:
 
 **Main Menu Scene:** TBD (user creating scene in Unity Editor)
 
-## Hosting Options
+### CharacterInfoPopup
+iOS-styled popup showing random character backstory on spawn:
+- **CharacterInfoPopup** (`Assets/Scripts/UI/CharacterInfoPopup.cs`)
+- Auto-creates its own Canvas with proper scaling
+- Displays: Day survived, Name, Age, Occupation, Family status, Fun fact
+- Auto-dismisses after duration, or click/Space to dismiss early
 
-**itch.io:**
-- Simple HTML/WebGL hosting
-- Basic analytics (views, plays)
-- Community features built-in
+**Inspector Settings:**
+- `m_UIScaleMultiplier` - Scale for high-DPI (default 1.5)
+- `m_PanelWidth` - Panel width (default 320)
+- `m_PanelPosition` - Bottom-left offset (default 30, 140)
+- Font sizes: `m_DayFontSize` (13), `m_NameFontSize` (22), `m_DetailsFontSize` (15), `m_SubtleFontSize` (14)
 
-**Netlify/GitHub Pages:**
-- Host from git repo
-- Custom domain support
-- More control over deployment
+### SimpleInventoryUI
+Standalone inventory panel (Tab to open):
+- **SimpleInventoryUI** (`Assets/Scripts/UI/SimpleInventoryUI.cs`)
+- Same slot styling as SimpleLootUI
+- Equipment slots on left, grid inventory on right
+- `m_UIScaleMultiplier` for high-DPI displays
+
+## Hosting & Deployment
+
+**Live URLs:**
+- **Main (Full Version):** https://klyrazombiesreborn.netlify.app
+- **Demo (Limited):** https://unclephilburt.itch.io/klyra-zombies
+
+**Netlify (Primary):**
+- Auto-deploys from GitHub on push
+- No file size limit
+- Publish directory: `KlyraZombies2/docs`
+
+**itch.io (Demo):**
+- 200MB limit for browser games
+- Limited demo version (some content cut)
+- Points users to Netlify for full version
+
+**GitHub:**
+- Repository: https://github.com/UnclePhilburt/klyrazombies2
+- Uses Git LFS for large build files
+
+**Butler (itch.io CLI):**
+```bash
+BUTLER_API_KEY="..." /Users/codywilliams/butler push KlyraZombies2/docs/ UnclePhilburt/klyra-zombies:html5
+```
 
 ## POI Discovery System
 
