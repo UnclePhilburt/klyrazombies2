@@ -12,6 +12,11 @@ public class InteractionHighlight : MonoBehaviour
     private static InteractionHighlight s_CurrentTarget;
     private static readonly System.Collections.Generic.HashSet<InteractionHighlight> s_ActiveHighlights = new();
 
+    /// <summary>
+    /// The container currently being targeted by the crosshair (if any).
+    /// </summary>
+    public static InteractionHighlight CurrentTarget => s_CurrentTarget;
+
     [Header("Detection Settings")]
     [Tooltip("Radius of the trigger zone")]
     [SerializeField] private float m_TriggerRadius = 2.5f;
@@ -29,28 +34,14 @@ public class InteractionHighlight : MonoBehaviour
     [Tooltip("Vertical offset above object center")]
     [SerializeField] private float m_IconHeightOffset = 0.5f;
 
-    [Header("Outline Settings")]
-    [Tooltip("Outline color when container has loot")]
-    [SerializeField] private Color m_OutlineColor = new Color(0.3f, 0.7f, 1f, 0.8f);
-
-    [Tooltip("Outline color when container is empty/looted")]
-    [SerializeField] private Color m_LootedColor = new Color(0.8f, 0.3f, 0.3f, 0.8f);
-
-    [Tooltip("Outline thickness (1.01 = thin, 1.1 = thick)")]
-    [Range(1.01f, 1.2f)]
-    [SerializeField] private float m_OutlineThickness = 1.05f;
-
     [Header("Crosshair Detection")]
     [Tooltip("Radius of the spherecast for icon targeting")]
-    [SerializeField] private float m_CrosshairRadius = 0.3f;
+    [SerializeField] private float m_CrosshairRadius = 0.5f;
 
     // Runtime references
     private Camera m_PlayerCamera;
     private GameObject m_IconObject;
     private SpriteRenderer m_IconRenderer;
-    private GameObject m_OutlineObject;
-    private Renderer[] m_OriginalRenderers;
-    private Material m_OutlineMaterial;
     private bool m_IsHighlighted = false;
     private bool m_IsTargeted = false;
     private Bounds m_ObjectBounds;
@@ -73,9 +64,6 @@ public class InteractionHighlight : MonoBehaviour
 
         // Create the icon
         CreateIcon();
-
-        // Create outline effect
-        CreateOutline();
 
         // Setup ignore layers for raycast
         int playerLayer = LayerMask.NameToLayer("Player");
@@ -105,6 +93,16 @@ public class InteractionHighlight : MonoBehaviour
         if (m_Inventory == null)
         {
             m_Inventory = GetComponentInParent<Inventory>();
+        }
+        // Also check siblings - if this highlight is on a child mesh, inventory might be on root or sibling
+        if (m_Inventory == null)
+        {
+            Transform root = transform.root;
+            m_Inventory = root.GetComponentInChildren<Inventory>();
+        }
+        if (m_Inventory == null)
+        {
+            Debug.LogWarning($"[InteractionHighlight] {gameObject.name}: No Inventory found on self, parent, or root children!");
         }
     }
 
@@ -321,91 +319,6 @@ public class InteractionHighlight : MonoBehaviour
         return null;
     }
 
-    private void CreateOutline()
-    {
-        m_OriginalRenderers = GetComponentsInChildren<Renderer>();
-
-        var validRenderers = new System.Collections.Generic.List<Renderer>();
-        foreach (var r in m_OriginalRenderers)
-        {
-            if (r is SpriteRenderer) continue;
-            if (r is ParticleSystemRenderer) continue;
-            if (r is TrailRenderer) continue;
-            if (r is LineRenderer) continue;
-            validRenderers.Add(r);
-        }
-        m_OriginalRenderers = validRenderers.ToArray();
-
-        if (m_OriginalRenderers.Length == 0)
-        {
-            return;
-        }
-
-        m_OutlineMaterial = CreateOutlineMaterial();
-
-        m_OutlineObject = new GameObject("OutlineEffect");
-        m_OutlineObject.transform.SetParent(transform);
-        m_OutlineObject.transform.localPosition = Vector3.zero;
-        m_OutlineObject.transform.localRotation = Quaternion.identity;
-        m_OutlineObject.transform.localScale = Vector3.one;
-
-        foreach (var renderer in m_OriginalRenderers)
-        {
-            Mesh meshToUse = null;
-
-            if (renderer is MeshRenderer)
-            {
-                MeshFilter meshFilter = renderer.GetComponent<MeshFilter>();
-                if (meshFilter != null && meshFilter.sharedMesh != null)
-                {
-                    meshToUse = meshFilter.sharedMesh;
-                }
-            }
-            else if (renderer is SkinnedMeshRenderer)
-            {
-                // Skip skinned meshes - they deform with animation/ragdoll
-                // and would show T-pose outline instead of current pose
-                continue;
-            }
-
-            if (meshToUse == null) continue;
-
-            GameObject outlineMesh = new GameObject("Outline_" + renderer.name);
-            outlineMesh.transform.SetParent(m_OutlineObject.transform);
-            outlineMesh.transform.position = renderer.transform.position;
-            outlineMesh.transform.rotation = renderer.transform.rotation;
-            outlineMesh.transform.localScale = renderer.transform.lossyScale * m_OutlineThickness;
-
-            MeshFilter outlineFilter = outlineMesh.AddComponent<MeshFilter>();
-            outlineFilter.sharedMesh = meshToUse;
-
-            MeshRenderer outlineRenderer = outlineMesh.AddComponent<MeshRenderer>();
-            outlineRenderer.sharedMaterial = m_OutlineMaterial;
-            outlineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            outlineRenderer.receiveShadows = false;
-        }
-    }
-
-    private Material CreateOutlineMaterial()
-    {
-        Shader outlineShader = Shader.Find("Klyra/OutlineEffect");
-        if (outlineShader == null)
-        {
-            outlineShader = Shader.Find("Unlit/Color");
-            if (outlineShader == null)
-            {
-                outlineShader = Shader.Find("Universal Render Pipeline/Unlit");
-            }
-        }
-
-        Material mat = new Material(outlineShader);
-        mat.SetColor("_OutlineColor", m_OutlineColor);
-        mat.SetColor("_Color", m_OutlineColor);
-        mat.SetColor("_BaseColor", m_OutlineColor);
-
-        return mat;
-    }
-
     private void Update()
     {
         if (m_PlayerCamera == null)
@@ -464,6 +377,7 @@ public class InteractionHighlight : MonoBehaviour
         Ray ray = m_PlayerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         int layerMask = ~m_IgnoreRaycastLayers;
 
+        // First try spherecast
         if (Physics.SphereCast(ray, m_CrosshairRadius, out RaycastHit hit, 10f, layerMask, QueryTriggerInteraction.Ignore))
         {
             // Check parent hierarchy
@@ -491,7 +405,26 @@ public class InteractionHighlight : MonoBehaviour
             }
         }
 
-        return null;
+        // Fallback: Find the active highlight closest to screen center
+        // This helps when colliders are missing or hard to hit
+        InteractionHighlight bestTarget = null;
+        float bestAngle = 15f; // Max angle in degrees from center to consider
+
+        foreach (var highlight in s_ActiveHighlights)
+        {
+            if (highlight == null) continue;
+
+            Vector3 dirToHighlight = (highlight.transform.position - m_PlayerCamera.transform.position).normalized;
+            float angle = Vector3.Angle(m_PlayerCamera.transform.forward, dirToHighlight);
+
+            if (angle < bestAngle)
+            {
+                bestAngle = angle;
+                bestTarget = highlight;
+            }
+        }
+
+        return bestTarget;
     }
 
     private void UpdateIconVisibility()
@@ -510,14 +443,18 @@ public class InteractionHighlight : MonoBehaviour
 
     private void UpdateLootedState()
     {
-        if (m_Inventory == null) return;
+        // If we don't have an inventory reference yet, try to find it again
+        if (m_Inventory == null)
+        {
+            FindInventory();
+            if (m_Inventory == null) return;
+        }
 
         if (!m_HasBeenOpened)
         {
             if (m_IsLooted)
             {
                 m_IsLooted = false;
-                UpdateOutlineColor();
             }
             return;
         }
@@ -533,30 +470,12 @@ public class InteractionHighlight : MonoBehaviour
         if (isEmpty != m_IsLooted)
         {
             m_IsLooted = isEmpty;
-            UpdateOutlineColor();
         }
-    }
-
-    private void UpdateOutlineColor()
-    {
-        if (m_OutlineMaterial == null) return;
-
-        Color targetColor = m_IsLooted ? m_LootedColor : m_OutlineColor;
-
-        m_OutlineMaterial.SetColor("_OutlineColor", targetColor);
-        m_OutlineMaterial.SetColor("_Color", targetColor);
-        m_OutlineMaterial.SetColor("_BaseColor", targetColor);
     }
 
     public void SetHighlightActive(bool active)
     {
         m_IsHighlighted = active;
-
-        // Outline shows when in proximity
-        if (m_OutlineObject != null)
-        {
-            m_OutlineObject.SetActive(active);
-        }
 
         // Icon only shows when targeted by crosshair (reset when leaving proximity)
         if (!active)
@@ -603,11 +522,6 @@ public class InteractionHighlight : MonoBehaviour
         if (s_CurrentTarget == this)
         {
             s_CurrentTarget = null;
-        }
-
-        if (m_OutlineMaterial != null)
-        {
-            Destroy(m_OutlineMaterial);
         }
     }
 

@@ -31,12 +31,16 @@ public class ZombieHealth : MonoBehaviour, IHealth
     public event Action<float, float> OnHealthChanged; // current, max
     public event Action OnDeath;
 
+    // Static event for achievement tracking (wasHeadshot)
+    public static event Action<bool> OnAnyZombieDeath;
+
     public float CurrentHealth => m_CurrentHealth;
     public float MaxHealth => m_MaxHealth;
     public bool IsDead => m_CurrentHealth <= 0;
 
     private AudioSource m_AudioSource;
     private ZombieHealthBar m_HealthBar;
+    private bool m_LastHitWasHeadshot = false;
 
     private void Awake()
     {
@@ -127,9 +131,11 @@ public class ZombieHealth : MonoBehaviour, IHealth
         float multiplier = m_BodyshotMultiplier;
 
         // Check for headshot
+        bool isHeadshot = false;
         if (m_HeadCollider != null && hitCollider == m_HeadCollider)
         {
             multiplier = m_HeadshotMultiplier;
+            isHeadshot = true;
             Debug.Log("[ZombieHealth] HEADSHOT!");
         }
         else
@@ -141,6 +147,7 @@ public class ZombieHealth : MonoBehaviour, IHealth
             if (hitHeight > zombieHeight * 0.8f)
             {
                 multiplier = m_HeadshotMultiplier;
+                isHeadshot = true;
                 Debug.Log("[ZombieHealth] HEADSHOT (height-based)!");
             }
             else if (hitHeight < zombieHeight * 0.3f)
@@ -148,6 +155,9 @@ public class ZombieHealth : MonoBehaviour, IHealth
                 multiplier = m_LimbshotMultiplier;
             }
         }
+
+        // Track if this hit was a headshot (for achievements)
+        m_LastHitWasHeadshot = isHeadshot;
 
         // Calculate hit normal (direction from zombie center to hit point)
         Vector3 hitNormal = (hitPoint - transform.position).normalized;
@@ -175,6 +185,9 @@ public class ZombieHealth : MonoBehaviour, IHealth
         PlaySound(m_DeathSounds);
 
         OnDeath?.Invoke();
+
+        // Broadcast static event for achievements
+        OnAnyZombieDeath?.Invoke(m_LastHitWasHeadshot);
     }
 
     private void PlaySound(AudioClip[] clips)

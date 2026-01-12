@@ -35,11 +35,6 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Name of the gameplay scene to load")]
     [SerializeField] private string m_GameSceneName = "MainMap";
 
-    [Header("Character Selection")]
-    [SerializeField] private CharacterSelectorUI m_CharacterSelector;
-    [SerializeField] private Button m_PrevCharacterButton;
-    [SerializeField] private Button m_NextCharacterButton;
-
     private int m_CurrentTrackIndex = 0;
     private int[] m_ShuffledIndices;
 
@@ -76,13 +71,6 @@ public class MainMenuUI : MonoBehaviour
 
         if (m_BackButton != null)
             m_BackButton.onClick.AddListener(OnBackClicked);
-
-        // Setup character selector buttons
-        if (m_PrevCharacterButton != null && m_CharacterSelector != null)
-            m_PrevCharacterButton.onClick.AddListener(m_CharacterSelector.SelectPrevious);
-
-        if (m_NextCharacterButton != null && m_CharacterSelector != null)
-            m_NextCharacterButton.onClick.AddListener(m_CharacterSelector.SelectNext);
 
         // Setup settings listeners
         if (m_MasterVolumeSlider != null)

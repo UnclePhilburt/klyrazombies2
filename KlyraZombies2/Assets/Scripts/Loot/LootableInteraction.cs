@@ -1,17 +1,14 @@
 using UnityEngine;
 
 /// <summary>
-/// Shows the search icon above the closest lootable zombie corpse.
-/// Press F to loot.
+/// Handles E key interaction for zombie corpses.
+/// Uses InteractionHighlight's crosshair targeting to determine which zombie to loot.
 /// </summary>
 public class LootableInteraction : MonoBehaviour
 {
     [Header("Interaction Settings")]
-    [Tooltip("Maximum distance to detect lootables")]
-    [SerializeField] private float m_InteractionRange = 5f;
-
     [Tooltip("Key to interact with lootables")]
-    [SerializeField] private KeyCode m_InteractKey = KeyCode.F;
+    [SerializeField] private KeyCode m_InteractKey = KeyCode.E;
 
     // State
     private ZombieLootable m_CurrentTarget;
@@ -43,76 +40,36 @@ public class LootableInteraction : MonoBehaviour
 
     private void FindClosestZombie()
     {
-        ZombieLootable closestZombie = null;
-        float closestDist = m_InteractionRange;
+        // Use the crosshair target from InteractionHighlight instead of distance-based search
+        var crosshairTarget = InteractionHighlight.CurrentTarget;
 
-        // Find all ZombieLootable components in range
-        var zombies = FindObjectsByType<ZombieLootable>(FindObjectsSortMode.None);
+        ZombieLootable targetZombie = null;
 
-        foreach (var zombie in zombies)
+        if (crosshairTarget != null)
         {
-            if (zombie == null) continue;
-
-            float dist = Vector3.Distance(transform.position, zombie.transform.position);
-            if (dist < closestDist)
+            // Check if the crosshair target has a ZombieLootable
+            targetZombie = crosshairTarget.GetComponent<ZombieLootable>();
+            if (targetZombie == null)
             {
-                closestDist = dist;
-                closestZombie = zombie;
+                targetZombie = crosshairTarget.GetComponentInParent<ZombieLootable>();
+            }
+            if (targetZombie == null)
+            {
+                targetZombie = crosshairTarget.transform.root.GetComponentInChildren<ZombieLootable>();
             }
         }
 
         // Update target
-        if (closestZombie != m_CurrentTarget)
+        if (targetZombie != m_CurrentTarget)
         {
-            // Hide previous highlight
-            if (m_CurrentHighlight != null)
-            {
-                m_CurrentHighlight.ForceShowIcon(false);
-                m_CurrentHighlight.SetHighlightActive(false);
-            }
-
-            m_CurrentTarget = closestZombie;
-
-            // Show new highlight
-            if (m_CurrentTarget != null)
-            {
-                Debug.Log($"[LootableInteraction] Found zombie: {m_CurrentTarget.gameObject.name} at distance {closestDist:F1}m");
-
-                m_CurrentHighlight = m_CurrentTarget.GetComponent<InteractionHighlight>();
-                if (m_CurrentHighlight == null)
-                {
-                    // Try to get from children (in case it's on a child object)
-                    m_CurrentHighlight = m_CurrentTarget.GetComponentInChildren<InteractionHighlight>();
-                }
-
-                if (m_CurrentHighlight != null)
-                {
-                    Debug.Log($"[LootableInteraction] Found InteractionHighlight on {m_CurrentHighlight.gameObject.name}, calling ForceShowIcon(true)");
-                    m_CurrentHighlight.SetHighlightActive(true);
-                    m_CurrentHighlight.ForceShowIcon(true);
-                }
-                else
-                {
-                    Debug.LogWarning($"[LootableInteraction] {m_CurrentTarget.gameObject.name} has no InteractionHighlight! Adding one now...");
-                    m_CurrentHighlight = m_CurrentTarget.gameObject.AddComponent<InteractionHighlight>();
-                    m_CurrentHighlight.SetHighlightActive(true);
-                    m_CurrentHighlight.ForceShowIcon(true);
-                }
-            }
-            else
-            {
-                m_CurrentHighlight = null;
-            }
+            m_CurrentTarget = targetZombie;
+            m_CurrentHighlight = crosshairTarget;
         }
     }
 
     private void ClearTarget()
     {
-        if (m_CurrentHighlight != null)
-        {
-            m_CurrentHighlight.ForceShowIcon(false);
-            m_CurrentHighlight.SetHighlightActive(false);
-        }
+        // InteractionHighlight manages its own visibility based on crosshair targeting
         m_CurrentTarget = null;
         m_CurrentHighlight = null;
     }
@@ -162,9 +119,4 @@ public class LootableInteraction : MonoBehaviour
         Debug.Log($"[LootableInteraction] lootUI.Open() called, IsOpen: {lootUI.IsOpen}");
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, m_InteractionRange);
-    }
 }

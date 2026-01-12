@@ -4,13 +4,21 @@ using Opsive.UltimateCharacterController.Camera.ViewTypes;
 using Opsive.Shared.Events;
 
 /// <summary>
-/// Adds smooth camera lag when not aiming down sights.
-/// When ADS, camera becomes tight/snappy and can adjust position.
+/// Unified camera controller for smooth transitions between hip fire and ADS.
+/// This script is the SINGLE SOURCE OF TRUTH for camera offsets.
+/// Opsive's zoom preset should only handle FOV, not LookOffset.
 /// </summary>
 public class SmoothCameraController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private CameraController m_CameraController;
+
+    [Header("Camera Positions")]
+    [Tooltip("Camera offset when NOT aiming (hip fire)")]
+    [SerializeField] private Vector3 m_HipFireOffset = new Vector3(0.5f, -0.3f, -1.8f);
+
+    [Tooltip("Camera offset when aiming down sights")]
+    [SerializeField] private Vector3 m_AdsOffset = new Vector3(0.5f, 0.1f, -1.3f);
 
     [Header("Smoothing Settings")]
     [Tooltip("Camera smoothing when NOT aiming (higher = smoother/laggier)")]
@@ -21,10 +29,7 @@ public class SmoothCameraController : MonoBehaviour
     [Range(0f, 0.1f)]
     [SerializeField] private float m_AdsSmoothing = 0.02f;
 
-    [Header("ADS Camera Offset")]
-    [Tooltip("Offset applied to camera position when aiming (relative to hip fire position)")]
-    [SerializeField] private Vector3 m_AdsOffset = new Vector3(0f, -0.2f, 0.5f);
-
+    [Header("Transition Settings")]
     [Tooltip("Smooth time for camera position transition (lower = faster)")]
     [Range(0.05f, 0.5f)]
     [SerializeField] private float m_OffsetSmoothTime = 0.15f;
@@ -39,7 +44,6 @@ public class SmoothCameraController : MonoBehaviour
     private float m_CurrentSmoothing;
 
     // Offset interpolation
-    private Vector3 m_BaseLookOffset;
     private Vector3 m_CurrentLookOffset;
     private Vector3 m_TargetLookOffset;
 
@@ -69,9 +73,17 @@ public class SmoothCameraController : MonoBehaviour
         // Get fields via reflection (they're protected)
         CacheViewTypeFields();
 
+        // Initialize to hip fire state
+        m_CurrentSmoothing = m_HipFireSmoothing;
         m_TargetSmoothing = m_HipFireSmoothing;
-        m_TargetLookOffset = m_BaseLookOffset;
-        m_CurrentLookOffset = m_BaseLookOffset;
+        m_CurrentLookOffset = m_HipFireOffset;
+        m_TargetLookOffset = m_HipFireOffset;
+
+        // Apply initial offset immediately
+        if (m_LookOffsetField != null)
+        {
+            m_LookOffsetField.SetValue(m_ActiveViewType, m_HipFireOffset);
+        }
 
         // Listen for aim events from Opsive
         if (m_CameraController.Character != null)
@@ -98,12 +110,6 @@ public class SmoothCameraController : MonoBehaviour
         // Get look offset field
         m_LookOffsetField = viewType.GetField("m_LookOffset",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        if (m_LookOffsetField != null)
-        {
-            m_BaseLookOffset = (Vector3)m_LookOffsetField.GetValue(m_ActiveViewType);
-            m_CurrentLookOffset = m_BaseLookOffset;
-        }
     }
 
     private void OnDestroy()
@@ -118,7 +124,7 @@ public class SmoothCameraController : MonoBehaviour
     {
         m_IsAiming = isAiming;
         m_TargetSmoothing = isAiming ? m_AdsSmoothing : m_HipFireSmoothing;
-        m_TargetLookOffset = isAiming ? m_BaseLookOffset + m_AdsOffset : m_BaseLookOffset;
+        m_TargetLookOffset = isAiming ? m_AdsOffset : m_HipFireOffset;
     }
 
     private void LateUpdate()
@@ -143,7 +149,7 @@ public class SmoothCameraController : MonoBehaviour
             m_LookOffsetSmoothingField.SetValue(m_ActiveViewType, m_CurrentSmoothing);
         }
 
-        // Apply offset to view type
+        // Apply offset to view type (this overrides any Opsive preset changes)
         if (m_LookOffsetField != null)
         {
             m_LookOffsetField.SetValue(m_ActiveViewType, m_CurrentLookOffset);

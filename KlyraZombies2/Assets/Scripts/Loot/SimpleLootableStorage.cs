@@ -93,10 +93,30 @@ public class SimpleLootableStorage : InteractableBehavior
 
     /// <summary>
     /// Called when the player interacts with this container.
+    /// Only opens if this container is the one being targeted by the crosshair.
     /// </summary>
     protected override void OnInteractInternal(IInteractor interactor)
     {
         if (!(interactor is IInteractorWithInventory interactorWithInventory))
+        {
+            return;
+        }
+
+        // Only interact if this is the crosshair target (prevents wrong container opening)
+        var currentTarget = InteractionHighlight.CurrentTarget;
+
+        // Must be looking at something to interact
+        if (currentTarget == null)
+        {
+            return;
+        }
+
+        // Check if we share the same root as the crosshair target
+        // This handles cases where highlight is on "Visual" child but storage is on "Interactable" sibling
+        Transform myRoot = transform.root;
+        Transform targetRoot = currentTarget.transform.root;
+
+        if (myRoot != targetRoot)
         {
             return;
         }
@@ -118,11 +138,16 @@ public class SimpleLootableStorage : InteractableBehavior
         }
 
         // Mark highlight as opened (for looted state tracking)
-        Transform root = transform.parent != null ? transform.parent : transform;
+        // Search from root to handle any hierarchy depth
+        Transform root = transform.root;
         var highlight = root.GetComponentInChildren<InteractionHighlight>();
         if (highlight != null)
         {
             highlight.MarkAsOpened();
+        }
+        else
+        {
+            Debug.LogWarning($"[SimpleLootableStorage] {gameObject.name}: No InteractionHighlight found under root '{root.name}'");
         }
 
         // Track player position for movement detection

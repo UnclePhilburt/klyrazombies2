@@ -10,7 +10,7 @@ public class ZombieRagdoll : MonoBehaviour
 {
     [Header("Ragdoll Settings")]
     [Tooltip("Force applied in the hit direction on death")]
-    [SerializeField] private float m_DeathForce = 50f;
+    [SerializeField] private float m_DeathForce = 15f;
 
     // Cached components
     private Animator m_Animator;
@@ -80,6 +80,14 @@ public class ZombieRagdoll : MonoBehaviour
         {
             m_MainCollider.enabled = false;
         }
+
+        // Disable main rigidbody to prevent it from interfering
+        if (m_MainRigidbody != null)
+        {
+            m_MainRigidbody.linearVelocity = Vector3.zero;
+            m_MainRigidbody.angularVelocity = Vector3.zero;
+            m_MainRigidbody.isKinematic = true;
+        }
     }
 
     private void SetRagdollEnabled(bool enabled)
@@ -88,8 +96,18 @@ public class ZombieRagdoll : MonoBehaviour
         {
             if (rb != null)
             {
+                // First disable kinematic so we can set velocities
                 rb.isKinematic = !enabled;
                 rb.detectCollisions = enabled;
+
+                // Reset velocity AFTER disabling kinematic to prevent physics explosions
+                if (enabled)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.interpolation = RigidbodyInterpolation.Interpolate;
+                    rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+                }
             }
         }
 

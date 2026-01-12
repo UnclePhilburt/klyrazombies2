@@ -13,14 +13,57 @@ using TMPro;
 /// </summary>
 public class SimpleLootUI : MonoBehaviour
 {
-    [Header("Grid Settings")]
+    [Header("UI Scale")]
+    [SerializeField] private float m_UIScaleMultiplier = 1.0f;
+
+    [Header("Grid Layout")]
     [SerializeField] private int m_GridColumns = 4;
     [SerializeField] private int m_MaxGridRows = 4;
     [SerializeField] private int m_BasePlayerSlots = 4;
-    [SerializeField] private float m_SlotSize = 70f;
-    [SerializeField] private float m_SlotSpacing = 15f;
-    [SerializeField] private float m_NameHeight = 18f;
-    [SerializeField] private float m_GridGap = 50f;
+    [SerializeField] private float m_SlotSize = 79.2f;
+    [SerializeField] private float m_SlotSpacing = 16.3f;
+    [SerializeField] private float m_NameHeight = 18.8f;
+    [SerializeField] private float m_GridGap = 124.9f;
+    [SerializeField] private float m_IconPadding = 5f;
+
+    [Header("Grid Text Settings")]
+    [SerializeField] private float m_AmountFontSize = 11f;
+    [SerializeField] private float m_NameFontSize = 9f;
+    [SerializeField] private float m_NameFontSizeMin = 6f;
+    [SerializeField] private bool m_NameAutoSize = true;
+
+    [Header("Section Positions")]
+    [SerializeField] private Vector2 m_EquipmentOffset = new Vector2(12.9f, -2.8f);
+    [SerializeField] private Vector2 m_PlayerGridOffset = new Vector2(50.34f, -35f);
+    [SerializeField] private Vector2 m_ContainerGridOffset = new Vector2(-39.15f, -35f);
+    [SerializeField] private Vector2 m_PlayerLabelOffset = new Vector2(149.57f, 0f);
+    [SerializeField] private Vector2 m_ContainerLabelOffset = new Vector2(-137.13f, 0f);
+
+    [Header("Grid Colors")]
+    [SerializeField] private Color m_OverlayColor = new Color(0, 0, 0, 0.85f);
+    [SerializeField] private Color m_SlotColor = new Color(0.2f, 0.2f, 0.2f, 0.9f);
+    [SerializeField] private Color m_SlotHoverColor = new Color(0.3f, 0.3f, 0.3f, 0.95f);
+    [SerializeField] private Color m_ContainerBorderColor = new Color(0.6f, 0.4f, 0.2f, 0.8f);
+    [SerializeField] private Color m_PlayerBorderColor = new Color(0.3f, 0.5f, 0.7f, 0.8f);
+    [SerializeField] private Color m_TextColor = new Color(1f, 1f, 1f, 1f);
+
+    [Header("Equipment Slots Layout")]
+    [SerializeField] private float m_EquipSlotSize = 60f;
+    [SerializeField] private float m_EquipSlotSpacing = 5f;
+    [SerializeField] private float m_EquipIconPadding = 6f;
+
+    [Header("Equipment Text Settings")]
+    [SerializeField] private float m_EquipLabelFontSize = 9f;
+    [SerializeField] private float m_EquipNameFontSize = 9f;
+    [SerializeField] private float m_EquipNameFontSizeMin = 6f;
+    [SerializeField] private bool m_EquipNameAutoSize = true;
+
+    [Header("Equipment Slots Colors")]
+    [SerializeField] private Color m_EquipBorderColor = new Color(0.6f, 0.5f, 0.3f, 0.8f);
+    [SerializeField] private Color m_EquipBackgroundColor = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+    [SerializeField] private Color m_EquipHoverColor = new Color(0.25f, 0.25f, 0.3f, 0.95f);
+    [SerializeField] private Color m_EquipLabelColor = new Color(0.7f, 0.7f, 0.7f, 0.8f);
+    [SerializeField] private Color m_EquipNameColor = new Color(1f, 1f, 1f, 1f);
 
     [Header("Search Animation")]
     [SerializeField] private float m_SearchTimePerItem = 1.5f;
@@ -42,19 +85,6 @@ public class SimpleLootUI : MonoBehaviour
     [SerializeField] private AudioClip m_PickupItemSound;
     [SerializeField] [Range(0f, 1f)] private float m_InventorySoundVolume = 0.6f;
 
-    [Header("Equipment Slots")]
-    [SerializeField] private float m_EquipSlotSize = 70f;
-    [SerializeField] private float m_EquipSlotSpacing = 10f;
-
-    [Header("Colors")]
-    [SerializeField] private Color m_OverlayColor = new Color(0, 0, 0, 0.85f);
-    [SerializeField] private Color m_SlotColor = new Color(0.2f, 0.2f, 0.2f, 0.9f);
-    [SerializeField] private Color m_SlotHoverColor = new Color(0.3f, 0.3f, 0.3f, 0.95f);
-    [SerializeField] private Color m_ContainerBorderColor = new Color(0.6f, 0.4f, 0.2f, 0.8f);
-    [SerializeField] private Color m_PlayerBorderColor = new Color(0.3f, 0.5f, 0.7f, 0.8f);
-    [SerializeField] private Color m_EquipBorderColor = new Color(0.6f, 0.5f, 0.3f, 0.8f);
-    [SerializeField] private Color m_TextColor = new Color(1f, 1f, 1f, 1f);
-
     // UI Elements
     private Canvas m_Canvas;
     private GameObject m_OverlayPanel;
@@ -71,6 +101,7 @@ public class SimpleLootUI : MonoBehaviour
     private EquipSlot m_BackpackSlot;
     private EquipSlot m_RifleSlot;
     private EquipSlot m_PistolSlot;
+    private EquipSlot m_FlashlightSlot;
 
     // State
     private bool m_IsOpen = false;
@@ -175,16 +206,19 @@ public class SimpleLootUI : MonoBehaviour
         m_LoopAudioSource.playOnAwake = false;
         m_LoopAudioSource.loop = true;
 
-        m_Canvas = FindFirstObjectByType<Canvas>();
-        if (m_Canvas == null)
-        {
-            var canvasObj = new GameObject("LootCanvas");
-            m_Canvas = canvasObj.AddComponent<Canvas>();
-            m_Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            m_Canvas.sortingOrder = 110;
-            canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasObj.AddComponent<GraphicRaycaster>();
-        }
+        // Always create our own canvas with proper scaling
+        var canvasObj = new GameObject("LootCanvas");
+        m_Canvas = canvasObj.AddComponent<Canvas>();
+        m_Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        m_Canvas.sortingOrder = 110;
+        var scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        // Use a fixed reference resolution for consistent sizing
+        // Adjust m_UIScaleMultiplier to make UI larger/smaller
+        float baseRef = 1080f / Mathf.Max(0.5f, m_UIScaleMultiplier);
+        scaler.referenceResolution = new Vector2(baseRef * 16f / 9f, baseRef);
+        scaler.matchWidthOrHeight = 0.5f;
+        canvasObj.AddComponent<GraphicRaycaster>();
 
         if (FindFirstObjectByType<EventSystem>() == null)
         {
@@ -255,18 +289,19 @@ public class SimpleLootUI : MonoBehaviour
         rect.anchorMin = new Vector2(0, 1);
         rect.anchorMax = new Vector2(0, 1);
         rect.pivot = new Vector2(0, 1);
-        rect.anchoredPosition = new Vector2(0, -35); // Below the label
+        rect.anchoredPosition = m_EquipmentOffset;
 
         // Single column layout: Backpack, Rifle, Pistol (3 slots)
         float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
-        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing; // 3 rows
+        float totalHeight = 4 * equipTotalHeight + 3 * m_EquipSlotSpacing; // 4 rows
         float totalWidth = m_EquipSlotSize + m_EquipSlotSpacing; // 1 column
         rect.sizeDelta = new Vector2(totalWidth, totalHeight);
 
         // Create equipment slots in single column
-        m_BackpackSlot = CreateEquipSlotAt("Backpack", 0, 0);  // col 0, row 0
-        m_RifleSlot = CreateEquipSlotAt("Rifle", 0, 1);        // col 0, row 1
-        m_PistolSlot = CreateEquipSlotAt("Pistol", 0, 2);      // col 0, row 2
+        m_BackpackSlot = CreateEquipSlotAt("Backpack", 0, 0);      // col 0, row 0
+        m_RifleSlot = CreateEquipSlotAt("Rifle", 0, 1);            // col 0, row 1
+        m_PistolSlot = CreateEquipSlotAt("Pistol", 0, 2);          // col 0, row 2
+        m_FlashlightSlot = CreateEquipSlotAt("Flashlight", 0, 3);  // col 0, row 3
     }
 
     private EquipSlot CreateEquipSlotAt(string slotType, int col, int row)
@@ -308,7 +343,7 @@ public class SimpleLootUI : MonoBehaviour
         bgRect.offsetMin = new Vector2(2, 2);
         bgRect.offsetMax = new Vector2(-2, -2);
         slot.Background = bgObj.AddComponent<Image>();
-        slot.Background.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        slot.Background.color = m_EquipBackgroundColor;
 
         // Label
         var labelObj = new GameObject("Label");
@@ -321,8 +356,8 @@ public class SimpleLootUI : MonoBehaviour
         labelRect.sizeDelta = new Vector2(m_EquipSlotSize, 14);
         slot.LabelText = labelObj.AddComponent<TextMeshProUGUI>();
         slot.LabelText.text = slotType;
-        slot.LabelText.fontSize = 9;
-        slot.LabelText.color = new Color(0.7f, 0.7f, 0.7f, 0.8f);
+        slot.LabelText.fontSize = m_EquipLabelFontSize;
+        slot.LabelText.color = m_EquipLabelColor;
         slot.LabelText.alignment = TextAlignmentOptions.Top;
         slot.LabelText.raycastTarget = false;
 
@@ -332,8 +367,8 @@ public class SimpleLootUI : MonoBehaviour
         var iconRect = iconObj.AddComponent<RectTransform>();
         iconRect.anchorMin = Vector2.zero;
         iconRect.anchorMax = Vector2.one;
-        iconRect.offsetMin = new Vector2(6, 6);
-        iconRect.offsetMax = new Vector2(-6, -16);
+        iconRect.offsetMin = new Vector2(m_EquipIconPadding, m_EquipIconPadding);
+        iconRect.offsetMax = new Vector2(-m_EquipIconPadding, -16);
         slot.IconImage = iconObj.AddComponent<Image>();
         slot.IconImage.preserveAspect = true;
         slot.IconImage.raycastTarget = false;
@@ -347,13 +382,16 @@ public class SimpleLootUI : MonoBehaviour
         nameRect.anchorMax = new Vector2(0.5f, 0);
         nameRect.pivot = new Vector2(0.5f, 1);
         nameRect.anchoredPosition = new Vector2(0, -2);
-        nameRect.sizeDelta = new Vector2(m_EquipSlotSize + 10, m_NameHeight);
+        nameRect.sizeDelta = new Vector2(m_EquipSlotSize, m_NameHeight);
         slot.NameText = nameObj.AddComponent<TextMeshProUGUI>();
-        slot.NameText.fontSize = 9;
-        slot.NameText.color = m_TextColor;
+        slot.NameText.fontSize = m_EquipNameFontSize;
+        slot.NameText.color = m_EquipNameColor;
         slot.NameText.alignment = TextAlignmentOptions.Top;
         slot.NameText.enableWordWrapping = false;
         slot.NameText.overflowMode = TextOverflowModes.Ellipsis;
+        slot.NameText.enableAutoSizing = m_EquipNameAutoSize;
+        slot.NameText.fontSizeMin = m_EquipNameFontSizeMin;
+        slot.NameText.fontSizeMax = m_EquipNameFontSize;
         slot.NameText.raycastTarget = false;
 
         // Button
@@ -364,7 +402,7 @@ public class SimpleLootUI : MonoBehaviour
 
         // Hover
         var hoverHandler = slot.SlotObject.AddComponent<SlotHoverHandler>();
-        hoverHandler.Initialize(slot.Background, new Color(0.15f, 0.15f, 0.2f, 0.9f), new Color(0.25f, 0.25f, 0.3f, 0.95f));
+        hoverHandler.Initialize(slot.Background, m_EquipBackgroundColor, m_EquipHoverColor);
 
         // Drag handler
         var dragHandler = slot.SlotObject.AddComponent<LootEquipSlotDragHandler>();
@@ -405,7 +443,7 @@ public class SimpleLootUI : MonoBehaviour
         rect.anchorMin = new Vector2(0, 1);
         rect.anchorMax = new Vector2(0, 1);
         rect.pivot = new Vector2(0, 1);
-        rect.anchoredPosition = new Vector2(equipWidth, -35);
+        rect.anchoredPosition = new Vector2(equipWidth + m_PlayerGridOffset.x, m_PlayerGridOffset.y);
 
         float slotTotalHeight = m_SlotSize + m_NameHeight;
         float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
@@ -467,7 +505,7 @@ public class SimpleLootUI : MonoBehaviour
         rect.anchorMin = new Vector2(1, 1);
         rect.anchorMax = new Vector2(1, 1);
         rect.pivot = new Vector2(1, 1);
-        rect.anchoredPosition = new Vector2(0, -35);
+        rect.anchoredPosition = m_ContainerGridOffset;
 
         float slotTotalHeight = m_SlotSize + m_NameHeight;
         float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
@@ -537,8 +575,8 @@ public class SimpleLootUI : MonoBehaviour
         var iconRect = iconObj.AddComponent<RectTransform>();
         iconRect.anchorMin = Vector2.zero;
         iconRect.anchorMax = Vector2.one;
-        iconRect.offsetMin = new Vector2(5, 5);
-        iconRect.offsetMax = new Vector2(-5, -5);
+        iconRect.offsetMin = new Vector2(m_IconPadding, m_IconPadding);
+        iconRect.offsetMax = new Vector2(-m_IconPadding, -m_IconPadding);
         slot.IconImage = iconObj.AddComponent<Image>();
         slot.IconImage.preserveAspect = true;
         slot.IconImage.raycastTarget = false;
@@ -591,7 +629,7 @@ public class SimpleLootUI : MonoBehaviour
         amountRect.anchoredPosition = new Vector2(-3, 3);
         amountRect.sizeDelta = new Vector2(35, 18);
         slot.AmountText = amountObj.AddComponent<TextMeshProUGUI>();
-        slot.AmountText.fontSize = 11;
+        slot.AmountText.fontSize = m_AmountFontSize;
         slot.AmountText.fontStyle = FontStyles.Bold;
         slot.AmountText.color = m_TextColor;
         slot.AmountText.alignment = TextAlignmentOptions.BottomRight;
@@ -605,13 +643,16 @@ public class SimpleLootUI : MonoBehaviour
         nameRect.anchorMax = new Vector2(0.5f, 0);
         nameRect.pivot = new Vector2(0.5f, 1);
         nameRect.anchoredPosition = new Vector2(0, -2);
-        nameRect.sizeDelta = new Vector2(m_SlotSize + m_SlotSpacing, m_NameHeight);
+        nameRect.sizeDelta = new Vector2(m_SlotSize, m_NameHeight);
         slot.NameText = nameObj.AddComponent<TextMeshProUGUI>();
-        slot.NameText.fontSize = 9;
+        slot.NameText.fontSize = m_NameFontSize;
         slot.NameText.color = m_TextColor;
         slot.NameText.alignment = TextAlignmentOptions.Top;
         slot.NameText.enableWordWrapping = false;
         slot.NameText.overflowMode = TextOverflowModes.Ellipsis;
+        slot.NameText.enableAutoSizing = m_NameAutoSize;
+        slot.NameText.fontSizeMin = m_NameFontSizeMin;
+        slot.NameText.fontSizeMax = m_NameFontSize;
         slot.NameText.raycastTarget = false;
 
         // Button
@@ -659,10 +700,10 @@ public class SimpleLootUI : MonoBehaviour
     {
         if (!m_IsOpen) return;
 
-        // Don't allow closing on the same frame we opened (F key would trigger both open and close)
+        // Don't allow closing on the same frame we opened (E key would trigger both open and close)
         if (Time.time - m_OpenTime < 0.1f) return;
 
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Tab))
         {
             Close();
         }
@@ -831,6 +872,13 @@ public class SimpleLootUI : MonoBehaviour
         if (open)
         {
             m_OpenTime = Time.time;
+        }
+
+        // Hide/show SimpleInventoryUI to prevent overlap
+        var inventoryUI = FindFirstObjectByType<SimpleInventoryUI>();
+        if (inventoryUI != null)
+        {
+            inventoryUI.SetVisible(!open);
         }
 
         Debug.Log($"[SimpleLootUI] SetOpen({open}) - OverlayPanel: {(m_OverlayPanel != null ? "EXISTS" : "NULL")}, Canvas: {(m_Canvas != null ? m_Canvas.name : "NULL")}");
@@ -1077,6 +1125,7 @@ public class SimpleLootUI : MonoBehaviour
         ClearEquipSlot(m_BackpackSlot);
         ClearEquipSlot(m_RifleSlot);
         ClearEquipSlot(m_PistolSlot);
+        ClearEquipSlot(m_FlashlightSlot);
 
         if (m_PlayerInventory == null) return;
 
@@ -1115,6 +1164,19 @@ public class SimpleLootUI : MonoBehaviour
                 else
                 {
                     targetSlot = m_RifleSlot;
+                }
+            }
+            else if (categoryName.Contains("Flashlight") || categoryName.Contains("Light"))
+            {
+                targetSlot = m_FlashlightSlot;
+            }
+            else
+            {
+                // Also check item name for flashlight
+                string itemName = item.name.ToLower();
+                if (itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch"))
+                {
+                    targetSlot = m_FlashlightSlot;
                 }
             }
 
@@ -1287,6 +1349,7 @@ public class SimpleLootUI : MonoBehaviour
         if (slotType == "Backpack") return m_BackpackSlot;
         if (slotType == "Rifle") return m_RifleSlot;
         if (slotType == "Pistol") return m_PistolSlot;
+        if (slotType == "Flashlight") return m_FlashlightSlot;
         return null;
     }
 
@@ -1374,6 +1437,19 @@ public class SimpleLootUI : MonoBehaviour
                 targetSlot = m_RifleSlot;
             }
         }
+        else if (categoryName.Contains("Flashlight") || categoryName.Contains("Light"))
+        {
+            targetSlot = m_FlashlightSlot;
+        }
+        else
+        {
+            // Also check item name for flashlight
+            string itemName = itemInfo.Item.name.ToLower();
+            if (itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch"))
+            {
+                targetSlot = m_FlashlightSlot;
+            }
+        }
 
         if (targetSlot == null) return;
 
@@ -1382,8 +1458,8 @@ public class SimpleLootUI : MonoBehaviour
 
         if (defaultCollection == null || equipCollection == null) return;
 
-        // Get clothing handler for visual updates
-        var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+        // Get handlers for visual updates
+        var flashlightHandler = m_PlayerInventory.GetComponent<FlashlightEquipHandler>();
 
         // Check for existing equipped item
         ItemInfo oldEquippedItem = default;
@@ -1401,17 +1477,17 @@ public class SimpleLootUI : MonoBehaviour
             equipCollection.RemoveItem(oldEquippedItem);
             defaultCollection.AddItem(oldEquippedItem);
 
-            // Notify clothing handler of unequip
-            if (clothingHandler != null)
-                clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
+            // Notify handlers of unequip
+            if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+                flashlightHandler.OnFlashlightUnequipped();
         }
 
         // Equip the new item
         equipCollection.AddItem(itemInfo);
 
-        // Notify clothing handler of equip
-        if (clothingHandler != null)
-            clothingHandler.OnClothingEquipped(itemInfo.Item.ItemDefinition);
+        // Notify handlers of equip
+        if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+            flashlightHandler.OnFlashlightEquipped();
 
         // Play equip sound
         if (m_EquipSound != null && m_AudioSource != null)
@@ -1428,10 +1504,11 @@ public class SimpleLootUI : MonoBehaviour
 
         if (defaultCollection != null && equipCollection != null)
         {
-            // Notify clothing handler before unequip
-            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
-            if (clothingHandler != null)
-                clothingHandler.OnClothingUnequipped(itemInfo.Item.ItemDefinition);
+            // Notify handlers before unequip
+            var flashlightHandler = m_PlayerInventory.GetComponent<FlashlightEquipHandler>();
+
+            if (flashlightHandler != null && slot == m_FlashlightSlot)
+                flashlightHandler.OnFlashlightUnequipped();
 
             equipCollection.RemoveItem(itemInfo);
             defaultCollection.AddItem(itemInfo);
@@ -1634,12 +1711,17 @@ public class SimpleLootUI : MonoBehaviour
         }
 
         string categoryName = category.name;
+        string itemName = m_DraggedItem.Item.name.ToLower();
         bool canEquip = false;
 
         if (slotType == "Backpack" && (categoryName.Contains("Backpack") || categoryName.Contains("Bag")))
             canEquip = true;
         else if ((slotType == "Rifle" || slotType == "Pistol") &&
                  (categoryName.Contains("Ranged") || categoryName.Contains("Weapon")))
+            canEquip = true;
+        else if (slotType == "Flashlight" &&
+                 (categoryName.Contains("Flashlight") || categoryName.Contains("Light") ||
+                  itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch")))
             canEquip = true;
 
         if (!canEquip)
@@ -1664,8 +1746,8 @@ public class SimpleLootUI : MonoBehaviour
             oldEquippedItem = targetSlot.EquippedItem;
         }
 
-        // Get clothing handler for visual updates
-        var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
+        // Get handlers for visual updates
+        var flashlightHandler = m_PlayerInventory.GetComponent<FlashlightEquipHandler>();
 
         // If from container
         if (m_DragFromContainer)
@@ -1681,17 +1763,17 @@ public class SimpleLootUI : MonoBehaviour
                 equipCollection.RemoveItem(oldEquippedItem);
                 containerCollection.AddItem(oldEquippedItem);
 
-                // Notify clothing handler of unequip
-                if (clothingHandler != null)
-                    clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
+                // Notify handlers of unequip
+                if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+                    flashlightHandler.OnFlashlightUnequipped();
             }
 
             // Equip the new item
             equipCollection.AddItem(m_DraggedItem);
 
-            // Notify clothing handler of equip
-            if (clothingHandler != null)
-                clothingHandler.OnClothingEquipped(m_DraggedItem.Item.ItemDefinition);
+            // Notify handlers of equip
+            if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+                flashlightHandler.OnFlashlightEquipped();
 
             // Play equip sound
             if (m_EquipSound != null && m_AudioSource != null)
@@ -1711,17 +1793,17 @@ public class SimpleLootUI : MonoBehaviour
                 equipCollection.RemoveItem(oldEquippedItem);
                 defaultCollection.AddItem(oldEquippedItem);
 
-                // Notify clothing handler of unequip
-                if (clothingHandler != null)
-                    clothingHandler.OnClothingUnequipped(oldEquippedItem.Item.ItemDefinition);
+                // Notify handlers of unequip
+                if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+                    flashlightHandler.OnFlashlightUnequipped();
             }
 
             // Equip the new item
             equipCollection.AddItem(m_DraggedItem);
 
-            // Notify clothing handler of equip
-            if (clothingHandler != null)
-                clothingHandler.OnClothingEquipped(m_DraggedItem.Item.ItemDefinition);
+            // Notify handlers of equip
+            if (flashlightHandler != null && targetSlot == m_FlashlightSlot)
+                flashlightHandler.OnFlashlightEquipped();
 
             // Play equip sound
             if (m_EquipSound != null && m_AudioSource != null)
@@ -1730,6 +1812,294 @@ public class SimpleLootUI : MonoBehaviour
 
         EndDrag();
         RefreshUI();
+    }
+
+    #endregion
+
+    #region Runtime Styling
+
+    /// <summary>
+    /// Apply all styling changes at runtime.
+    /// </summary>
+    public void ApplyAllStyling()
+    {
+        ApplyOverlayStyling();
+        ApplyGridStyling();
+        ApplyEquipmentStyling();
+    }
+
+    private void ApplyOverlayStyling()
+    {
+        if (m_OverlayPanel != null)
+        {
+            var overlayImage = m_OverlayPanel.GetComponent<Image>();
+            if (overlayImage != null)
+                overlayImage.color = m_OverlayColor;
+        }
+
+        // Update labels position and color
+        if (m_ContainerLabel != null)
+        {
+            m_ContainerLabel.color = m_ContainerBorderColor;
+            var labelRect = m_ContainerLabel.GetComponent<RectTransform>();
+            if (labelRect != null)
+                labelRect.anchoredPosition = m_ContainerLabelOffset;
+        }
+        if (m_PlayerLabel != null)
+        {
+            m_PlayerLabel.color = m_PlayerBorderColor;
+            var labelRect = m_PlayerLabel.GetComponent<RectTransform>();
+            if (labelRect != null)
+            {
+                float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
+                labelRect.anchoredPosition = new Vector2(equipWidth + m_PlayerLabelOffset.x, m_PlayerLabelOffset.y);
+            }
+        }
+    }
+
+    private void ApplyGridStyling()
+    {
+        // Update container grid size and position
+        if (m_ContainerGrid != null)
+        {
+            var rect = m_ContainerGrid.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                float slotTotalHeight = m_SlotSize + m_NameHeight;
+                float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
+                float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
+                rect.sizeDelta = new Vector2(gridWidth, gridHeight);
+                rect.anchoredPosition = m_ContainerGridOffset;
+            }
+        }
+
+        // Update player grid size and position
+        if (m_PlayerGrid != null)
+        {
+            var rect = m_PlayerGrid.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                float slotTotalHeight = m_SlotSize + m_NameHeight;
+                float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
+                float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
+                rect.sizeDelta = new Vector2(gridWidth, gridHeight);
+                float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
+                rect.anchoredPosition = new Vector2(equipWidth + m_PlayerGridOffset.x, m_PlayerGridOffset.y);
+            }
+        }
+
+        // Update container slots
+        for (int i = 0; i < m_ContainerSlots.Count; i++)
+        {
+            ApplySlotStyling(m_ContainerSlots[i], i, m_ContainerBorderColor);
+        }
+
+        // Update player slots
+        for (int i = 0; i < m_PlayerSlots.Count; i++)
+        {
+            ApplySlotStyling(m_PlayerSlots[i], i, m_PlayerBorderColor);
+        }
+    }
+
+    private void ApplySlotStyling(LootSlot slot, int index, Color borderColor)
+    {
+        if (slot == null || slot.SlotObject == null) return;
+
+        int row = index / m_GridColumns;
+        int col = index % m_GridColumns;
+
+        float slotTotalHeight = m_SlotSize + m_NameHeight;
+        float x = col * (m_SlotSize + m_SlotSpacing);
+        float y = -row * (slotTotalHeight + m_SlotSpacing);
+
+        // Update position and size
+        var slotRect = slot.SlotObject.GetComponent<RectTransform>();
+        if (slotRect != null)
+        {
+            slotRect.anchoredPosition = new Vector2(x, y);
+            slotRect.sizeDelta = new Vector2(m_SlotSize, m_SlotSize);
+        }
+
+        // Update border
+        if (slot.Border != null)
+            slot.Border.color = borderColor;
+
+        // Update background
+        if (slot.Background != null)
+            slot.Background.color = m_SlotColor;
+
+        // Update icon padding
+        if (slot.IconImage != null)
+        {
+            var iconRect = slot.IconImage.GetComponent<RectTransform>();
+            if (iconRect != null)
+            {
+                iconRect.offsetMin = new Vector2(m_IconPadding, m_IconPadding);
+                iconRect.offsetMax = new Vector2(-m_IconPadding, -m_IconPadding);
+            }
+        }
+
+        // Update amount text
+        if (slot.AmountText != null)
+        {
+            slot.AmountText.fontSize = m_AmountFontSize;
+            slot.AmountText.color = m_TextColor;
+        }
+
+        // Update name text
+        if (slot.NameText != null)
+        {
+            var nameRect = slot.NameText.GetComponent<RectTransform>();
+            if (nameRect != null)
+            {
+                nameRect.sizeDelta = new Vector2(m_SlotSize, m_NameHeight);
+            }
+            slot.NameText.fontSize = m_NameFontSize;
+            slot.NameText.enableAutoSizing = m_NameAutoSize;
+            slot.NameText.fontSizeMin = m_NameFontSizeMin;
+            slot.NameText.fontSizeMax = m_NameFontSize;
+            slot.NameText.color = m_TextColor;
+        }
+
+        // Update hover handler
+        var hoverHandler = slot.SlotObject.GetComponent<SlotHoverHandler>();
+        if (hoverHandler != null)
+        {
+            hoverHandler.Initialize(slot.Background, m_SlotColor, m_SlotHoverColor);
+        }
+    }
+
+    private void ApplyEquipmentStyling()
+    {
+        // Update equipment container size and position
+        if (m_EquipmentContainer != null)
+        {
+            var rect = m_EquipmentContainer.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
+                float totalHeight = 4 * equipTotalHeight + 3 * m_EquipSlotSpacing;
+                float totalWidth = m_EquipSlotSize + m_EquipSlotSpacing;
+                rect.sizeDelta = new Vector2(totalWidth, totalHeight);
+                rect.anchoredPosition = m_EquipmentOffset;
+            }
+        }
+
+        // Update each equipment slot
+        ApplyEquipSlotStyling(m_BackpackSlot, 0);
+        ApplyEquipSlotStyling(m_RifleSlot, 1);
+        ApplyEquipSlotStyling(m_PistolSlot, 2);
+        ApplyEquipSlotStyling(m_FlashlightSlot, 3);
+    }
+
+    private void ApplyEquipSlotStyling(EquipSlot slot, int row)
+    {
+        if (slot == null || slot.SlotObject == null) return;
+
+        float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
+        float y = -row * (equipTotalHeight + m_EquipSlotSpacing);
+
+        // Update position and size
+        var slotRect = slot.SlotObject.GetComponent<RectTransform>();
+        if (slotRect != null)
+        {
+            slotRect.anchoredPosition = new Vector2(0, y);
+            slotRect.sizeDelta = new Vector2(m_EquipSlotSize, m_EquipSlotSize);
+        }
+
+        // Update border
+        if (slot.Border != null)
+            slot.Border.color = m_EquipBorderColor;
+
+        // Update background
+        if (slot.Background != null)
+            slot.Background.color = m_EquipBackgroundColor;
+
+        // Update icon padding
+        if (slot.IconImage != null)
+        {
+            var iconRect = slot.IconImage.GetComponent<RectTransform>();
+            if (iconRect != null)
+            {
+                iconRect.offsetMin = new Vector2(m_EquipIconPadding, m_EquipIconPadding);
+                iconRect.offsetMax = new Vector2(-m_EquipIconPadding, -16);
+            }
+        }
+
+        // Update label
+        if (slot.LabelText != null)
+        {
+            var labelRect = slot.LabelText.GetComponent<RectTransform>();
+            if (labelRect != null)
+            {
+                labelRect.sizeDelta = new Vector2(m_EquipSlotSize, 14);
+            }
+            slot.LabelText.fontSize = m_EquipLabelFontSize;
+            slot.LabelText.color = m_EquipLabelColor;
+        }
+
+        // Update name text
+        if (slot.NameText != null)
+        {
+            var nameRect = slot.NameText.GetComponent<RectTransform>();
+            if (nameRect != null)
+            {
+                nameRect.sizeDelta = new Vector2(m_EquipSlotSize, m_NameHeight);
+            }
+            slot.NameText.fontSize = m_EquipNameFontSize;
+            slot.NameText.enableAutoSizing = m_EquipNameAutoSize;
+            slot.NameText.fontSizeMin = m_EquipNameFontSizeMin;
+            slot.NameText.fontSizeMax = m_EquipNameFontSize;
+            slot.NameText.color = m_EquipNameColor;
+        }
+
+        // Update hover handler
+        var hoverHandler = slot.SlotObject.GetComponent<SlotHoverHandler>();
+        if (hoverHandler != null)
+        {
+            hoverHandler.Initialize(slot.Background, m_EquipBackgroundColor, m_EquipHoverColor);
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // Apply styling when changed in Inspector during play mode
+        if (Application.isPlaying && m_Initialized)
+        {
+            ApplyAllStyling();
+            UpdateContentPanelSize();
+        }
+    }
+
+    [ContextMenu("Force Refresh UI")]
+    private void ForceRefreshUI()
+    {
+        if (Application.isPlaying && m_Initialized)
+        {
+            ApplyAllStyling();
+            UpdateContentPanelSize();
+            RefreshUI();
+        }
+    }
+#endif
+
+    private void UpdateContentPanelSize()
+    {
+        if (m_ContentPanel == null) return;
+
+        var rect = m_ContentPanel.GetComponent<RectTransform>();
+        if (rect == null) return;
+
+        float slotTotalHeight = m_SlotSize + m_NameHeight;
+        float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
+        float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
+
+        float equipWidth = m_EquipSlotSize + m_EquipSlotSpacing;
+        float totalWidth = equipWidth + gridWidth + m_GridGap + gridWidth;
+        float totalHeight = gridHeight + 40;
+
+        rect.sizeDelta = new Vector2(totalWidth, totalHeight);
     }
 
     #endregion

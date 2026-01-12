@@ -15,6 +15,11 @@ public class StaminaSystem : MonoBehaviour
     [SerializeField] private float m_DrainRate = 15f; // Stamina per second while sprinting
     [SerializeField] private float m_MinStaminaToSprint = 5f; // Minimum stamina needed to start sprinting
 
+    [Header("Endurance Leveling")]
+    [SerializeField] private float m_BaseXPToLevel = 200f; // Stamina drained to reach level 2
+    [SerializeField] private float m_XPMultiplierPerLevel = 1.5f; // Each level needs 1.5x more
+    [SerializeField] private bool m_ShowXPProgress = true;
+
     [Header("Heavy Breathing")]
     [SerializeField] private AudioClip m_HeavyBreathingClip;
     [SerializeField] private float m_BreathingVolume = 0.7f;
@@ -30,6 +35,16 @@ public class StaminaSystem : MonoBehaviour
     private bool m_IsSprinting;
     private AudioSource m_BreathingAudioSource;
     private bool m_IsBreathingHeavily;
+
+    // Endurance XP tracking
+    private float m_CurrentXP = 0f;
+    private float m_XPToNextLevel;
+    private PlayerSkills m_PlayerSkills;
+
+    // Public access for UI
+    public float CurrentXP => m_CurrentXP;
+    public float XPToNextLevel => m_XPToNextLevel;
+    public float XPProgress => m_XPToNextLevel > 0 ? m_CurrentXP / m_XPToNextLevel : 0f;
 
     private void Start()
     {
@@ -135,6 +150,43 @@ public class StaminaSystem : MonoBehaviour
 
         // Setup breathing audio source
         SetupBreathingAudio();
+
+        // Find PlayerSkills and setup XP tracking
+        m_PlayerSkills = GetComponent<PlayerSkills>();
+        if (m_PlayerSkills == null)
+            m_PlayerSkills = GetComponentInChildren<PlayerSkills>();
+
+        CalculateXPToNextLevel();
+
+        // Register for respawn to reset XP
+        EventHandler.RegisterEvent(gameObject, "OnRespawn", OnRespawn);
+    }
+
+    /// <summary>
+    /// Calculate XP needed for next endurance level.
+    /// </summary>
+    private void CalculateXPToNextLevel()
+    {
+        int currentLevel = m_PlayerSkills != null ? m_PlayerSkills.EnduranceLevel : 1;
+
+        if (currentLevel >= 10)
+        {
+            m_XPToNextLevel = 0; // Max level
+            return;
+        }
+
+        // XP needed scales with level: base * multiplier^(level-1)
+        m_XPToNextLevel = m_BaseXPToLevel * Mathf.Pow(m_XPMultiplierPerLevel, currentLevel - 1);
+    }
+
+    /// <summary>
+    /// Called when player respawns - reset XP progress.
+    /// </summary>
+    private void OnRespawn()
+    {
+        m_CurrentXP = 0f;
+        CalculateXPToNextLevel();
+        Debug.Log("[StaminaSystem] XP reset on respawn");
     }
 
     private void SetupBreathingAudio()
@@ -152,6 +204,7 @@ public class StaminaSystem : MonoBehaviour
     private void OnDestroy()
     {
         EventHandler.UnregisterEvent<Ability, bool>(gameObject, "OnCharacterAbilityActive", OnAbilityActive);
+        EventHandler.UnregisterEvent(gameObject, "OnRespawn", OnRespawn);
     }
 
     private void Update()
@@ -160,8 +213,14 @@ public class StaminaSystem : MonoBehaviour
 
         if (m_IsSprinting)
         {
+            // Calculate drain amount
+            float drainAmount = m_DrainRate * Time.deltaTime;
+
             // Drain stamina while sprinting
-            m_StaminaAttribute.Value -= m_DrainRate * Time.deltaTime;
+            m_StaminaAttribute.Value -= drainAmount;
+
+            // Add XP for endurance (amount drained = XP gained)
+            AddEnduranceXP(drainAmount);
 
             // Stop sprinting if stamina is depleted
             if (m_StaminaAttribute.Value <= 0 && m_SprintAbility != null && m_SprintAbility.IsActive)
@@ -173,11 +232,99 @@ public class StaminaSystem : MonoBehaviour
         // Handle heavy breathing
         UpdateBreathing();
 
+        // Try to find PlayerSkills if we don't have it
+        if (m_PlayerSkills == null)
+        {
+            // Try on same GameObject
+            m_PlayerSkills = GetComponent<PlayerSkills>();
+
+            // Try on parent
+            if (m_PlayerSkills == null)
+                m_PlayerSkills = GetComponentInParent<PlayerSkills>();
+
+            // Try static instance
+            if (m_PlayerSkills == null)
+                m_PlayerSkills = PlayerSkills.Instance;
+
+            // Try finding any in scene
+            if (m_PlayerSkills == null)
+                m_PlayerSkills = FindFirstObjectByType<PlayerSkills>();
+
+            // Auto-add if not found anywhere
+            if (m_PlayerSkills == null)
+            {
+                m_PlayerSkills = gameObject.AddComponent<PlayerSkills>();
+                Debug.Log("[StaminaSystem] Auto-added PlayerSkills component");
+            }
+
+            if (m_PlayerSkills != null)
+            {
+                CalculateXPToNextLevel();
+                Debug.Log($"[StaminaSystem] PlayerSkills ready on {m_PlayerSkills.gameObject.name}");
+            }
+        }
+
         // Debug: Press F2 to see stamina status
         if (Input.GetKeyDown(KeyCode.F2))
         {
             float normalized = GetStaminaNormalized();
-            Debug.Log($"[Stamina Debug] Value: {m_StaminaAttribute.Value}/{m_StaminaAttribute.MaxValue}, Normalized: {normalized}, Sprinting: {m_IsSprinting}, BreathingClip: {(m_HeavyBreathingClip != null ? "Assigned" : "NULL")}");
+            int level = m_PlayerSkills != null ? m_PlayerSkills.EnduranceLevel : 1;
+            bool sprintAbilityActive = m_SprintAbility != null && m_SprintAbility.IsActive;
+            Debug.Log($"[Stamina Debug] Value: {m_StaminaAttribute.Value:F0}/{m_StaminaAttribute.MaxValue:F0}, Endurance Lv.{level}, XP: {m_CurrentXP:F0}/{m_XPToNextLevel:F0} ({XPProgress * 100:F0}%)");
+            Debug.Log($"[Stamina Debug] IsSprinting: {m_IsSprinting}, SprintAbility: {(m_SprintAbility != null ? "Found" : "NULL")}, AbilityActive: {sprintAbilityActive}, PlayerSkills: {(m_PlayerSkills != null ? "Found" : "NULL")}");
+        }
+    }
+
+    /// <summary>
+    /// Add XP toward endurance leveling.
+    /// </summary>
+    private void AddEnduranceXP(float amount)
+    {
+        // Try to find PlayerSkills if we don't have it yet
+        if (m_PlayerSkills == null)
+        {
+            m_PlayerSkills = GetComponent<PlayerSkills>();
+            if (m_PlayerSkills == null)
+                m_PlayerSkills = PlayerSkills.Instance;
+
+            if (m_PlayerSkills != null)
+            {
+                CalculateXPToNextLevel();
+                Debug.Log("[StaminaSystem] Found PlayerSkills");
+            }
+        }
+
+        if (m_PlayerSkills == null || m_PlayerSkills.EnduranceLevel >= 10) return;
+
+        m_CurrentXP += amount;
+
+        // Check for level up
+        if (m_CurrentXP >= m_XPToNextLevel && m_XPToNextLevel > 0)
+        {
+            LevelUpEndurance();
+        }
+    }
+
+    /// <summary>
+    /// Level up endurance skill.
+    /// </summary>
+    private void LevelUpEndurance()
+    {
+        if (m_PlayerSkills == null) return;
+
+        // Carry over excess XP
+        float excessXP = m_CurrentXP - m_XPToNextLevel;
+
+        // Level up
+        m_PlayerSkills.IncreaseEndurance();
+
+        // Reset XP with carryover
+        m_CurrentXP = Mathf.Max(0, excessXP);
+        CalculateXPToNextLevel();
+
+        if (m_ShowXPProgress)
+        {
+            Debug.Log($"[StaminaSystem] Endurance leveled up to {m_PlayerSkills.EnduranceLevel}! Next level needs {m_XPToNextLevel:F0} XP");
         }
     }
 
@@ -258,22 +405,45 @@ public class StaminaSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (m_SprintAbility == null || m_StaminaAttribute == null) return;
+        if (m_StaminaAttribute == null) return;
 
-        // Update sprinting state from ability
-        m_IsSprinting = m_SprintAbility.IsActive;
-
-        // Force stop sprint if stamina is depleted
-        if (m_IsSprinting && m_StaminaAttribute.Value <= 0)
+        // Try to find locomotion if we don't have it
+        if (m_Locomotion == null)
         {
-            m_Locomotion.TryStopAbility(m_SprintAbility, true); // force = true
-            m_IsSprinting = false;
+            m_Locomotion = GetComponent<UltimateCharacterLocomotion>();
+            if (m_Locomotion != null)
+            {
+                Debug.Log("[StaminaSystem] Found Locomotion in LateUpdate");
+            }
         }
 
-        // Prevent starting sprint if stamina too low
-        if (m_SprintAbility.IsActive && m_StaminaAttribute.Value < m_MinStaminaToSprint)
+        // Try to find sprint ability if we don't have it
+        if (m_SprintAbility == null && m_Locomotion != null)
         {
-            m_Locomotion.TryStopAbility(m_SprintAbility, true);
+            m_SprintAbility = m_Locomotion.GetAbility<SpeedChange>();
+            if (m_SprintAbility != null)
+            {
+                Debug.Log("[StaminaSystem] Found SpeedChange ability in LateUpdate");
+            }
+        }
+
+        // Update sprinting state from ability (if we have it)
+        if (m_SprintAbility != null)
+        {
+            m_IsSprinting = m_SprintAbility.IsActive;
+
+            // Force stop sprint if stamina is depleted
+            if (m_IsSprinting && m_StaminaAttribute.Value <= 0)
+            {
+                m_Locomotion.TryStopAbility(m_SprintAbility, true); // force = true
+                m_IsSprinting = false;
+            }
+
+            // Prevent starting sprint if stamina too low
+            if (m_SprintAbility.IsActive && m_StaminaAttribute.Value < m_MinStaminaToSprint)
+            {
+                m_Locomotion.TryStopAbility(m_SprintAbility, true);
+            }
         }
     }
 

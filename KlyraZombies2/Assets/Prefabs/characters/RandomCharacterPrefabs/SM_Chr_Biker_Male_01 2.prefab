@@ -246,7 +246,7 @@ MonoBehaviour:
   m_ForceInput: 0
   m_DisableCursor: 1
   m_EnableCursorWithEscape: 1
-  m_PreventLookVectorChanges: 1
+  m_PreventLookVectorChanges: 0
   m_DisablePlayerInput: 1
 --- !u!114 &2729718582786146694
 MonoBehaviour:
@@ -316,6 +316,7 @@ GameObject:
   - component: {fileID: 4760034893232634198}
   - component: {fileID: 5267069686396109430}
   - component: {fileID: 8808825105815682843}
+  - component: {fileID: 1008419371400634769}
   m_Layer: 31
   m_Name: SM_Chr_Biker_Male_01 2
   m_TagString: Player
@@ -1878,7 +1879,7 @@ MonoBehaviour:
   m_ForceInput: 0
   m_DisableCursor: 0
   m_EnableCursorWithEscape: 0
-  m_PreventLookVectorChanges: 1
+  m_PreventLookVectorChanges: 0
   m_JoystickUpThreshold: 1
   m_ControllerHorizontalLookInputName: Controller X
   m_ControllerVerticalLookInputName: Controller Y
@@ -2147,8 +2148,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9004683c75364a8a8d7664b95facbef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LootableInteraction
-  m_InteractionRange: 2.5
-  m_InteractKey: 102
+  m_InteractKey: 101
+--- !u!114 &1008419371400634769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3034497729850916095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d530035f1e97429f874ad19ecbf07f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashlightEquipHandler
+  m_LightRange: 25
+  m_LightIntensity: 2
+  m_SpotAngle: 45
+  m_InnerSpotAngle: 25
+  m_LightColor: {r: 1, g: 0.95, b: 0.85, a: 1}
+  m_Shadows: 2
+  m_AttachmentPoint: {fileID: 5273198491405537506}
+  m_LightOffset: {x: 0, y: 0.1, z: 0.1}
+  m_LightRotation: {x: 0, y: 0, z: 0}
+  m_UseCameraFallback: 1
+  m_ToggleKey: 102
 --- !u!1 &3600627113069045255
 GameObject:
   m_ObjectHideFlags: 0
@@ -2270,6 +2293,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Opsive.UltimateCharacterController::Opsive.UltimateCharacterController.Items.CharacterItemSlot
   m_ID: 0
+--- !u!1 &3927239974622269220
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5273198491405537506}
+  m_Layer: 30
+  m_Name: Flashlight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5273198491405537506
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3927239974622269220}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.1146, z: 0.141}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 583478547089794207}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4239451913795067339
 GameObject:
   m_ObjectHideFlags: 0
@@ -3768,6 +3822,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4092636600628414, guid: af169be12f376ce46a3e6b4bee8b8ffe, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1207950805064937554}
+    - targetCorrespondingSourceObject: {fileID: 4237095971323706, guid: af169be12f376ce46a3e6b4bee8b8ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5273198491405537506}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1274019000965958, guid: af169be12f376ce46a3e6b4bee8b8ffe, type: 3}
       insertIndex: -1

@@ -25,3 +25,11 @@ MonoBehaviour:
     weight: 30
     minAmount: 5
     maxAmount: 20
+  - itemDefinition: {fileID: 11400000, guid: c6d9e85ebbb034f069325daa2384c57f, type: 2}
+    weight: 1
+    minAmount: 1
+    maxAmount: 1
+  - itemDefinition: {fileID: 11400000, guid: 89d82fd5dde884cbca90978d26ad3b04, type: 2}
+    weight: 3
+    minAmount: 1
+    maxAmount: 1

@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Simple dot crosshair that stays in the center of the screen.
+/// Auto-creates itself in gameplay scenes.
 /// </summary>
 public class Crosshair : MonoBehaviour
 {
@@ -13,8 +15,75 @@ public class Crosshair : MonoBehaviour
 
     private Image m_Image;
     private static Crosshair s_Instance;
+    private static bool s_SceneHandlerRegistered = false;
 
     public static Crosshair Instance => s_Instance;
+
+    /// <summary>
+    /// Auto-creates the crosshair when a gameplay scene loads.
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void AutoInitialize()
+    {
+        // Register for scene loads to handle scene transitions
+        if (!s_SceneHandlerRegistered)
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            s_SceneHandlerRegistered = true;
+        }
+
+        TryCreateCrosshair();
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Small delay to let scene objects initialize (like CharacterSpawner spawning player)
+        if (s_Instance == null)
+        {
+            // Use a coroutine helper to delay the check
+            var helper = new GameObject("CrosshairInitHelper").AddComponent<CrosshairInitHelper>();
+            helper.Initialize();
+        }
+    }
+
+    private static void TryCreateCrosshair()
+    {
+        // Don't create if already exists
+        if (s_Instance != null) return;
+
+        // Check if there's a player in the scene (indicates gameplay scene)
+        if (GameObject.FindWithTag("Player") != null || FindFirstObjectByType<CharacterSpawner>() != null)
+        {
+            CreateCrosshair();
+        }
+    }
+
+    private static void CreateCrosshair()
+    {
+        // Find or create canvas
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject canvasObj = new GameObject("HUD Canvas");
+            canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+            canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>().uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasObj.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+        }
+
+        // Create crosshair object
+        GameObject crosshairObj = new GameObject("Crosshair");
+        crosshairObj.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = crosshairObj.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = new Vector2(6, 6);
+
+        crosshairObj.AddComponent<Crosshair>();
+    }
 
     /// <summary>
     /// Set crosshair to highlight color (when looking at interactable)
@@ -89,6 +158,40 @@ public class Crosshair : MonoBehaviour
         if (s_Instance == this)
         {
             s_Instance = null;
+        }
+    }
+
+    /// <summary>
+    /// Make TryCreateCrosshair accessible for the helper
+    /// </summary>
+    public static void EnsureExists()
+    {
+        TryCreateCrosshair();
+    }
+}
+
+/// <summary>
+/// Helper to delay crosshair creation until player spawns
+/// </summary>
+public class CrosshairInitHelper : MonoBehaviour
+{
+    private float m_Timer = 0f;
+    private const float MAX_WAIT = 2f;
+
+    public void Initialize()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update()
+    {
+        m_Timer += Time.deltaTime;
+
+        // Check periodically if player exists
+        if (GameObject.FindWithTag("Player") != null || m_Timer > MAX_WAIT)
+        {
+            Crosshair.EnsureExists();
+            Destroy(gameObject);
         }
     }
 }

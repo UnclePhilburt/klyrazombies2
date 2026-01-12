@@ -16,26 +16,51 @@ public class SimpleInventoryUI : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private KeyCode m_ToggleKey = KeyCode.Tab;
+    [SerializeField] private int m_BaseSlots = 4; // Slots without backpack
+
+    [Header("Inventory Grid Layout")]
     [SerializeField] private int m_GridColumns = 4;
     [SerializeField] private int m_MaxGridRows = 4;
-    [SerializeField] private int m_BaseSlots = 4; // Slots without backpack
-    [SerializeField] private float m_SlotSize = 80f;
-    [SerializeField] private float m_SlotSpacing = 20f;
-    [SerializeField] private float m_NameHeight = 20f;
+    [SerializeField] private float m_SlotSize = 79.2f;
+    [SerializeField] private float m_SlotSpacing = 16.3f;
+    [SerializeField] private float m_NameHeight = 18.8f;
 
-    [Header("Equipment Slots")]
-    [SerializeField] private float m_EquipSlotSize = 90f;
-    [SerializeField] private float m_EquipSlotSpacing = 30f;
+    [Header("Inventory Grid Position")]
+    [SerializeField] private Vector2 m_GridOffset = new Vector2(-20f, 0f);
+
+    [Header("Equipment Slots Layout")]
+    [SerializeField] private float m_EquipSlotSize = 79.2f;
+    [SerializeField] private float m_EquipSlotSpacing = 16.3f;
+    [SerializeField] private int m_EquipPanelPadding = 12;
+    [SerializeField] private int m_EquipPanelPaddingVertical = 10;
+
+    [Header("Equipment Panel Position")]
+    [SerializeField] private Vector2 m_EquipPanelOffset = new Vector2(15f, 0f);
+
+    [Header("UI Scale")]
+    [SerializeField] private float m_UIScaleMultiplier = 1.0f;
     [SerializeField] private string m_EquippableCollectionName = "Equippable";
     [SerializeField] private string m_RifleCategory = "RangedWeapon";
     [SerializeField] private string m_PistolCategory = "RangedWeapon";
 
-    [Header("Colors")]
+    [Header("Colors - Inventory Grid")]
     [SerializeField] private Color m_OverlayColor = new Color(0, 0, 0, 0.8f);
     [SerializeField] private Color m_SlotColor = new Color(0.2f, 0.2f, 0.2f, 0.9f);
     [SerializeField] private Color m_SlotHoverColor = new Color(0.3f, 0.3f, 0.3f, 0.95f);
     [SerializeField] private Color m_SlotBorderColor = new Color(0.5f, 0.5f, 0.5f, 0.6f);
     [SerializeField] private Color m_TextColor = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private float m_IconPadding = 6f;
+    [SerializeField] private float m_AmountFontSize = 14f;
+    [SerializeField] private float m_NameFontSize = 11f;
+
+    [Header("Colors - Equipment Slots")]
+    [SerializeField] private Color m_EquipPanelColor = new Color(0.1f, 0.1f, 0.12f, 0.85f);
+    [SerializeField] private Color m_EquipBorderColor = new Color(0.5f, 0.42f, 0.25f, 0.9f);
+    [SerializeField] private Color m_EquipBackgroundColor = new Color(0.12f, 0.12f, 0.15f, 0.95f);
+    [SerializeField] private Color m_EquipInnerColor = new Color(0.2f, 0.2f, 0.25f, 0.5f);
+    [SerializeField] private Color m_EquipLabelColor = new Color(0.55f, 0.5f, 0.4f, 0.9f);
+    [SerializeField] private Color m_EquipNameColor = new Color(0.9f, 0.85f, 0.7f, 1f);
+    [SerializeField] private Color m_EquipHoverColor = new Color(0.2f, 0.2f, 0.25f, 0.98f);
 
     [Header("References (Auto-found if empty)")]
     [SerializeField] private Inventory m_PlayerInventory;
@@ -57,6 +82,7 @@ public class SimpleInventoryUI : MonoBehaviour
     private EquipmentSlot m_RifleHolsterSlot;
     private EquipmentSlot m_PistolHolsterSlot;
     private EquipmentSlot m_BackpackSlot;
+    private EquipmentSlot m_FlashlightSlot;
 
     // For item actions
     private GameObject m_ContextMenu;
@@ -73,6 +99,9 @@ public class SimpleInventoryUI : MonoBehaviour
     private ItemInfo m_DraggedItem;
     public bool IsDragging => m_IsDragging;
 
+    // For runtime color updates
+    private Image m_EquipPanelImage;
+
     // Settings panel
     private GameObject m_SettingsButton;
     private GameObject m_SettingsPanel;
@@ -80,6 +109,7 @@ public class SimpleInventoryUI : MonoBehaviour
     private TextMeshProUGUI m_SensitivityValueText;
     private PlayerInput m_PlayerInput;
     private const string SENSITIVITY_PREF_KEY = "MouseSensitivity";
+    private bool m_SensitivityApplied = false;
 
     private class InventorySlot
     {
@@ -98,6 +128,7 @@ public class SimpleInventoryUI : MonoBehaviour
         public GameObject SlotObject;
         public Image Background;
         public Image Border;
+        public Image InnerHighlight;
         public Image IconImage;
         public TextMeshProUGUI LabelText;
         public TextMeshProUGUI NameText;
@@ -158,17 +189,19 @@ public class SimpleInventoryUI : MonoBehaviour
 
     private void CreateUI()
     {
-        // Create or find Canvas
-        m_Canvas = FindFirstObjectByType<Canvas>();
-        if (m_Canvas == null)
-        {
-            var canvasObj = new GameObject("InventoryCanvas");
-            m_Canvas = canvasObj.AddComponent<Canvas>();
-            m_Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            m_Canvas.sortingOrder = 100;
-            canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasObj.AddComponent<GraphicRaycaster>();
-        }
+        // Always create our own canvas with proper scaling
+        var canvasObj = new GameObject("InventoryCanvas");
+        m_Canvas = canvasObj.AddComponent<Canvas>();
+        m_Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        m_Canvas.sortingOrder = 100;
+        var scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        // Use a fixed reference resolution for consistent sizing
+        // Adjust m_UIScaleMultiplier to make UI larger/smaller
+        float baseRef = 1080f / Mathf.Max(0.5f, m_UIScaleMultiplier);
+        scaler.referenceResolution = new Vector2(baseRef * 16f / 9f, baseRef);
+        scaler.matchWidthOrHeight = 0.5f;
+        canvasObj.AddComponent<GraphicRaycaster>();
 
         // Ensure EventSystem exists
         if (FindFirstObjectByType<EventSystem>() == null)
@@ -259,25 +292,182 @@ public class SimpleInventoryUI : MonoBehaviour
 
     private void CreateEquipmentSlots()
     {
+        // Create a panel background for equipment slots
+        var panelObj = new GameObject("EquipmentPanel");
+        panelObj.transform.SetParent(m_OverlayPanel.transform, false);
+
+        var panelRect = panelObj.AddComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0, 0.5f);
+        panelRect.anchorMax = new Vector2(0, 0.5f);
+        panelRect.pivot = new Vector2(0, 0.5f);
+        panelRect.anchoredPosition = m_EquipPanelOffset;
+
+        // Panel background
+        m_EquipPanelImage = panelObj.AddComponent<Image>();
+        m_EquipPanelImage.color = m_EquipPanelColor;
+
+        // Equipment container inside panel
         m_EquipmentContainer = new GameObject("EquipmentSlots");
-        m_EquipmentContainer.transform.SetParent(m_ContentPanel.transform, false);
+        m_EquipmentContainer.transform.SetParent(panelObj.transform, false);
 
         var rect = m_EquipmentContainer.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0, 0.5f);
-        rect.anchorMax = new Vector2(0, 0.5f);
-        rect.pivot = new Vector2(0, 0.5f);
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = Vector2.zero;
 
-        // Single column layout: Backpack, Rifle, Pistol (3 slots)
-        float equipTotalHeight = m_EquipSlotSize + m_NameHeight;
-        float totalHeight = 3 * equipTotalHeight + 2 * m_EquipSlotSpacing; // 3 rows
-        float totalWidth = m_EquipSlotSize + m_EquipSlotSpacing; // 1 column
-        rect.sizeDelta = new Vector2(totalWidth, totalHeight);
+        // Use VerticalLayoutGroup to automatically pack slots
+        var layout = m_EquipmentContainer.AddComponent<VerticalLayoutGroup>();
+        layout.spacing = m_EquipSlotSpacing;
+        layout.padding = new RectOffset(m_EquipPanelPadding, m_EquipPanelPadding, m_EquipPanelPaddingVertical, m_EquipPanelPaddingVertical);
+        layout.childAlignment = TextAnchor.UpperCenter;
+        layout.childControlWidth = false;
+        layout.childControlHeight = false;
+        layout.childForceExpandWidth = false;
+        layout.childForceExpandHeight = false;
 
-        // Create equipment slots in single column
-        m_BackpackSlot = CreateEquipmentSlotAt("Backpack", 0, 0);  // col 0, row 0
-        m_RifleHolsterSlot = CreateEquipmentSlotAt("Rifle", 0, 1); // col 0, row 1
-        m_PistolHolsterSlot = CreateEquipmentSlotAt("Pistol", 0, 2); // col 0, row 2
+        // Add ContentSizeFitter to auto-size the container
+        var fitter = m_EquipmentContainer.AddComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // Create equipment slots - layout group handles positioning
+        m_BackpackSlot = CreateEquipmentSlotSimple("Backpack");
+        m_RifleHolsterSlot = CreateEquipmentSlotSimple("Rifle");
+        m_PistolHolsterSlot = CreateEquipmentSlotSimple("Pistol");
+        m_FlashlightSlot = CreateEquipmentSlotSimple("Flashlight");
+
+        // Size the panel to fit content
+        var panelFitter = panelObj.AddComponent<ContentSizeFitter>();
+        panelFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        panelFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // Add layout element to panel for sizing
+        var panelLayout = panelObj.AddComponent<LayoutElement>();
+        panelLayout.preferredWidth = m_EquipSlotSize + 24;
+    }
+
+    private EquipmentSlot CreateEquipmentSlotSimple(string slotType)
+    {
+        var slot = new EquipmentSlot();
+        slot.SlotType = slotType;
+
+        // Slot container
+        slot.SlotObject = new GameObject($"EquipSlot_{slotType}");
+        slot.SlotObject.transform.SetParent(m_EquipmentContainer.transform, false);
+
+        var rect = slot.SlotObject.AddComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(m_EquipSlotSize, m_EquipSlotSize + m_NameHeight + 4);
+
+        // Add LayoutElement for layout group
+        var layoutElement = slot.SlotObject.AddComponent<LayoutElement>();
+        layoutElement.preferredWidth = m_EquipSlotSize;
+        layoutElement.preferredHeight = m_EquipSlotSize + m_NameHeight + 4;
+
+        // Outer border (golden/bronze for equipment)
+        var borderObj = new GameObject("Border");
+        borderObj.transform.SetParent(slot.SlotObject.transform, false);
+        var borderRect = borderObj.AddComponent<RectTransform>();
+        borderRect.anchorMin = new Vector2(0, 1);
+        borderRect.anchorMax = new Vector2(1, 1);
+        borderRect.pivot = new Vector2(0.5f, 1);
+        borderRect.anchoredPosition = Vector2.zero;
+        borderRect.sizeDelta = new Vector2(0, m_EquipSlotSize);
+        slot.Border = borderObj.AddComponent<Image>();
+        slot.Border.color = m_EquipBorderColor;
+
+        // Background (darker inside)
+        var bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(slot.SlotObject.transform, false);
+        var bgRect = bgObj.AddComponent<RectTransform>();
+        bgRect.anchorMin = new Vector2(0, 1);
+        bgRect.anchorMax = new Vector2(1, 1);
+        bgRect.pivot = new Vector2(0.5f, 1);
+        bgRect.anchoredPosition = new Vector2(0, -2);
+        bgRect.sizeDelta = new Vector2(-4, m_EquipSlotSize - 4);
+        slot.Background = bgObj.AddComponent<Image>();
+        slot.Background.color = m_EquipBackgroundColor;
+
+        // Inner highlight/bevel (subtle)
+        var innerObj = new GameObject("Inner");
+        innerObj.transform.SetParent(slot.SlotObject.transform, false);
+        var innerRect = innerObj.AddComponent<RectTransform>();
+        innerRect.anchorMin = new Vector2(0, 1);
+        innerRect.anchorMax = new Vector2(1, 1);
+        innerRect.pivot = new Vector2(0.5f, 1);
+        innerRect.anchoredPosition = new Vector2(0, -3);
+        innerRect.sizeDelta = new Vector2(-6, m_EquipSlotSize - 6);
+        slot.InnerHighlight = innerObj.AddComponent<Image>();
+        slot.InnerHighlight.color = m_EquipInnerColor;
+        slot.InnerHighlight.raycastTarget = false;
+
+        // Icon (centered in slot)
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(slot.SlotObject.transform, false);
+        var iconRect = iconObj.AddComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0, 1);
+        iconRect.anchorMax = new Vector2(1, 1);
+        iconRect.pivot = new Vector2(0.5f, 1);
+        iconRect.anchoredPosition = new Vector2(0, -8);
+        iconRect.sizeDelta = new Vector2(-16, m_EquipSlotSize - 16);
+        slot.IconImage = iconObj.AddComponent<Image>();
+        slot.IconImage.preserveAspect = true;
+        slot.IconImage.raycastTarget = false;
+        slot.IconImage.enabled = false;
+
+        // Slot type label (small, at bottom of slot area)
+        var labelObj = new GameObject("Label");
+        labelObj.transform.SetParent(slot.SlotObject.transform, false);
+        var labelRect = labelObj.AddComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0.5f, 1);
+        labelRect.anchorMax = new Vector2(0.5f, 1);
+        labelRect.pivot = new Vector2(0.5f, 0);
+        labelRect.anchoredPosition = new Vector2(0, -m_EquipSlotSize + 4);
+        labelRect.sizeDelta = new Vector2(m_EquipSlotSize - 8, 14);
+        slot.LabelText = labelObj.AddComponent<TextMeshProUGUI>();
+        slot.LabelText.text = slotType;
+        slot.LabelText.fontSize = 9;
+        slot.LabelText.fontStyle = FontStyles.Italic;
+        slot.LabelText.color = m_EquipLabelColor;
+        slot.LabelText.alignment = TextAlignmentOptions.Center;
+        slot.LabelText.raycastTarget = false;
+
+        // Item name text (below slot, shows when item equipped)
+        var nameObj = new GameObject("Name");
+        nameObj.transform.SetParent(slot.SlotObject.transform, false);
+        var nameRect = nameObj.AddComponent<RectTransform>();
+        nameRect.anchorMin = new Vector2(0.5f, 0);
+        nameRect.anchorMax = new Vector2(0.5f, 0);
+        nameRect.pivot = new Vector2(0.5f, 0);
+        nameRect.anchoredPosition = new Vector2(0, 0);
+        nameRect.sizeDelta = new Vector2(m_EquipSlotSize + 20, m_NameHeight);
+        slot.NameText = nameObj.AddComponent<TextMeshProUGUI>();
+        slot.NameText.fontSize = 11;
+        slot.NameText.color = m_EquipNameColor;
+        slot.NameText.alignment = TextAlignmentOptions.Center;
+        slot.NameText.enableWordWrapping = false;
+        slot.NameText.overflowMode = TextOverflowModes.Ellipsis;
+        slot.NameText.raycastTarget = false;
+
+        // Button for interaction
+        slot.Button = slot.SlotObject.AddComponent<Button>();
+        slot.Button.transition = Selectable.Transition.None;
+        string capturedType = slotType;
+        slot.Button.onClick.AddListener(() => OnEquipmentSlotClicked(capturedType));
+
+        // Hover effect (brighten background)
+        var hoverHandler = slot.SlotObject.AddComponent<SlotHoverHandler>();
+        hoverHandler.Initialize(slot.Background, m_EquipBackgroundColor, m_EquipHoverColor);
+
+        // Drag handler
+        var dragHandler = slot.SlotObject.AddComponent<EquipmentSlotDragHandler>();
+        dragHandler.Initialize(this, slotType, slot.IconImage);
+
+        // Drop handler (highlight border on drag over)
+        var dropHandler = slot.SlotObject.AddComponent<EquipmentSlotDropHandler>();
+        dropHandler.Initialize(this, slotType, slot.Border);
+
+        return slot;
     }
 
     private EquipmentSlot CreateEquipmentSlotAt(string slotType, int col, int row)
@@ -500,13 +690,14 @@ public class SimpleInventoryUI : MonoBehaviour
     private void CreateGrid()
     {
         m_GridContainer = new GameObject("Grid");
-        m_GridContainer.transform.SetParent(m_ContentPanel.transform, false);
+        m_GridContainer.transform.SetParent(m_OverlayPanel.transform, false); // Direct child of overlay
 
         var rect = m_GridContainer.AddComponent<RectTransform>();
-        rect.anchorMin = new Vector2(1, 0.5f); // Anchor to right
+        // Anchor to right side of screen, centered vertically
+        rect.anchorMin = new Vector2(1, 0.5f);
         rect.anchorMax = new Vector2(1, 0.5f);
         rect.pivot = new Vector2(1, 0.5f);
-        rect.anchoredPosition = Vector2.zero; // At right edge
+        rect.anchoredPosition = m_GridOffset;
 
         // Account for name text below each slot - use max size
         float slotTotalHeight = m_SlotSize + m_NameHeight;
@@ -608,8 +799,8 @@ public class SimpleInventoryUI : MonoBehaviour
         var iconRect = iconObj.AddComponent<RectTransform>();
         iconRect.anchorMin = Vector2.zero;
         iconRect.anchorMax = Vector2.one;
-        iconRect.offsetMin = new Vector2(6, 6);
-        iconRect.offsetMax = new Vector2(-6, -6);
+        iconRect.offsetMin = new Vector2(m_IconPadding, m_IconPadding);
+        iconRect.offsetMax = new Vector2(-m_IconPadding, -m_IconPadding);
         slot.IconImage = iconObj.AddComponent<Image>();
         slot.IconImage.preserveAspect = true;
         slot.IconImage.raycastTarget = false;
@@ -624,7 +815,7 @@ public class SimpleInventoryUI : MonoBehaviour
         amountRect.anchoredPosition = new Vector2(-4, 4);
         amountRect.sizeDelta = new Vector2(40, 20);
         slot.AmountText = amountObj.AddComponent<TextMeshProUGUI>();
-        slot.AmountText.fontSize = 14;
+        slot.AmountText.fontSize = m_AmountFontSize;
         slot.AmountText.fontStyle = FontStyles.Bold;
         slot.AmountText.color = m_TextColor;
         slot.AmountText.alignment = TextAlignmentOptions.BottomRight;
@@ -640,7 +831,7 @@ public class SimpleInventoryUI : MonoBehaviour
         nameRect.anchoredPosition = new Vector2(0, -2); // Just below the slot
         nameRect.sizeDelta = new Vector2(m_SlotSize + m_SlotSpacing, m_NameHeight);
         slot.NameText = nameObj.AddComponent<TextMeshProUGUI>();
-        slot.NameText.fontSize = 11;
+        slot.NameText.fontSize = m_NameFontSize;
         slot.NameText.color = m_TextColor;
         slot.NameText.alignment = TextAlignmentOptions.Top;
         slot.NameText.enableWordWrapping = false;
@@ -1000,6 +1191,7 @@ public class SimpleInventoryUI : MonoBehaviour
         {
             float savedSensitivity = PlayerPrefs.GetFloat(SENSITIVITY_PREF_KEY, 1.0f);
             m_PlayerInput.LookSensitivityMultiplier = savedSensitivity;
+            m_PlayerInput.LookSensitivity = new Vector2(2f * savedSensitivity, 2f * savedSensitivity);
         }
     }
 
@@ -1013,10 +1205,23 @@ public class SimpleInventoryUI : MonoBehaviour
 
     private void OnSensitivityChanged(float value)
     {
+        // Try to find PlayerInput if we don't have it
+        if (m_PlayerInput == null)
+        {
+            FindPlayerInput();
+        }
+
         // Apply to player input
         if (m_PlayerInput != null)
         {
+            // Set both the multiplier AND the base sensitivity
             m_PlayerInput.LookSensitivityMultiplier = value;
+            m_PlayerInput.LookSensitivity = new Vector2(2f * value, 2f * value);
+            Debug.Log($"[Sensitivity] Set to {value}, LookSensitivity={m_PlayerInput.LookSensitivity}, Multiplier={m_PlayerInput.LookSensitivityMultiplier}");
+        }
+        else
+        {
+            Debug.LogWarning("[Sensitivity] PlayerInput not found!");
         }
 
         // Save preference
@@ -1037,6 +1242,23 @@ public class SimpleInventoryUI : MonoBehaviour
 
     private void Update()
     {
+        // Apply saved sensitivity once player is found
+        if (!m_SensitivityApplied)
+        {
+            if (m_PlayerInput == null)
+            {
+                FindPlayerInput();
+            }
+            if (m_PlayerInput != null)
+            {
+                float savedSensitivity = PlayerPrefs.GetFloat(SENSITIVITY_PREF_KEY, 1.0f);
+                m_PlayerInput.LookSensitivityMultiplier = savedSensitivity;
+                m_PlayerInput.LookSensitivity = new Vector2(2f * savedSensitivity, 2f * savedSensitivity);
+                m_SensitivityApplied = true;
+                Debug.Log($"[Sensitivity] Applied saved sensitivity: {savedSensitivity}");
+            }
+        }
+
         if (Input.GetKeyDown(m_ToggleKey))
         {
             // Don't open inventory if loot screen is open (it will close itself)
@@ -1106,6 +1328,17 @@ public class SimpleInventoryUI : MonoBehaviour
                 m_SensitivitySlider.SetValueWithoutNotify(m_PlayerInput.LookSensitivityMultiplier);
                 UpdateSensitivityDisplay(m_PlayerInput.LookSensitivityMultiplier);
             }
+        }
+    }
+
+    /// <summary>
+    /// Show or hide the entire inventory UI (used by SimpleLootUI to prevent overlap)
+    /// </summary>
+    public void SetVisible(bool visible)
+    {
+        if (m_Canvas != null)
+        {
+            m_Canvas.gameObject.SetActive(visible);
         }
     }
 
@@ -1191,12 +1424,278 @@ public class SimpleInventoryUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Apply equipment slot styling at runtime. Call this after changing values in the Inspector.
+    /// </summary>
+    public void ApplyEquipmentStyling()
+    {
+        // Apply panel color and position
+        if (m_EquipPanelImage != null)
+        {
+            m_EquipPanelImage.color = m_EquipPanelColor;
+
+            // Update panel position
+            var panelRect = m_EquipPanelImage.GetComponent<RectTransform>();
+            if (panelRect != null)
+            {
+                panelRect.anchoredPosition = m_EquipPanelOffset;
+            }
+        }
+
+        // Apply layout group settings
+        if (m_EquipmentContainer != null)
+        {
+            var layout = m_EquipmentContainer.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.spacing = m_EquipSlotSpacing;
+                layout.padding = new RectOffset(m_EquipPanelPadding, m_EquipPanelPadding, m_EquipPanelPaddingVertical, m_EquipPanelPaddingVertical);
+            }
+        }
+
+        // Apply slot styling
+        ApplySlotStyling(m_BackpackSlot);
+        ApplySlotStyling(m_RifleHolsterSlot);
+        ApplySlotStyling(m_PistolHolsterSlot);
+        ApplySlotStyling(m_FlashlightSlot);
+
+        // Force layout rebuild
+        if (m_EquipmentContainer != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_EquipmentContainer.GetComponent<RectTransform>());
+
+            // Also rebuild parent panel
+            var parentPanel = m_EquipmentContainer.transform.parent;
+            if (parentPanel != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentPanel.GetComponent<RectTransform>());
+            }
+        }
+    }
+
+    private void ApplySlotStyling(EquipmentSlot slot)
+    {
+        if (slot == null || slot.SlotObject == null) return;
+
+        // Update slot size
+        var slotRect = slot.SlotObject.GetComponent<RectTransform>();
+        if (slotRect != null)
+        {
+            slotRect.sizeDelta = new Vector2(m_EquipSlotSize, m_EquipSlotSize + m_NameHeight + 4);
+        }
+
+        // Update layout element
+        var layoutElement = slot.SlotObject.GetComponent<LayoutElement>();
+        if (layoutElement != null)
+        {
+            layoutElement.preferredWidth = m_EquipSlotSize;
+            layoutElement.preferredHeight = m_EquipSlotSize + m_NameHeight + 4;
+        }
+
+        // Update border size
+        if (slot.Border != null)
+        {
+            var borderRect = slot.Border.GetComponent<RectTransform>();
+            if (borderRect != null)
+            {
+                borderRect.sizeDelta = new Vector2(0, m_EquipSlotSize);
+            }
+            slot.Border.color = m_EquipBorderColor;
+        }
+
+        // Update background size
+        if (slot.Background != null)
+        {
+            var bgRect = slot.Background.GetComponent<RectTransform>();
+            if (bgRect != null)
+            {
+                bgRect.anchoredPosition = new Vector2(0, -2);
+                bgRect.sizeDelta = new Vector2(-4, m_EquipSlotSize - 4);
+            }
+            slot.Background.color = m_EquipBackgroundColor;
+        }
+
+        // Update inner highlight size
+        if (slot.InnerHighlight != null)
+        {
+            var innerRect = slot.InnerHighlight.GetComponent<RectTransform>();
+            if (innerRect != null)
+            {
+                innerRect.anchoredPosition = new Vector2(0, -3);
+                innerRect.sizeDelta = new Vector2(-6, m_EquipSlotSize - 6);
+            }
+            slot.InnerHighlight.color = m_EquipInnerColor;
+        }
+
+        // Update icon size
+        if (slot.IconImage != null)
+        {
+            var iconRect = slot.IconImage.GetComponent<RectTransform>();
+            if (iconRect != null)
+            {
+                iconRect.anchoredPosition = new Vector2(0, -8);
+                iconRect.sizeDelta = new Vector2(-16, m_EquipSlotSize - 16);
+            }
+        }
+
+        // Update label position and color
+        if (slot.LabelText != null)
+        {
+            var labelRect = slot.LabelText.GetComponent<RectTransform>();
+            if (labelRect != null)
+            {
+                labelRect.anchoredPosition = new Vector2(0, -m_EquipSlotSize + 4);
+                labelRect.sizeDelta = new Vector2(m_EquipSlotSize - 8, 14);
+            }
+            slot.LabelText.color = m_EquipLabelColor;
+        }
+
+        // Update name text size and color
+        if (slot.NameText != null)
+        {
+            var nameRect = slot.NameText.GetComponent<RectTransform>();
+            if (nameRect != null)
+            {
+                nameRect.sizeDelta = new Vector2(m_EquipSlotSize + 20, m_NameHeight);
+            }
+            slot.NameText.color = m_EquipNameColor;
+        }
+
+        // Update hover handler colors
+        var hoverHandler = slot.SlotObject.GetComponent<SlotHoverHandler>();
+        if (hoverHandler != null)
+        {
+            hoverHandler.Initialize(slot.Background, m_EquipBackgroundColor, m_EquipHoverColor);
+        }
+    }
+
+    // Keep old method name for compatibility
+    public void ApplyEquipmentColors() => ApplyEquipmentStyling();
+
+    /// <summary>
+    /// Apply inventory grid styling at runtime.
+    /// </summary>
+    public void ApplyInventoryGridStyling()
+    {
+        // Update overlay color
+        if (m_OverlayPanel != null)
+        {
+            var overlayImage = m_OverlayPanel.GetComponent<Image>();
+            if (overlayImage != null)
+            {
+                overlayImage.color = m_OverlayColor;
+            }
+        }
+
+        // Update grid container size and position
+        if (m_GridContainer != null)
+        {
+            var gridRect = m_GridContainer.GetComponent<RectTransform>();
+            if (gridRect != null)
+            {
+                float slotTotalHeight = m_SlotSize + m_NameHeight;
+                float gridWidth = m_GridColumns * m_SlotSize + (m_GridColumns - 1) * m_SlotSpacing;
+                float gridHeight = m_MaxGridRows * slotTotalHeight + (m_MaxGridRows - 1) * m_SlotSpacing;
+                gridRect.sizeDelta = new Vector2(gridWidth, gridHeight);
+                gridRect.anchoredPosition = m_GridOffset;
+            }
+        }
+
+        // Update each slot
+        for (int i = 0; i < m_Slots.Count; i++)
+        {
+            ApplyInventorySlotStyling(m_Slots[i], i);
+        }
+    }
+
+    private void ApplyInventorySlotStyling(InventorySlot slot, int index)
+    {
+        if (slot == null || slot.SlotObject == null) return;
+
+        int row = index / m_GridColumns;
+        int col = index % m_GridColumns;
+
+        float slotTotalHeight = m_SlotSize + m_NameHeight;
+        float x = col * (m_SlotSize + m_SlotSpacing) - (m_GridColumns - 1) * (m_SlotSize + m_SlotSpacing) / 2f;
+        float y = -row * (slotTotalHeight + m_SlotSpacing) + (m_MaxGridRows - 1) * (slotTotalHeight + m_SlotSpacing) / 2f;
+
+        // Update slot position and size
+        var slotRect = slot.SlotObject.GetComponent<RectTransform>();
+        if (slotRect != null)
+        {
+            slotRect.anchoredPosition = new Vector2(x, y);
+            slotRect.sizeDelta = new Vector2(m_SlotSize, m_SlotSize);
+        }
+
+        // Update border color
+        if (slot.Border != null)
+        {
+            slot.Border.color = m_SlotBorderColor;
+        }
+
+        // Update background color
+        if (slot.Background != null)
+        {
+            slot.Background.color = m_SlotColor;
+        }
+
+        // Update icon size
+        if (slot.IconImage != null)
+        {
+            var iconRect = slot.IconImage.GetComponent<RectTransform>();
+            if (iconRect != null)
+            {
+                iconRect.offsetMin = new Vector2(m_IconPadding, m_IconPadding);
+                iconRect.offsetMax = new Vector2(-m_IconPadding, -m_IconPadding);
+            }
+        }
+
+        // Update amount text
+        if (slot.AmountText != null)
+        {
+            slot.AmountText.fontSize = m_AmountFontSize;
+            slot.AmountText.color = m_TextColor;
+        }
+
+        // Update name text
+        if (slot.NameText != null)
+        {
+            var nameRect = slot.NameText.GetComponent<RectTransform>();
+            if (nameRect != null)
+            {
+                nameRect.sizeDelta = new Vector2(m_SlotSize + m_SlotSpacing, m_NameHeight);
+            }
+            slot.NameText.fontSize = m_NameFontSize;
+            slot.NameText.color = m_TextColor;
+        }
+
+        // Update hover handler
+        var hoverHandler = slot.SlotObject.GetComponent<SlotHoverHandler>();
+        if (hoverHandler != null)
+        {
+            hoverHandler.Initialize(slot.Background, m_SlotColor, m_SlotHoverColor);
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // Apply styling when changed in Inspector during play mode
+        if (Application.isPlaying && m_Initialized)
+        {
+            ApplyEquipmentStyling();
+            ApplyInventoryGridStyling();
+        }
+    }
+#endif
+
     private void RefreshEquipmentSlots()
     {
         // Clear all equipment slots
         ClearEquipmentSlot(m_BackpackSlot);
         ClearEquipmentSlot(m_RifleHolsterSlot);
         ClearEquipmentSlot(m_PistolHolsterSlot);
+        ClearEquipmentSlot(m_FlashlightSlot);
 
         // Get items from Equippable collection
         var equipCollection = m_PlayerInventory.GetItemCollection(m_EquippableCollectionName);
@@ -1226,6 +1725,11 @@ public class SimpleInventoryUI : MonoBehaviour
             {
                 targetSlot = m_BackpackSlot;
             }
+            // Check for flashlight
+            else if (categoryName.Contains("Flashlight") || categoryName.Contains("Light"))
+            {
+                targetSlot = m_FlashlightSlot;
+            }
             // Check for ranged weapons - try to distinguish rifle vs pistol by name
             else if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
             {
@@ -1240,6 +1744,11 @@ public class SimpleInventoryUI : MonoBehaviour
                     // Default ranged weapons to rifle slot
                     targetSlot = m_RifleHolsterSlot;
                 }
+            }
+            // Check by item name for flashlight (in case category doesn't match)
+            else if (itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch"))
+            {
+                targetSlot = m_FlashlightSlot;
             }
 
             if (targetSlot == null) continue;
@@ -1285,6 +1794,7 @@ public class SimpleInventoryUI : MonoBehaviour
         if (slotType == "Backpack") return m_BackpackSlot;
         if (slotType == "Rifle") return m_RifleHolsterSlot;
         if (slotType == "Pistol") return m_PistolHolsterSlot;
+        if (slotType == "Flashlight") return m_FlashlightSlot;
         return null;
     }
 
@@ -1362,6 +1872,15 @@ public class SimpleInventoryUI : MonoBehaviour
             if (slotType == "Backpack" && (categoryName.Contains("Backpack") || categoryName.Contains("Bag")))
             {
                 canEquip = true;
+            }
+            else if (slotType == "Flashlight")
+            {
+                // Check if item is a flashlight
+                if (categoryName.Contains("Flashlight") || categoryName.Contains("Light") ||
+                    itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch"))
+                {
+                    canEquip = true;
+                }
             }
             else if (slotType == "Rifle" || slotType == "Pistol")
             {
@@ -1523,6 +2042,11 @@ public class SimpleInventoryUI : MonoBehaviour
             {
                 targetSlot = m_BackpackSlot;
             }
+            else if (categoryName.Contains("Flashlight") || categoryName.Contains("Light") ||
+                     itemName.Contains("flashlight") || itemName.Contains("headlamp") || itemName.Contains("torch"))
+            {
+                targetSlot = m_FlashlightSlot;
+            }
             else if (categoryName.Contains("Ranged") || categoryName.Contains("Weapon"))
             {
                 if (itemName.Contains("pistol") || itemName.Contains("handgun") ||
@@ -1562,11 +2086,14 @@ public class SimpleInventoryUI : MonoBehaviour
             equipCollection.AddItem(itemInfo);
             Debug.Log($"[SimpleInventoryUI] Equipped {itemInfo.Item.name} to {targetSlot.SlotType}");
 
-            // Notify clothing handler directly (UIS events may not fire properly)
-            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
-            if (clothingHandler != null)
+            // Notify flashlight handler if flashlight was equipped
+            if (targetSlot == m_FlashlightSlot)
             {
-                clothingHandler.OnClothingEquipped(itemInfo.Item.ItemDefinition);
+                var flashlightHandler = m_PlayerInventory.GetComponent<FlashlightEquipHandler>();
+                if (flashlightHandler != null)
+                {
+                    flashlightHandler.OnFlashlightEquipped();
+                }
             }
         }
     }
@@ -1583,11 +2110,14 @@ public class SimpleInventoryUI : MonoBehaviour
 
         if (defaultCollection != null && equipCollection != null)
         {
-            // Notify clothing handler BEFORE removing (so it knows what to unequip)
-            var clothingHandler = m_PlayerInventory.GetComponent<SidekickClothingEquipHandler>();
-            if (clothingHandler != null)
+            // Notify flashlight handler if flashlight was unequipped
+            if (slot == m_FlashlightSlot)
             {
-                clothingHandler.OnClothingUnequipped(itemInfo.Item.ItemDefinition);
+                var flashlightHandler = m_PlayerInventory.GetComponent<FlashlightEquipHandler>();
+                if (flashlightHandler != null)
+                {
+                    flashlightHandler.OnFlashlightUnequipped();
+                }
             }
 
             // Remove from equippable

@@ -21,6 +21,16 @@
 - **Synty Studios Assets** - Art assets (stylized low-poly)
 - **Cozy: Stylized Weather System** - Dynamic weather and time of day
 
+## Player Prefab
+
+**Active Player Prefab:**
+- `Assets/Prefabs/characters/RandomCharacterPrefabs/SM_Chr_Biker_Male_01 2.prefab`
+- This is the main player prefab used in the game
+
+**NOT Used (Legacy):**
+- `Assets/Prefabs/characters/SidekickPlayerBase.prefab` - Old Sidekick-based player, not in use
+- `Assets/Samples/Opsive Ultimate Inventory System/*/Demo/Prefabs/Characters/Player/Player Character.prefab` - Opsive demo prefab
+
 ## Technical Decisions
 - Networking solution: TBD
 
@@ -631,6 +641,136 @@ Main menu controller for game start:
 - Host from git repo
 - Custom domain support
 - More control over deployment
+
+## POI Discovery System
+
+Points of Interest that trigger popup notifications when player enters radius.
+
+**Components:**
+- **POIData** (`Assets/Scripts/World/POIData.cs`) - ScriptableObject defining POI info
+- **POITrigger** (`Assets/Scripts/World/POITrigger.cs`) - Trigger zone placed in world with SphereCollider
+- **POIDiscoveryPopup** (`Assets/Scripts/UI/POIDiscoveryPopup.cs`) - iOS-styled popup UI
+
+**Location:** `Assets/Data/POIs/`
+
+**Editor Tools:**
+- **Project Klyra > POI > POI Manager** - Create/manage POIs
+- **Project Klyra > POI > Create POI at View** - Quick create at scene camera
+
+**Features:**
+- Auto-saves discovered POIs to PlayerPrefs (won't show twice)
+- Queues multiple discoveries
+- Reset via: `Project Klyra > POI > POI Manager` → "Reset All Discoveries"
+
+**POI Categories:** Landmark, Building, Military, Medical, Commercial, Residential, Industrial, SafeZone, DangerZone
+
+## Achievement System
+
+Tracks zombie kills and unlocks achievements with popup notifications.
+
+**Components:**
+- **AchievementData** (`Assets/Scripts/Achievements/AchievementData.cs`) - ScriptableObject for achievements
+- **AchievementManager** (`Assets/Scripts/Achievements/AchievementManager.cs`) - Auto-initializes, tracks progress, persists to PlayerPrefs
+- **AchievementPopup** (`Assets/Scripts/UI/AchievementPopup.cs`) - iOS-styled popup (center screen, 100px above middle)
+
+**Location:** `Assets/Resources/Achievements/` (must be in Resources for auto-loading)
+
+**Editor Tools:**
+- **Project Klyra > Achievements > Generate Default Achievements** - Creates 13 default achievements
+- **Project Klyra > Achievements > Reset All Progress** - Clears PlayerPrefs progress
+
+**Achievement Types:** ZombieKills, HeadshotKills, KillsInSession, DaysSurvived, ItemsLooted, DistanceTraveled, POIsDiscovered, Custom
+
+**Default Achievements:**
+- Zombie Kills: First Blood (1), Getting Started (10), Zombie Slayer (25), Undead Hunter (50), Death Dealer (100), Zombie Apocalypse (250), Extinction Event (500), One Man Army (1000)
+- Headshots: Clean Shot (1), Sharpshooter (10), Marksman (25), Dead Eye (50), Sniper Elite (100)
+
+**How it works:**
+- `ZombieHealth.OnAnyZombieDeath` static event broadcasts kills with headshot flag
+- AchievementManager subscribes and tracks progress
+- Popup auto-creates its own Canvas (DontDestroyOnLoad) to survive scene changes
+
+**Troubleshooting:**
+- Popup not showing? Restart Play mode to clear old instance
+- Already unlocked? Reset via editor menu
+
+## Crosshair Targeting System
+
+Improved interaction targeting that uses crosshair center instead of distance-based detection.
+
+**Key Changes:**
+- `InteractionHighlight.CurrentTarget` - Static property returning what crosshair is pointing at
+- `SimpleLootableStorage` checks crosshair target matches before opening
+- `LootableInteraction` uses crosshair target for zombie corpse interaction
+- Spherecast radius: 0.5 with 15-degree angle fallback
+
+## Camera Settings
+
+Third-person camera controlled via Opsive ViewType in scene.
+
+### Hip Fire Camera (Base Position)
+**Location:** `MainMap.unity` → CameraController → Adventure ViewType → `m_LookOffset`
+
+**Current Setting:** `m_LookOffset: {x: 0.5, y: -0.3, z: -1.8}`
+- x: 0.5 = over-the-shoulder offset
+- y: -0.3 = camera slightly lower
+- z: -1.8 = distance from player
+
+### ADS Camera (Aim Down Sights / Zoom)
+**IMPORTANT:** There are TWO copies of the zoom preset that BOTH must be edited!
+
+**Preset Files (BOTH must match):**
+1. `Assets/Samples/Opsive Ultimate Character Controller/3.3.3/Demo/Presets/Camera/ThirdPerson/ZoomThirdPersonAdventurePreset.asset`
+2. `Packages/com.opsive.ultimatecharactercontroller/Samples~/Demo/Presets/Camera/ThirdPerson/ZoomThirdPersonAdventurePreset.asset`
+
+**Preset Format (binary-encoded floats):**
+```yaml
+m_Values: 000020420000003fcdcc4cbe000080bf000000000000803f
+```
+
+Values are IEEE 754 floats in little-endian hex:
+- Bytes 1-4: FOV (40.0 = `00002042`)
+- Bytes 5-8: LookOffset.x (0.5 = `0000003f`)
+- Bytes 9-12: LookOffset.y (-0.2 = `cdcc4cbe`)
+- Bytes 13-16: LookOffset.z (-1.0 = `000080bf`)
+- Bytes 17-24: Other values
+
+**Common Y Values (for LookOffset.y):**
+| Value | Hex (little-endian) |
+|-------|---------------------|
+| 0.0 | `00000000` |
+| -0.1 | `cdccccbd` |
+| -0.2 | `cdcc4cbe` |
+| -0.3 | `9a9999be` |
+| -0.5 | `000000bf` |
+
+**To adjust ADS camera height:**
+1. Edit BOTH preset files above
+2. Change bytes 9-12 (the Y offset) using the hex table
+3. Higher Y = camera moves UP, Lower Y = camera moves DOWN
+
+### Disabled: SmoothCameraController
+The custom `SmoothCameraController.cs` script is **DISABLED** to avoid conflicts with Opsive's built-in zoom system. If re-enabled, it will fight with the Opsive presets and cause erratic camera behavior.
+
+**Location:** Camera GameObject in MainMap.unity → `m_Enabled: 0`
+
+## Ammo Distribution in Loot Tables
+
+Both 9mm and 7.62mm ammo are in ALL loot tables with context-appropriate weights:
+
+| Table | 9mm Weight | 7.62mm Weight |
+|-------|------------|---------------|
+| Military | 10 | 10 |
+| Police | 15 | 2 |
+| Zombie | present | present |
+| Garage | 8 | 5 |
+| Outdoor | 5 | 8 |
+| Store | 5 | 3 |
+| Bedroom | 3 | 2 |
+| Office | 2 | 1 |
+| Misc | 3 | 2 |
+| Kitchen | 1 | 1 |
+| Bathroom | 1 | 1 |
 
 ## Open Questions
 - Player count per session?
