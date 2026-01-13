@@ -1344,6 +1344,15 @@ public class SimpleInventoryUI : MonoBehaviour
 
     public void RefreshUI()
     {
+        // Check if UI was destroyed and needs rebuild
+        if (m_Slots.Count > 0 && (m_Slots[0].SlotObject == null || m_Slots[0].IconImage == null))
+        {
+            Debug.Log("[SimpleInventoryUI] UI elements were destroyed, rebuilding...");
+            m_Initialized = false;
+            m_Slots.Clear();
+            Initialize();
+        }
+
         if (m_PlayerInventory == null)
         {
             FindPlayerInventory();
@@ -1369,10 +1378,11 @@ public class SimpleInventoryUI : MonoBehaviour
         for (int i = 0; i < m_Slots.Count; i++)
         {
             var slot = m_Slots[i];
+            if (slot.SlotObject == null || slot.IconImage == null) continue;
             slot.IconImage.sprite = null;
             slot.IconImage.enabled = false;
-            slot.AmountText.text = "";
-            slot.NameText.text = "";
+            if (slot.AmountText != null) slot.AmountText.text = "";
+            if (slot.NameText != null) slot.NameText.text = "";
 
             // Show or hide slot based on available count
             slot.SlotObject.SetActive(i < availableSlots);
@@ -1783,6 +1793,7 @@ public class SimpleInventoryUI : MonoBehaviour
     private void ClearEquipmentSlot(EquipmentSlot slot)
     {
         if (slot == null) return;
+        if (slot.IconImage == null || slot.NameText == null) return;
         slot.IconImage.sprite = null;
         slot.IconImage.enabled = false;
         slot.NameText.text = "";

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 /// <summary>
@@ -33,10 +34,11 @@ public class MainMenuUI : MonoBehaviour
 
     [Header("Scene Loading")]
     [Tooltip("Name of the gameplay scene to load")]
-    [SerializeField] private string m_GameSceneName = "MainMap";
+    [SerializeField] private string m_GameSceneName = "Persistent";
 
     private int m_CurrentTrackIndex = 0;
     private int[] m_ShuffledIndices;
+    private bool m_InSettingsPanel = false;
 
     private void Start()
     {
@@ -110,6 +112,75 @@ public class MainMenuUI : MonoBehaviour
 
         // Setup and play music
         SetupMusic();
+
+        // Setup controller navigation
+        SetupButtonNavigation();
+
+        // Initialize InputModeManager
+        var _ = InputModeManager.Instance;
+    }
+
+    private void SetupButtonNavigation()
+    {
+        // Setup explicit navigation for main menu buttons (vertical list)
+        if (m_PlayButton != null && m_SettingsButton != null && m_QuitButton != null)
+        {
+            // Play button
+            var playNav = m_PlayButton.navigation;
+            playNav.mode = Navigation.Mode.Explicit;
+            playNav.selectOnDown = m_SettingsButton;
+            playNav.selectOnUp = m_QuitButton;
+            m_PlayButton.navigation = playNav;
+
+            // Settings button
+            var settingsNav = m_SettingsButton.navigation;
+            settingsNav.mode = Navigation.Mode.Explicit;
+            settingsNav.selectOnUp = m_PlayButton;
+            settingsNav.selectOnDown = m_QuitButton;
+            m_SettingsButton.navigation = settingsNav;
+
+            // Quit button
+            var quitNav = m_QuitButton.navigation;
+            quitNav.mode = Navigation.Mode.Explicit;
+            quitNav.selectOnUp = m_SettingsButton;
+            quitNav.selectOnDown = m_PlayButton;
+            m_QuitButton.navigation = quitNav;
+        }
+
+        // Setup settings panel navigation
+        SetupSettingsNavigation();
+    }
+
+    private void SetupSettingsNavigation()
+    {
+        // Build list of navigable settings elements
+        var settingsElements = new System.Collections.Generic.List<Selectable>();
+
+        if (m_MasterVolumeSlider != null) settingsElements.Add(m_MasterVolumeSlider);
+        if (m_SFXVolumeSlider != null) settingsElements.Add(m_SFXVolumeSlider);
+        if (m_MusicVolumeSlider != null) settingsElements.Add(m_MusicVolumeSlider);
+        if (m_QualityDropdown != null) settingsElements.Add(m_QualityDropdown);
+        if (m_FullscreenToggle != null) settingsElements.Add(m_FullscreenToggle);
+        if (m_BackButton != null) settingsElements.Add(m_BackButton);
+
+        // Setup vertical navigation chain
+        for (int i = 0; i < settingsElements.Count; i++)
+        {
+            var nav = settingsElements[i].navigation;
+            nav.mode = Navigation.Mode.Explicit;
+
+            if (i > 0)
+                nav.selectOnUp = settingsElements[i - 1];
+            else
+                nav.selectOnUp = settingsElements[settingsElements.Count - 1]; // Wrap to bottom
+
+            if (i < settingsElements.Count - 1)
+                nav.selectOnDown = settingsElements[i + 1];
+            else
+                nav.selectOnDown = settingsElements[0]; // Wrap to top
+
+            settingsElements[i].navigation = nav;
+        }
     }
 
     private void SetupMusic()
@@ -186,6 +257,38 @@ public class MainMenuUI : MonoBehaviour
             }
             PlayCurrentTrack();
         }
+
+        // Handle controller B button for back
+        if (UIInputActions.IsCancelPressed())
+        {
+            if (m_InSettingsPanel)
+            {
+                OnBackClicked();
+            }
+        }
+
+        // Auto-select first button if using gamepad and nothing selected
+        if (InputModeManager.UseGamepadNavigation)
+        {
+            if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject == null)
+            {
+                SelectFirstButton();
+            }
+        }
+    }
+
+    private void SelectFirstButton()
+    {
+        if (m_InSettingsPanel)
+        {
+            if (m_MasterVolumeSlider != null)
+                EventSystem.current.SetSelectedGameObject(m_MasterVolumeSlider.gameObject);
+        }
+        else
+        {
+            if (m_PlayButton != null)
+                EventSystem.current.SetSelectedGameObject(m_PlayButton.gameObject);
+        }
     }
 
     private void OnPlayClicked()
@@ -221,19 +324,35 @@ public class MainMenuUI : MonoBehaviour
     private void ShowMainPanel()
     {
         Debug.Log("[MainMenuUI] ShowMainPanel");
+        m_InSettingsPanel = false;
+
         if (m_MainPanel != null)
             m_MainPanel.SetActive(true);
         if (m_SettingsPanel != null)
             m_SettingsPanel.SetActive(false);
+
+        // Select first button for gamepad
+        if (InputModeManager.UseGamepadNavigation && m_PlayButton != null && EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(m_PlayButton.gameObject);
+        }
     }
 
     private void ShowSettingsPanel()
     {
         Debug.Log("[MainMenuUI] ShowSettingsPanel");
+        m_InSettingsPanel = true;
+
         if (m_MainPanel != null)
             m_MainPanel.SetActive(false);
         if (m_SettingsPanel != null)
             m_SettingsPanel.SetActive(true);
+
+        // Select first setting for gamepad
+        if (InputModeManager.UseGamepadNavigation && m_MasterVolumeSlider != null && EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(m_MasterVolumeSlider.gameObject);
+        }
     }
 
     #region Settings Handlers

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Surroundead-style area-based zombie spawner.
@@ -39,9 +40,13 @@ public class ZombieSpawner : MonoBehaviour
     private float m_RespawnTimer;
     private bool m_HasSpawnedInitial = false;
     private Transform m_PlayerTransform;
+    private ChunkConfig m_ChunkConfig;
 
     private void Start()
     {
+        // Load chunk config for chunk-based spawning
+        m_ChunkConfig = Resources.Load<ChunkConfig>("ChunkConfig");
+
         // Find player
         var player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -52,6 +57,16 @@ public class ZombieSpawner : MonoBehaviour
 
     private void Update()
     {
+        // Check if our chunk is loaded - if not, despawn and wait
+        if (!IsChunkLoaded())
+        {
+            if (m_SpawnedZombies.Count > 0)
+            {
+                DespawnAll();
+            }
+            return;
+        }
+
         if (m_PlayerTransform == null)
         {
             var player = GameObject.FindGameObjectWithTag("Player");
@@ -93,9 +108,32 @@ public class ZombieSpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Check if this spawner's chunk is currently loaded.
+    /// </summary>
+    private bool IsChunkLoaded()
+    {
+        // No chunk system - always loaded
+        if (m_ChunkConfig == null || ChunkLoader.Instance == null)
+            return true;
+
+        // Get our chunk coordinate
+        Vector2Int myChunk = m_ChunkConfig.WorldToChunk(transform.position);
+        string chunkName = m_ChunkConfig.GetChunkSceneName(myChunk);
+
+        // Check if loaded
+        return ChunkLoader.Instance.LoadedChunks.Contains(chunkName);
+    }
+
     private IEnumerator InitialSpawnRoutine()
     {
         yield return new WaitForSeconds(m_InitialSpawnDelay);
+
+        // Wait for chunk to be loaded
+        while (!IsChunkLoaded())
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
 
         // Wait until player is in range
         while (m_PlayerTransform == null)
@@ -109,6 +147,13 @@ public class ZombieSpawner : MonoBehaviour
         // Wait for player to be in range but not too close
         while (true)
         {
+            // Also check chunk is still loaded
+            if (!IsChunkLoaded())
+            {
+                yield return new WaitForSeconds(0.5f);
+                continue;
+            }
+
             float dist = Vector3.Distance(transform.position, m_PlayerTransform.position);
             if (dist >= m_MinPlayerDistance && dist <= m_MaxPlayerDistance)
                 break;
@@ -196,8 +241,8 @@ public class ZombieSpawner : MonoBehaviour
                 randomPos = transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
             }
 
-            // Find valid NavMesh position
-            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+            // Try NavMesh first
+            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, 50f, NavMesh.AllAreas))
             {
                 // Check if not too close to player
                 if (m_PlayerTransform != null)
@@ -208,10 +253,27 @@ public class ZombieSpawner : MonoBehaviour
 
                 return hit.position;
             }
+
+            // Fallback: Raycast to find ground
+            Vector3 rayStart = randomPos + Vector3.up * 100f;
+            if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit groundHit, 200f))
+            {
+                Vector3 spawnPos = groundHit.point;
+
+                // Check if not too close to player
+                if (m_PlayerTransform != null)
+                {
+                    if (Vector3.Distance(spawnPos, m_PlayerTransform.position) < m_MinPlayerDistance)
+                        continue;
+                }
+
+                return spawnPos;
+            }
         }
 
-        Debug.LogWarning($"[ZombieSpawner] Could not find valid spawn position at {name}");
-        return Vector3.zero;
+        // Last resort: spawn at spawner position
+        Debug.LogWarning($"[ZombieSpawner] Using fallback spawn position at {name}");
+        return transform.position;
     }
 
     private bool IsBlocked()

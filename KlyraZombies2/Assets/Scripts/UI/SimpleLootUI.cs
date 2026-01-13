@@ -821,6 +821,16 @@ public class SimpleLootUI : MonoBehaviour
     {
         if (!m_Initialized) Initialize();
 
+        // Check if UI was destroyed (e.g., by scene changes) and rebuild
+        if (m_PlayerSlots.Count > 0 && (m_PlayerSlots[0].SlotObject == null || m_PlayerSlots[0].IconImage == null))
+        {
+            Debug.Log("[SimpleLootUI] UI elements were destroyed, rebuilding...");
+            m_Initialized = false;
+            m_PlayerSlots.Clear();
+            m_ContainerSlots.Clear();
+            Initialize();
+        }
+
         m_PlayerInventory = playerInventory;
         m_ContainerInventory = containerInventory;
 
@@ -1256,10 +1266,15 @@ public class SimpleLootUI : MonoBehaviour
         for (int i = 0; i < m_PlayerSlots.Count; i++)
         {
             var slot = m_PlayerSlots[i];
+            // Check if slot or its components have been destroyed
+            if (slot.SlotObject == null || slot.IconImage == null)
+            {
+                continue;
+            }
             slot.IconImage.sprite = null;
             slot.IconImage.enabled = false;
-            slot.AmountText.text = "";
-            slot.NameText.text = "";
+            if (slot.AmountText != null) slot.AmountText.text = "";
+            if (slot.NameText != null) slot.NameText.text = "";
             slot.SlotObject.SetActive(i < availableSlots);
         }
 

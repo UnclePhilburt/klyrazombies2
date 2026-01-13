@@ -141,7 +141,17 @@ public class ZombieAI : MonoBehaviour
         // Validate NavMeshAgent is on NavMesh
         if (!m_Agent.isOnNavMesh)
         {
-            Debug.LogError($"[ZombieAI] {gameObject.name} is NOT on NavMesh! Bake NavMesh and ensure zombie is placed on walkable surface.");
+            // Try to warp to nearest NavMesh position
+            if (UnityEngine.AI.NavMesh.SamplePosition(transform.position, out UnityEngine.AI.NavMeshHit hit, 10f, UnityEngine.AI.NavMesh.AllAreas))
+            {
+                m_Agent.Warp(hit.position);
+                if (m_DebugMode)
+                    Debug.Log($"[ZombieAI] {gameObject.name} warped to NavMesh at {hit.position}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ZombieAI] {gameObject.name} could not find NavMesh nearby. Will use simple movement.");
+            }
         }
         else if (m_DebugMode)
         {

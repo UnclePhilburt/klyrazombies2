@@ -312,7 +312,6 @@ GameObject:
   - component: {fileID: 8345506530906997484}
   - component: {fileID: 9168602461803767910}
   - component: {fileID: 7832144256959078316}
-  - component: {fileID: 2151210230668967755}
   - component: {fileID: 4760034893232634198}
   - component: {fileID: 5267069686396109430}
   - component: {fileID: 8808825105815682843}
@@ -1627,7 +1626,7 @@ MonoBehaviour:
     m_Preset: {fileID: 0}
     m_BlockList: []
     m_Default: 1
-  m_PositioningMode: 1
+  m_PositioningMode: 2
   m_Grouping: -1
   m_MinRespawnTime: 2
   m_MaxRespawnTime: 3
@@ -1766,6 +1765,9 @@ MonoBehaviour:
   m_StaminaAttributeName: Stamina
   m_DrainRate: 15
   m_MinStaminaToSprint: 5
+  m_BaseXPToLevel: 200
+  m_XPMultiplierPerLevel: 1.5
+  m_ShowXPProgress: 1
   m_HeavyBreathingClip: {fileID: 8300000, guid: 787e9ea86d5d04118b3c706256e1ddaf, type: 3}
   m_BreathingVolume: 0.7
   m_StartBreathingThreshold: 0.1
@@ -2073,27 +2075,6 @@ MonoBehaviour:
   m_SmallBackpackAttachPoint: {fileID: 7596705381636932425}
   m_MediumBackpackAttachPoint: {fileID: 5453219002273805629}
   m_LargeBackpackAttachPoint: {fileID: 8154454123572259479}
---- !u!114 &2151210230668967755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3034497729850916095}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 973fa2a11931741c88e2d0d47dbff11e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HolsterPositionAdjuster
-  m_Inventory: {fileID: 8171532312899798581}
-  m_RifleHolsterID: 1002
-  m_DefaultHolsterSpot: {fileID: 2682923241167970040}
-  m_SmallBackpackHolsterSpot: {fileID: 4020254023737481483}
-  m_MediumBackpackHolsterSpot: {fileID: 4971964869460975504}
-  m_LargeBackpackHolsterSpot: {fileID: 8876465965850981208}
-  m_DebugLog: 1
-  m_CurrentBackpack: 0
-  m_RifleHolster: {fileID: 2682923241167970040}
 --- !u!114 &4760034893232634198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2149,6 +2130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LootableInteraction
   m_InteractKey: 101
+  m_MaxInteractDistance: 3
 --- !u!114 &1008419371400634769
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// Spawns a random player character from a list of prefabs.
@@ -20,6 +21,12 @@ public class CharacterSpawner : MonoBehaviour
     [Tooltip("Delay before showing popup (lets player orient themselves)")]
     [SerializeField] private float m_PopupDelay = 1f;
 
+    [Header("Chunk Loading")]
+    [Tooltip("Wait for chunks to load before spawning")]
+    [SerializeField] private bool m_WaitForChunks = false;
+    [Tooltip("Maximum time to wait for chunks (seconds)")]
+    [SerializeField] private float m_MaxWaitTime = 120f;
+
     [Header("Debug")]
     [SerializeField] private bool m_SpawnOnStart = true;
     [SerializeField] private int m_DebugCharacterIndex = -1; // -1 = random
@@ -29,10 +36,64 @@ public class CharacterSpawner : MonoBehaviour
 
     private void Awake()
     {
+        Debug.Log("[CharacterSpawner] Awake called");
+    }
+
+    private void Start()
+    {
+        Debug.Log($"[CharacterSpawner] Start called. SpawnOnStart={m_SpawnOnStart}, WaitForChunks={m_WaitForChunks}");
+
         if (m_SpawnOnStart)
         {
-            SpawnPlayer();
+            if (m_WaitForChunks)
+            {
+                StartCoroutine(WaitForChunksThenSpawn());
+            }
+            else
+            {
+                SpawnPlayer();
+            }
         }
+    }
+
+    private IEnumerator WaitForChunksThenSpawn()
+    {
+        float waitTime = 0f;
+
+        Debug.Log("[CharacterSpawner] WaitForChunksThenSpawn started...");
+
+        // Wait for ChunkLoader to exist
+        while (ChunkLoader.Instance == null && waitTime < m_MaxWaitTime)
+        {
+            yield return null;
+            waitTime += Time.deltaTime;
+        }
+
+        if (ChunkLoader.Instance != null)
+        {
+            Debug.Log($"[CharacterSpawner] ChunkLoader found, waiting for chunks... (waited {waitTime:F1}s so far)");
+
+            // Wait for initial load to complete - NO timeout for this part
+            while (!ChunkLoader.Instance.InitialLoadComplete)
+            {
+                yield return null;
+                waitTime += Time.deltaTime;
+
+                // Log progress every 5 seconds
+                if (Mathf.FloorToInt(waitTime) % 5 == 0 && Time.deltaTime > 0)
+                {
+                    Debug.Log($"[CharacterSpawner] Still waiting for chunks... ({waitTime:F1}s)");
+                }
+            }
+
+            Debug.Log($"[CharacterSpawner] Chunks loaded after {waitTime:F1}s, spawning player...");
+        }
+        else
+        {
+            Debug.LogWarning("[CharacterSpawner] No ChunkLoader found after timeout, spawning immediately");
+        }
+
+        SpawnPlayer();
     }
 
     /// <summary>
@@ -70,12 +131,38 @@ public class CharacterSpawner : MonoBehaviour
             return null;
         }
 
-        // Spawn
         m_SpawnedPlayer = Instantiate(prefab, spawnPos, spawnRot);
+
+        // Add destruction tracker
+        var tracker = m_SpawnedPlayer.AddComponent<DestructionTracker>();
+        tracker.spawnerRef = this;
+
+        if (m_SpawnedPlayer == null)
+        {
+            Debug.LogError("[CharacterSpawner] Instantiate returned null!");
+            return null;
+        }
+
         m_SpawnedPlayer.name = "Player";
         m_SpawnedPlayer.tag = "Player";
 
-        Debug.Log($"[CharacterSpawner] Spawned: {prefab.name} ({index + 1}/{m_PlayerPrefabs.Length})");
+        Debug.Log($"[CharacterSpawner] Spawned: {prefab.name} at {spawnPos} ({index + 1}/{m_PlayerPrefabs.Length})");
+        Debug.Log($"[CharacterSpawner] Player tag is: {m_SpawnedPlayer.tag}, activeInHierarchy: {m_SpawnedPlayer.activeInHierarchy}");
+
+        // Directly assign to camera
+        var cameraController = FindFirstObjectByType<Opsive.UltimateCharacterController.Camera.CameraController>();
+        if (cameraController != null)
+        {
+            cameraController.Character = m_SpawnedPlayer;
+            Debug.Log($"[CharacterSpawner] Assigned player to camera controller");
+        }
+        else
+        {
+            Debug.LogWarning("[CharacterSpawner] No CameraController found!");
+        }
+
+        // Check if player still exists after a moment
+        StartCoroutine(CheckPlayerExists());
 
         // Generate and show backstory
         if (m_ShowBackstoryPopup)
@@ -110,4 +197,29 @@ public class CharacterSpawner : MonoBehaviour
 
     public GameObject GetSpawnedPlayer() => m_SpawnedPlayer;
     public CharacterBackstory GetCurrentBackstory() => m_CurrentBackstory;
+
+    private IEnumerator CheckPlayerExists()
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        if (m_SpawnedPlayer == null)
+        {
+            Debug.LogError("[CharacterSpawner] Player was DESTROYED within 0.1 seconds of spawning!");
+        }
+        else
+        {
+            Debug.Log($"[CharacterSpawner] Player still exists at {m_SpawnedPlayer.transform.position}");
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        if (m_SpawnedPlayer == null)
+        {
+            Debug.LogError("[CharacterSpawner] Player was DESTROYED within 1 second of spawning!");
+        }
+        else
+        {
+            Debug.Log($"[CharacterSpawner] Player still exists after 1s at {m_SpawnedPlayer.transform.position}");
+        }
+    }
 }
