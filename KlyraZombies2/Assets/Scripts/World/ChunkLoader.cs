@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+#if UNITY_ADDRESSABLES
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+#endif
+
 /// <summary>
 /// Loads and unloads world chunks based on player position.
 /// Attach to player or a persistent manager object.
+/// Supports both regular SceneManager and Addressables for streaming.
 /// </summary>
 public class ChunkLoader : MonoBehaviour
 {
@@ -13,12 +20,24 @@ public class ChunkLoader : MonoBehaviour
     [Tooltip("Chunk configuration asset")]
     [SerializeField] private ChunkConfig m_Config;
 
+    [Tooltip("Use Addressables for chunk loading (reduces initial download size for WebGL)")]
+    [SerializeField] private bool m_UseAddressables = false;
+
     [Tooltip("Transform to track (usually player). If null, uses this transform.")]
     [SerializeField] private Transform m_Target;
 
     [Header("Initial Load")]
     [Tooltip("Load all chunks on start, then switch to streaming after player spawns")]
     [SerializeField] private bool m_LoadAllOnStart = true;
+
+    [Tooltip("If not loading all, load chunks around this position at start")]
+    [SerializeField] private Vector3 m_InitialLoadPosition = Vector3.zero;
+
+    [Tooltip("Multiple spawn points - picks one randomly (or use CharacterSpawner)")]
+    [SerializeField] private Transform[] m_SpawnPoints;
+
+    [Tooltip("Reference to CharacterSpawner to get spawn points from it")]
+    [SerializeField] private CharacterSpawner m_CharacterSpawner;
 
     [Tooltip("Time to wait after loading all chunks before switching to streaming mode")]
     [SerializeField] private float m_InitialLoadDelay = 2f;
@@ -33,6 +52,11 @@ public class ChunkLoader : MonoBehaviour
     private HashSet<string> m_UnloadingChunks = new HashSet<string>();
     private bool m_InitialLoadComplete = false;
     private bool m_StreamingEnabled = false;
+
+    #if UNITY_ADDRESSABLES
+    // Track Addressables handles for proper cleanup
+    private Dictionary<string, AsyncOperationHandle<SceneInstance>> m_AddressableHandles = new Dictionary<string, AsyncOperationHandle<SceneInstance>>();
+    #endif
 
     // Singleton for easy access
     public static ChunkLoader Instance { get; private set; }
@@ -83,10 +107,9 @@ public class ChunkLoader : MonoBehaviour
         }
         else
         {
-            // Normal streaming from start
-            Debug.Log("[ChunkLoader] Starting in streaming mode directly...");
-            m_StreamingEnabled = true;
-            UpdateChunks(true);
+            // Only load chunks around spawn position
+            Debug.Log("[ChunkLoader] Starting in streaming mode with spawn position...");
+            StartCoroutine(LoadAroundSpawnThenStream());
         }
     }
 
@@ -187,10 +210,121 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
+    private IEnumerator LoadAroundSpawnThenStream()
+    {
+        // Gather all possible spawn positions
+        List<Vector3> spawnPositions = new List<Vector3>();
+
+        // First priority: Get spawn points from CharacterSpawner
+        if (m_CharacterSpawner != null && m_CharacterSpawner.SpawnPoints != null)
+        {
+            foreach (var point in m_CharacterSpawner.SpawnPoints)
+            {
+                if (point != null)
+                    spawnPositions.Add(point.position);
+            }
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Got {spawnPositions.Count} spawn points from CharacterSpawner");
+        }
+
+        // Second priority: Use our own spawn points array
+        if (spawnPositions.Count == 0 && m_SpawnPoints != null)
+        {
+            foreach (var point in m_SpawnPoints)
+            {
+                if (point != null)
+                    spawnPositions.Add(point.position);
+            }
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Using {spawnPositions.Count} local spawn points");
+        }
+
+        // Fallback: Use initial load position
+        if (spawnPositions.Count == 0)
+        {
+            spawnPositions.Add(m_InitialLoadPosition);
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Using fallback initial load position: {m_InitialLoadPosition}");
+        }
+
+        if (m_ShowDebugInfo)
+            Debug.Log($"[ChunkLoader] Loading chunks around {spawnPositions.Count} possible spawn point(s)");
+
+        // Collect all unique chunks needed around ALL spawn positions
+        HashSet<string> chunksToLoad = new HashSet<string>();
+        int radius = m_Config.loadRadius;
+
+        foreach (var spawnPos in spawnPositions)
+        {
+            Vector2Int spawnChunk = m_Config.WorldToChunk(spawnPos);
+
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Spawn position {spawnPos} is in chunk {spawnChunk}");
+
+            for (int x = spawnChunk.x - radius; x <= spawnChunk.x + radius; x++)
+            {
+                for (int z = spawnChunk.y - radius; z <= spawnChunk.y + radius; z++)
+                {
+                    if (m_Config.IsValidChunk(x, z))
+                    {
+                        string sceneName = m_Config.GetChunkSceneName(x, z);
+                        if (!m_LoadedChunks.Contains(sceneName) && !m_LoadingChunks.Contains(sceneName))
+                        {
+                            chunksToLoad.Add(sceneName);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (m_ShowDebugInfo)
+            Debug.Log($"[ChunkLoader] Loading {chunksToLoad.Count} unique chunks around all spawn points...");
+
+        // Load the chunks
+        foreach (var sceneName in chunksToLoad)
+        {
+            StartCoroutine(LoadChunkImmediate(sceneName));
+        }
+
+        // Wait for all to load
+        while (m_LoadingChunks.Count > 0)
+        {
+            yield return null;
+        }
+
+        m_InitialLoadComplete = true;
+
+        // Set current chunk to first spawn position (will update when player spawns)
+        m_CurrentChunk = m_Config.WorldToChunk(spawnPositions[0]);
+
+        if (m_ShowDebugInfo)
+            Debug.Log($"[ChunkLoader] Initial {m_LoadedChunks.Count} chunks loaded around spawn points.");
+
+        // Wait a moment for things to settle
+        yield return new WaitForSeconds(0.5f);
+
+        // Enable streaming
+        m_StreamingEnabled = true;
+
+        if (m_ShowDebugInfo)
+            Debug.Log("[ChunkLoader] Streaming mode enabled - will load/unload as player moves.");
+    }
+
     private void Update()
     {
-        if (m_Config == null) return;
-        if (!m_StreamingEnabled) return; // Don't stream until initial load complete
+        if (m_Config == null)
+        {
+            if (m_ShowDebugInfo && Time.frameCount % 300 == 0)
+                Debug.LogWarning("[ChunkLoader] Update: Config is null!");
+            return;
+        }
+
+        if (!m_StreamingEnabled)
+        {
+            if (m_ShowDebugInfo && Time.frameCount % 300 == 0)
+                Debug.LogWarning($"[ChunkLoader] Update: Streaming not enabled yet. InitialLoadComplete: {m_InitialLoadComplete}");
+            return;
+        }
 
         // Try to find player if we don't have a valid target
         if (m_Target == null || !m_Target.gameObject.activeInHierarchy)
@@ -204,14 +338,25 @@ public class ChunkLoader : MonoBehaviour
             }
             else
             {
+                if (m_ShowDebugInfo && Time.frameCount % 300 == 0)
+                    Debug.LogWarning("[ChunkLoader] Update: No player found!");
                 return; // No player yet, wait
             }
         }
 
         Vector2Int newChunk = m_Config.WorldToChunk(m_Target.position);
 
+        // Debug every 5 seconds if chunk hasn't changed
+        if (m_ShowDebugInfo && Time.frameCount % 300 == 0)
+        {
+            Debug.Log($"[ChunkLoader] Update: Player at {m_Target.position}, Current chunk: {m_CurrentChunk}, Calculated chunk: {newChunk}");
+        }
+
         if (newChunk != m_CurrentChunk)
         {
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Chunk changed! {m_CurrentChunk} -> {newChunk}");
+
             m_CurrentChunk = newChunk;
             UpdateChunks(false);
         }
@@ -296,17 +441,61 @@ public class ChunkLoader : MonoBehaviour
     /// </summary>
     private IEnumerator LoadChunkAsync(string sceneName)
     {
-        // Check if scene exists in build settings
-        if (!IsSceneInBuild(sceneName))
-        {
-            Debug.LogWarning($"[ChunkLoader] Scene '{sceneName}' not found in build settings!");
-            yield break;
-        }
-
         m_LoadingChunks.Add(sceneName);
 
         if (m_ShowDebugInfo)
-            Debug.Log($"[ChunkLoader] Loading chunk: {sceneName}");
+            Debug.Log($"[ChunkLoader] Loading chunk: {sceneName} (Addressables: {m_UseAddressables})");
+
+        #if UNITY_ADDRESSABLES
+        if (m_UseAddressables)
+        {
+            // Use Addressables for loading
+            var handle = Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Additive, false);
+
+            // Wait until download + load complete
+            while (!handle.IsDone)
+            {
+                // Show download progress if available
+                if (m_ShowDebugInfo && handle.PercentComplete < 0.9f)
+                {
+                    Debug.Log($"[ChunkLoader] Downloading {sceneName}: {handle.PercentComplete * 100:F0}%");
+                }
+                yield return null;
+            }
+
+            if (handle.Status == AsyncOperationStatus.Failed)
+            {
+                Debug.LogError($"[ChunkLoader] Failed to load chunk '{sceneName}': {handle.OperationException}");
+                m_LoadingChunks.Remove(sceneName);
+                yield break;
+            }
+
+            // Small delay to spread out activations
+            yield return new WaitForSeconds(0.1f);
+
+            // Activate the scene
+            handle.Result.ActivateAsync();
+
+            // Store handle for later unload
+            m_AddressableHandles[sceneName] = handle;
+
+            m_LoadingChunks.Remove(sceneName);
+            m_LoadedChunks.Add(sceneName);
+
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Loaded chunk: {sceneName}");
+
+            yield break;
+        }
+        #endif
+
+        // Use SceneManager for loading (non-Addressables mode)
+        if (!IsSceneInBuild(sceneName))
+        {
+            Debug.LogWarning($"[ChunkLoader] Scene '{sceneName}' not found in build settings!");
+            m_LoadingChunks.Remove(sceneName);
+            yield break;
+        }
 
         var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         if (op == null)
@@ -347,16 +536,49 @@ public class ChunkLoader : MonoBehaviour
     /// </summary>
     private IEnumerator LoadChunkImmediate(string sceneName)
     {
-        if (!IsSceneInBuild(sceneName))
-        {
-            Debug.LogWarning($"[ChunkLoader] Scene '{sceneName}' not found in build settings!");
-            yield break;
-        }
-
         m_LoadingChunks.Add(sceneName);
 
         if (m_ShowDebugInfo)
-            Debug.Log($"[ChunkLoader] Loading chunk (immediate): {sceneName}");
+            Debug.Log($"[ChunkLoader] Loading chunk (immediate): {sceneName} (Addressables: {m_UseAddressables})");
+
+        #if UNITY_ADDRESSABLES
+        if (m_UseAddressables)
+        {
+            // Use Addressables - activate immediately
+            var handle = Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Additive, true);
+
+            while (!handle.IsDone)
+            {
+                yield return null;
+            }
+
+            if (handle.Status == AsyncOperationStatus.Failed)
+            {
+                Debug.LogError($"[ChunkLoader] Failed to load chunk '{sceneName}': {handle.OperationException}");
+                m_LoadingChunks.Remove(sceneName);
+                yield break;
+            }
+
+            // Store handle for later unload
+            m_AddressableHandles[sceneName] = handle;
+
+            m_LoadingChunks.Remove(sceneName);
+            m_LoadedChunks.Add(sceneName);
+
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Loaded chunk: {sceneName}");
+
+            yield break;
+        }
+        #endif
+
+        // Use SceneManager (non-Addressables mode)
+        if (!IsSceneInBuild(sceneName))
+        {
+            Debug.LogWarning($"[ChunkLoader] Scene '{sceneName}' not found in build settings!");
+            m_LoadingChunks.Remove(sceneName);
+            yield break;
+        }
 
         var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         if (op == null)
@@ -385,8 +607,37 @@ public class ChunkLoader : MonoBehaviour
         m_UnloadingChunks.Add(sceneName);
 
         if (m_ShowDebugInfo)
-            Debug.Log($"[ChunkLoader] Unloading chunk: {sceneName}");
+            Debug.Log($"[ChunkLoader] Unloading chunk: {sceneName} (Addressables: {m_UseAddressables})");
 
+        #if UNITY_ADDRESSABLES
+        if (m_UseAddressables && m_AddressableHandles.ContainsKey(sceneName))
+        {
+            // Unload via Addressables
+            var handle = m_AddressableHandles[sceneName];
+            var unloadOp = Addressables.UnloadSceneAsync(handle);
+
+            while (!unloadOp.IsDone)
+            {
+                yield return null;
+            }
+
+            if (unloadOp.Status == AsyncOperationStatus.Failed)
+            {
+                Debug.LogError($"[ChunkLoader] Failed to unload chunk '{sceneName}': {unloadOp.OperationException}");
+            }
+
+            m_AddressableHandles.Remove(sceneName);
+            m_UnloadingChunks.Remove(sceneName);
+            m_LoadedChunks.Remove(sceneName);
+
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Unloaded chunk: {sceneName}");
+
+            yield break;
+        }
+        #endif
+
+        // Use SceneManager (non-Addressables mode)
         var op = SceneManager.UnloadSceneAsync(sceneName);
         if (op == null)
         {

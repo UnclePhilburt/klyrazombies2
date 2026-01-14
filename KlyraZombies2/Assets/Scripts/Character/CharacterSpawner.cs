@@ -197,6 +197,7 @@ public class CharacterSpawner : MonoBehaviour
 
     public GameObject GetSpawnedPlayer() => m_SpawnedPlayer;
     public CharacterBackstory GetCurrentBackstory() => m_CurrentBackstory;
+    public Transform[] SpawnPoints => m_SpawnPoints;
 
     private IEnumerator CheckPlayerExists()
     {

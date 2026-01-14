@@ -7,6 +7,15 @@ using System.Linq;
 /// <summary>
 /// Surroundead-style area-based zombie spawner.
 /// Spawns zombies within an area, respects spawn limits, and handles respawning.
+///
+/// CHUNK-BASED SPAWNING MODE (default):
+/// - Spawns when chunk loads and player is at least MinPlayerDistance away
+/// - Ignores MaxPlayerDistance (spawns even if player is 100m+ away)
+/// - Perfect for chunk streaming systems
+///
+/// CLASSIC MODE (UseChunkBasedSpawning = false):
+/// - Only spawns when player is 15m-80m away (classic Surroundead behavior)
+/// - Use this for non-chunked games
 /// </summary>
 public class ZombieSpawner : MonoBehaviour
 {
@@ -27,9 +36,14 @@ public class ZombieSpawner : MonoBehaviour
     [SerializeField] private bool m_RespawnEnabled = true;
 
     [Header("Player Distance")]
+    [Tooltip("Minimum distance from player to spawn (prevents spawning on top of player)")]
     [SerializeField] private float m_MinPlayerDistance = 15f;
+    [Tooltip("Maximum spawn distance (only used if chunk-based spawning is disabled)")]
     [SerializeField] private float m_MaxPlayerDistance = 80f;
+    [Tooltip("Distance at which zombies despawn")]
     [SerializeField] private float m_DespawnDistance = 100f;
+    [Tooltip("If true, spawns when chunk loads (ignores max distance). If false, uses classic 15-80m range.")]
+    [SerializeField] private bool m_UseChunkBasedSpawning = true;
 
     [Header("Spawn Blocking")]
     [SerializeField] private bool m_CanBeBlocked = true;
@@ -85,8 +99,15 @@ public class ZombieSpawner : MonoBehaviour
             return;
         }
 
-        // Don't spawn if player too close or too far
-        if (distanceToPlayer < m_MinPlayerDistance || distanceToPlayer > m_MaxPlayerDistance)
+        // Don't spawn if player too close
+        if (distanceToPlayer < m_MinPlayerDistance)
+        {
+            return;
+        }
+
+        // In chunk mode, ignore max distance - spawn as long as chunk is loaded
+        // In non-chunk mode, enforce max distance
+        if (!m_UseChunkBasedSpawning && distanceToPlayer > m_MaxPlayerDistance)
         {
             return;
         }
@@ -121,7 +142,12 @@ public class ZombieSpawner : MonoBehaviour
         Vector2Int myChunk = m_ChunkConfig.WorldToChunk(transform.position);
         string chunkName = m_ChunkConfig.GetChunkSceneName(myChunk);
 
-        // Check if loaded
+        // IMPORTANT: If we're IN a chunk scene, we're loaded (even if ChunkLoader hasn't registered us yet)
+        // This handles race conditions during scene loading
+        if (gameObject.scene.name == chunkName)
+            return true;
+
+        // Check if loaded via ChunkLoader
         return ChunkLoader.Instance.LoadedChunks.Contains(chunkName);
     }
 
@@ -129,10 +155,20 @@ public class ZombieSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(m_InitialSpawnDelay);
 
-        // Wait for chunk to be loaded
-        while (!IsChunkLoaded())
+        // Wait for chunk to be loaded (with timeout to handle race conditions)
+        float waitTime = 0f;
+        float maxWaitTime = 10f; // Give up after 10 seconds
+
+        while (!IsChunkLoaded() && waitTime < maxWaitTime)
         {
             yield return new WaitForSeconds(0.5f);
+            waitTime += 0.5f;
+        }
+
+        // If we timed out, assume we're in a loaded chunk (we wouldn't be running if we weren't)
+        if (waitTime >= maxWaitTime)
+        {
+            Debug.LogWarning($"[ZombieSpawner] {name} timed out waiting for chunk confirmation. Spawning anyway.");
         }
 
         // Wait until player is in range
@@ -144,7 +180,7 @@ public class ZombieSpawner : MonoBehaviour
                 m_PlayerTransform = player.transform;
         }
 
-        // Wait for player to be in range but not too close
+        // Wait for player to be in valid range
         while (true)
         {
             // Also check chunk is still loaded
@@ -155,8 +191,16 @@ public class ZombieSpawner : MonoBehaviour
             }
 
             float dist = Vector3.Distance(transform.position, m_PlayerTransform.position);
-            if (dist >= m_MinPlayerDistance && dist <= m_MaxPlayerDistance)
+
+            // In chunk mode: only need to be far enough away (min distance)
+            // In non-chunk mode: need to be in the 15-80m range
+            bool inRange = m_UseChunkBasedSpawning
+                ? (dist >= m_MinPlayerDistance && dist <= m_DespawnDistance)
+                : (dist >= m_MinPlayerDistance && dist <= m_MaxPlayerDistance);
+
+            if (inRange)
                 break;
+
             yield return new WaitForSeconds(1f);
         }
 

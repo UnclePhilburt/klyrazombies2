@@ -15,12 +15,14 @@ public class ChunkSplitter : EditorWindow
     private string m_SourceScenePath = "";
     private string m_OutputFolder = "Assets/Scenes/Chunks";
     private bool m_CreatePersistentScene = true;
+    private bool m_SplitEverything = false; // Split ALL objects individually by their actual position
     private Vector3 m_WorldMin = Vector3.zero;
     private Vector3 m_WorldMax = new Vector3(900, 100, 900);
     private bool m_AnalyzedScene = false;
     private int m_TotalRootObjects = 0;
     private int m_TotalAllObjects = 0;
     private Dictionary<Vector2Int, int> m_ChunkObjectCounts = new Dictionary<Vector2Int, int>();
+    private Vector2 m_ScrollPosition = Vector2.zero;
 
     [MenuItem("Project Klyra/World/Chunk Splitter")]
     public static void ShowWindow()
@@ -162,9 +164,22 @@ public class ChunkSplitter : EditorWindow
                 0,
                 Mathf.Floor(m_WorldMin.z / chunkSize) * chunkSize
             );
+
+            // Also auto-calculate grid size to fit the content
+            float worldSizeX = m_WorldMax.x - m_Config.worldOrigin.x;
+            float worldSizeZ = m_WorldMax.z - m_Config.worldOrigin.z;
+            m_Config.gridSizeX = Mathf.CeilToInt(worldSizeX / chunkSize);
+            m_Config.gridSizeZ = Mathf.CeilToInt(worldSizeZ / chunkSize);
+
+            // Ensure at least 1x1
+            m_Config.gridSizeX = Mathf.Max(1, m_Config.gridSizeX);
+            m_Config.gridSizeZ = Mathf.Max(1, m_Config.gridSizeZ);
+
             EditorUtility.SetDirty(m_Config);
             // Re-analyze with new origin
             AnalyzeScene();
+
+            Debug.Log($"[ChunkSplitter] Auto-Fit: Origin={m_Config.worldOrigin}, Grid={m_Config.gridSizeX}x{m_Config.gridSizeZ}");
         }
         EditorGUILayout.EndHorizontal();
 
@@ -192,6 +207,9 @@ public class ChunkSplitter : EditorWindow
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Objects per Chunk:", EditorStyles.boldLabel);
 
+            // Scrollable grid view
+            m_ScrollPosition = EditorGUILayout.BeginScrollView(m_ScrollPosition, GUILayout.ExpandHeight(true));
+
             for (int z = m_Config.gridSizeZ - 1; z >= 0; z--)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -207,6 +225,8 @@ public class ChunkSplitter : EditorWindow
                 }
                 EditorGUILayout.EndHorizontal();
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
     }
@@ -281,11 +301,8 @@ public class ChunkSplitter : EditorWindow
                 m_WorldMax = Vector3.Max(m_WorldMax, t.position);
             }
 
-            // Assign to chunk based on root position (keeps hierarchies together)
-            Vector2Int chunk = m_Config.WorldToChunk(obj.transform.position);
-            if (!m_ChunkObjectCounts.ContainsKey(chunk))
-                m_ChunkObjectCounts[chunk] = 0;
-            m_ChunkObjectCounts[chunk] += childCount;
+            // Analyze chunk assignment - mirror what the splitter actually does
+            AnalyzeObjectForChunks(obj);
         }
 
         m_AnalyzedScene = true;
@@ -297,6 +314,72 @@ public class ChunkSplitter : EditorWindow
         }
 
         Debug.Log($"[ChunkSplitter] Analyzed {m_TotalRootObjects} root objects ({m_TotalAllObjects} total). World bounds: {m_WorldMin} to {m_WorldMax}");
+    }
+
+    /// <summary>
+    /// Analyze where an object (and its children) will end up - mirrors actual split logic.
+    /// </summary>
+    private void AnalyzeObjectForChunks(GameObject obj)
+    {
+        // Check if children span multiple chunks - if so, split them
+        if (ShouldSplitChildren(obj))
+        {
+            // Analyze children individually based on their positions
+            foreach (Transform child in obj.transform)
+            {
+                AnalyzeObjectForChunks(child.gameObject);
+            }
+        }
+        else
+        {
+            // Assign whole object to chunk based on CENTER OF BOUNDS
+            int childCount = CountAllChildren(obj.transform);
+            Vector3 centerPos = GetObjectCenter(obj);
+            Vector2Int chunk = m_Config.WorldToChunk(centerPos);
+
+            // Clamp to valid range for display purposes
+            chunk.x = Mathf.Clamp(chunk.x, 0, m_Config.gridSizeX - 1);
+            chunk.y = Mathf.Clamp(chunk.y, 0, m_Config.gridSizeZ - 1);
+
+            if (!m_ChunkObjectCounts.ContainsKey(chunk))
+                m_ChunkObjectCounts[chunk] = 0;
+            m_ChunkObjectCounts[chunk] += childCount;
+        }
+    }
+
+    /// <summary>
+    /// Get the center position of an object based on its renderers/children.
+    /// This finds where the actual CONTENT is, not where the parent transform is.
+    /// </summary>
+    private Vector3 GetObjectCenter(GameObject obj)
+    {
+        // Try to get bounds from renderers
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length > 0)
+        {
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+            return bounds.center;
+        }
+
+        // No renderers - use average of child positions
+        if (obj.transform.childCount > 0)
+        {
+            Vector3 sum = Vector3.zero;
+            int count = 0;
+            foreach (Transform child in obj.transform)
+            {
+                sum += child.position;
+                count++;
+            }
+            return sum / count;
+        }
+
+        // Fallback to object's own position
+        return obj.transform.position;
     }
 
     private int CountAllChildren(Transform parent)
@@ -333,16 +416,16 @@ public class ChunkSplitter : EditorWindow
                 continue;
             }
 
-            // Check if this is a container object (empty parent with children)
-            if (IsContainerObject(obj))
+            if (ShouldSplitChildren(obj))
             {
                 // Split children individually based on their positions
                 SplitContainerChildren(obj, objectsByChunk);
             }
             else
             {
-                // Assign whole object to chunk based on its position
-                Vector2Int chunk = m_Config.WorldToChunk(obj.transform.position);
+                // Assign whole object to chunk based on CENTER OF BOUNDS (not parent position)
+                Vector3 centerPos = GetObjectCenter(obj);
+                Vector2Int chunk = m_Config.WorldToChunk(centerPos);
 
                 // Clamp to valid range
                 chunk.x = Mathf.Clamp(chunk.x, 0, m_Config.gridSizeX - 1);
@@ -416,7 +499,8 @@ public class ChunkSplitter : EditorWindow
         // Keep these in persistent scene - use exact/specific matches
         if (name.Contains("player")) return true;
         if (name.Contains("camera")) return true;
-        if (name.Contains("light") && obj.GetComponent<Light>()?.type == LightType.Directional) return true;
+        Light light = obj.GetComponent<Light>();
+        if (name.Contains("light") && light != null && light.type == LightType.Directional) return true;
         if (name.Contains("sun")) return true;
         if (name.Contains("canvas")) return true;
         if (name.Contains("manager")) return true;
@@ -432,13 +516,18 @@ public class ChunkSplitter : EditorWindow
         if (name.Contains("characterinfopopup")) return true;
         if (name.Contains("crosshair")) return true;
         if (name.Contains("playerspawn")) return true; // Player spawn points only
-        if (name.Contains("spawnpoint")) return true;
+        // NOTE: Enemy/zombie spawn points should NOT be persistent - they belong in chunks
+        // Only keep CharacterSpawner (player spawner) in persistent
 
         // Check for specific components
         if (obj.GetComponent<Camera>() != null) return true;
         if (obj.GetComponent<Canvas>() != null) return true;
         if (obj.GetComponent<ChunkLoader>() != null) return true;
         if (obj.GetComponent<AudioListener>() != null) return true;
+
+        // Player spawner (CharacterSpawner) - keep in persistent
+        var characterSpawner = obj.GetComponent("CharacterSpawner");
+        if (characterSpawner != null) return true;
 
         // UI components
         if (obj.GetComponent<SimpleLootUI>() != null) return true;
@@ -455,6 +544,56 @@ public class ChunkSplitter : EditorWindow
         // Check children for InventorySystemManager (it might be on a child)
         var childISM = obj.GetComponentInChildren(System.Type.GetType("Opsive.UltimateInventorySystem.Core.InventorySystemManager, Opsive.UltimateInventorySystem"));
         if (childISM != null) return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Check if an object's children span multiple chunks and should be split.
+    /// Only splits organizational containers, not actual building prefabs.
+    /// </summary>
+    private bool ShouldSplitChildren(GameObject obj)
+    {
+        // No children = nothing to split
+        if (obj.transform.childCount == 0)
+            return false;
+
+        // NEVER split objects marked with ChunkKeepTogether
+        if (obj.GetComponent<ChunkKeepTogether>() != null)
+            return false;
+
+        // First check if it's an empty container (organizational folder)
+        if (IsContainerObject(obj))
+            return true;
+
+        // For objects WITH components, only split if children are VERY spread out
+        // (more than 3 chunks apart in any direction - likely an organizational folder with scripts)
+        Vector2Int minChunk = new Vector2Int(int.MaxValue, int.MaxValue);
+        Vector2Int maxChunk = new Vector2Int(int.MinValue, int.MinValue);
+
+        foreach (Transform child in obj.transform)
+        {
+            Vector2Int chunk = m_Config.WorldToChunk(child.position);
+            minChunk.x = Mathf.Min(minChunk.x, chunk.x);
+            minChunk.y = Mathf.Min(minChunk.y, chunk.y);
+            maxChunk.x = Mathf.Max(maxChunk.x, chunk.x);
+            maxChunk.y = Mathf.Max(maxChunk.y, chunk.y);
+        }
+
+        // If children span more than 3 chunks in either direction, split
+        int spanX = maxChunk.x - minChunk.x;
+        int spanZ = maxChunk.y - minChunk.y;
+
+        if (spanX > 3 || spanZ > 3)
+            return true;
+
+        // Check if parent is far from children (parent at origin, children elsewhere)
+        Vector2Int parentChunk = m_Config.WorldToChunk(obj.transform.position);
+        int distFromChildrenX = Mathf.Min(Mathf.Abs(parentChunk.x - minChunk.x), Mathf.Abs(parentChunk.x - maxChunk.x));
+        int distFromChildrenZ = Mathf.Min(Mathf.Abs(parentChunk.y - minChunk.y), Mathf.Abs(parentChunk.y - maxChunk.y));
+
+        if (distFromChildrenX > 3 || distFromChildrenZ > 3)
+            return true;
 
         return false;
     }
@@ -487,7 +626,77 @@ public class ChunkSplitter : EditorWindow
     }
 
     /// <summary>
+    /// Split ALL descendants into chunks based on each one's actual position.
+    /// Completely flattens hierarchy - maximum accuracy.
+    /// CRITICAL: Captures world position BEFORE unparenting to avoid coordinate bugs.
+    /// </summary>
+    private void SplitAllChildren(GameObject obj, Dictionary<Vector2Int, List<GameObject>> objectsByChunk)
+    {
+        // Get all transforms in hierarchy (excluding the root if it has no renderer)
+        List<Transform> allObjects = new List<Transform>();
+        GetAllLeafObjects(obj.transform, allObjects);
+
+        foreach (var t in allObjects)
+        {
+            // CRITICAL: Capture world position BEFORE unparenting
+            Vector3 worldPos = t.position;
+
+            // Unparent so it becomes a root object
+            t.SetParent(null);
+
+            // Assign based on CAPTURED world position
+            Vector2Int chunk = m_Config.WorldToChunk(worldPos);
+            chunk.x = Mathf.Clamp(chunk.x, 0, m_Config.gridSizeX - 1);
+            chunk.y = Mathf.Clamp(chunk.y, 0, m_Config.gridSizeZ - 1);
+
+            if (!objectsByChunk.ContainsKey(chunk))
+                objectsByChunk[chunk] = new List<GameObject>();
+
+            objectsByChunk[chunk].Add(t.gameObject);
+        }
+
+        // Destroy the now-empty container hierarchy
+        if (obj != null && obj.transform.childCount == 0)
+        {
+            Object.DestroyImmediate(obj);
+        }
+    }
+
+    /// <summary>
+    /// Get all leaf objects (objects with renderers or no children).
+    /// </summary>
+    private void GetAllLeafObjects(Transform parent, List<Transform> results)
+    {
+        // If this object has a renderer, it's a leaf (visible object)
+        if (parent.GetComponent<Renderer>() != null)
+        {
+            results.Add(parent);
+            return;
+        }
+
+        // If no children, it's a leaf (even without renderer)
+        if (parent.childCount == 0)
+        {
+            results.Add(parent);
+            return;
+        }
+
+        // Otherwise, recurse into children
+        List<Transform> children = new List<Transform>();
+        foreach (Transform child in parent)
+        {
+            children.Add(child);
+        }
+
+        foreach (var child in children)
+        {
+            GetAllLeafObjects(child, results);
+        }
+    }
+
+    /// <summary>
     /// Split children of a container object into chunks based on each child's position.
+    /// CRITICAL: Captures world position BEFORE unparenting to avoid coordinate bugs.
     /// </summary>
     private void SplitContainerChildren(GameObject container, Dictionary<Vector2Int, List<GameObject>> objectsByChunk)
     {
@@ -507,11 +716,15 @@ public class ChunkSplitter : EditorWindow
             }
             else
             {
-                // Unparent the child so it becomes a root object
+                // CRITICAL: Capture world position BEFORE unparenting
+                // If we capture AFTER SetParent(null), we get wrong coordinates!
+                Vector3 worldPos = child.position;
+
+                // Now unparent the child so it becomes a root object
                 child.SetParent(null);
 
-                // Assign to chunk based on child's position
-                Vector2Int chunk = m_Config.WorldToChunk(child.position);
+                // Assign to chunk based on CAPTURED world position
+                Vector2Int chunk = m_Config.WorldToChunk(worldPos);
 
                 // Clamp to valid range
                 chunk.x = Mathf.Clamp(chunk.x, 0, m_Config.gridSizeX - 1);

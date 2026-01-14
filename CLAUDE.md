@@ -826,6 +826,225 @@ Both 9mm and 7.62mm ammo are in ALL loot tables with context-appropriate weights
 | Kitchen | 1 | 1 |
 | Bathroom | 1 | 1 |
 
+## Dog Companion System
+
+A dog companion that follows the player and serves as a **silent melee alternative to guns**. Dogs can attack zombies without making noise that attracts more zombies.
+
+### Why Dogs?
+- Player has no melee animations, so dog acts as the melee option
+- Guns are loud and attract zombie hordes
+- Dogs attack silently - tactical stealth option
+- Adds variety to combat gameplay
+
+### Asset Pack
+**PolygonDog** by Synty Studios - Located at `Assets/PolygonDog/`
+
+**Available Breeds (with collars):**
+- German Shepherd (primary choice)
+- Doberman (primary choice)
+- Ridgeback (primary choice)
+- Also: Dalmatian, Golden Retriever, Greyhound, Husky, Labrador, Pointer, Shiba
+- Wild: Coyote, Fox, Wolf
+- Special: Hellhound, Robot, Scifi
+- **Zombie Dogs**: Zombie Doberman, Zombie German Shepherd
+
+**Prefab Location:** `Assets/PolygonDog/Prefabs/Dogs/`
+- `Unity_SK_Animals_Dog_GermanShepherd_Collar_01.prefab`
+- `Unity_SK_Animals_Dog_Doberman_Collar_01.prefab`
+- `Unity_SK_Animals_Dog_Ridgeback_Collar_01.prefab`
+
+**Animations Included:**
+- Locomotion: Idle, Walk, Run, Jump, Fall, Land, Turn
+- Attack: Bite, Claw, Hit, Stun
+- Actions: Bark, Howl, Sniff, Dig, Eat, Drink, Shake, Tail Wag, Beg
+- States: Sit, Sleep, Death
+- Pre-built Animator Controller: `Assets/PolygonDog/Animations/Animation_Dog.controller`
+
+### Scripts Created
+
+**Location:** `Assets/Scripts/Companion/`
+
+1. **DogCompanion.cs** - Main AI behavior
+   - Follows player at configurable distance
+   - Uses NavMeshAgent for pathfinding
+   - Teleports to player if too far (30m default)
+   - States: Following, Staying, Attacking, Returning, Searching, Idle
+   - Attacks using `ZombieHealth.TakeDamage()` (50 damage default)
+   - Silent kills - no noise attraction system triggered
+
+2. **DogRadialMenu.cs** - Q key radial menu
+   - Hold Q to open, move mouse to select, release to execute
+   - Time slows to 0.3x while menu is open (tactical feel)
+   - Auto-builds UI procedurally (no prefab needed)
+   - Shows/hides cursor automatically
+
+3. **DogSpawner.cs** - Random breed selection
+   - Spawns one of three breeds randomly (German Shepherd, Doberman, Ridgeback)
+   - Spawns behind player on NavMesh
+   - Auto-adds required components (NavMeshAgent, DogCompanion, AudioSource, Collider)
+   - Singleton pattern for easy access
+
+**Editor Tool:** `Assets/Scripts/Editor/DogCompanionSetup.cs`
+- Menu: **Project Klyra > Companion > Setup Dog Companion System**
+- Auto-detects dog prefabs from PolygonDog folder
+- Creates DogCompanionManager GameObject with DogSpawner + DogRadialMenu
+- One-click setup
+
+### Radial Menu Commands
+
+```
+        [Attack]
+           ↑
+  [Search]← ● →[Stay/Follow]
+           ↓
+        [Come]
+```
+
+| Command | Action |
+|---------|--------|
+| **Attack** | Dog attacks zombie under crosshair (uses `InteractionHighlight.CurrentTarget` or raycast fallback) |
+| **Stay/Follow** | Toggle - dog sits and waits OR follows player |
+| **Come** | Dog immediately returns to player |
+| **Search** | Dog sniffs for nearby loot, highlights lootables with `ForceShowIcon(true)` |
+
+### Integration Points
+
+**With ZombieHealth:**
+- Dog uses `ZombieHealth.TakeDamage(damage, gameObject)` to deal damage
+- Checks `ZombieHealth.IsDead` to know when target is killed
+- Works with existing zombie damage/death system
+
+**With InteractionHighlight:**
+- Attack command first checks `InteractionHighlight.CurrentTarget`
+- Falls back to camera raycast if no target
+- Search command uses `ForceShowIcon(true)` to highlight found lootables
+
+**With Crosshair Targeting:**
+- Uses same targeting system as player interactions
+- Dog attacks what player is aiming at
+
+### Animator Parameters (from PolygonDog)
+
+| Parameter | Type | Usage |
+|-----------|------|-------|
+| `Movement_f` | Float | 0-1 movement speed (walk/run blend) |
+| `AttackReady_b` | Bool | Enable attack stance |
+| `AttackType_int` | Int | 1=Bite, 2=Claw |
+| `ActionType_int` | Int | Various actions (1-13), 5=Sniff |
+| `Sit_b` | Bool | Sitting state |
+| `Jump_tr` | Trigger | Jump animation |
+| `Death_b` | Bool | Death state |
+
+### Configuration (DogCompanion Inspector)
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `m_FollowDistance` | 2.5 | How close dog stays to player |
+| `m_TeleportDistance` | 30 | Distance before dog teleports to player |
+| `m_RunDistance` | 8 | Distance at which dog runs instead of walks |
+| `m_WalkSpeed` | 2 | Walking speed |
+| `m_RunSpeed` | 6 | Running speed |
+| `m_AttackRange` | 1.5 | Range to start attacking |
+| `m_AttackDamage` | 50 | Damage per attack |
+| `m_AttackCooldown` | 2 | Seconds between attacks |
+| `m_MaxAttackDistance` | 25 | Max distance to send dog to attack |
+| `m_SearchRadius` | 10 | Radius for loot search |
+| `m_SearchDuration` | 3 | How long search animation plays |
+
+### Setup Instructions
+
+1. **Run Setup Tool:**
+   - Go to **Project Klyra > Companion > Setup Dog Companion System**
+   - Tool auto-finds prefabs and creates manager
+
+2. **Or Manual Setup:**
+   - Create empty GameObject named "DogCompanionManager"
+   - Add `DogSpawner` component
+   - Add `DogRadialMenu` component
+   - Assign dog prefabs to DogSpawner's `m_DogPrefabs` array
+
+3. **Fix Pink Materials (IMPORTANT):**
+   - Dog materials use Built-in shader but project uses URP
+   - Select all materials in `Assets/PolygonDog/Materials/`
+   - Go to **Edit > Rendering > Materials > Convert Selected Built-in Materials to URP**
+
+### Current State / Known Issues
+
+**ISSUE: Dogs appear pink**
+- Cause: PolygonDog materials use Built-in shaders, project uses URP
+- Fix: Convert materials to URP (see Setup Instructions step 3)
+
+**Working:**
+- DogCompanion.cs compiles and runs
+- DogRadialMenu.cs creates UI and handles input
+- DogSpawner.cs spawns random breed
+- Attack command targets zombies via ZombieHealth
+- Search command highlights lootables
+
+**Not Yet Tested:**
+- Actual NavMesh pathfinding in game scene
+- Attack animations playing correctly
+- Damage being dealt to zombies
+- Audio clips (none assigned yet)
+
+### Audio Setup (TODO)
+
+DogCompanion has arrays for audio clips that need to be assigned:
+- `m_BarkClips` - Barking sounds (attack, search found, etc.)
+- `m_GrowlClips` - Growling during attack
+- `m_WhineClips` - When no valid target found
+
+PolygonDog pack may include audio or use free dog sound effects.
+
+### Future Enhancements (Ideas)
+
+- Dog health system (can be hurt/killed by zombies)
+- Player can heal dog with items
+- Dog leveling/bonding system
+- Multiple dogs?
+- Zombie dogs as enemies
+- Dog can carry small items
+
+## Chunk Loading System
+
+World streaming system for large maps - loads/unloads scene chunks based on player position.
+
+### Key Components
+
+**Location:** `Assets/Scripts/World/`
+
+1. **ChunkConfig.cs** - ScriptableObject with chunk settings
+   - Grid size, chunk size, load radius
+   - World origin offset
+   - Scene naming convention
+
+2. **ChunkLoader.cs** - Runtime loader attached to persistent scene
+   - Tracks player position
+   - Loads chunks within radius
+   - Unloads distant chunks
+   - Supports multiple spawn points via `CharacterSpawner.SpawnPoints`
+
+3. **ChunkSplitter.cs** (Editor) - Splits scene into chunks
+   - Menu: **Project Klyra > World > Chunk Splitter**
+   - Auto-fit origin and grid size
+   - Handles grouped objects via bounds detection
+   - `ChunkKeepTogether` marker component for objects that shouldn't split
+
+**Spawn Point Integration:**
+- ChunkLoader gets spawn points from CharacterSpawner (or its own array)
+- Loads chunks around ALL possible spawn points before player spawns
+- CharacterSpawner picks random spawn, ChunkLoader ensures chunks are ready
+
+### ChunkLoader Inspector Settings
+
+| Setting | Description |
+|---------|-------------|
+| `m_Config` | ChunkConfig asset |
+| `m_Target` | Leave None - auto-finds player |
+| `m_LoadAllOnStart` | Load all chunks first, then stream |
+| `m_SpawnPoints` | Fallback spawn points if no CharacterSpawner |
+| `m_CharacterSpawner` | Reference to get spawn points from |
+
 ## Open Questions
 - Player count per session?
 - Networking solution? (Photon Fusion, Unity NGO, etc.)
