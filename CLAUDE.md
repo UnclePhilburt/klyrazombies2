@@ -1009,31 +1009,70 @@ PolygonDog pack may include audio or use free dog sound effects.
 
 World streaming system for large maps - loads/unloads scene chunks based on player position.
 
+### Current Configuration
+
+**World Size:** 4,200m x 3,000m (14x10 chunks at 300m each)
+**Total Build Size:** 412 MB
+**Problem:** Exceeds itch.io's 200 MB browser game limit
+
 ### Key Components
 
 **Location:** `Assets/Scripts/World/`
 
 1. **ChunkConfig.cs** - ScriptableObject with chunk settings
-   - Grid size, chunk size, load radius
-   - World origin offset
-   - Scene naming convention
+   - Current: `gridSizeX: 14`, `gridSizeZ: 10`, `chunkSize: 300m`
+   - World origin: (-1200, 0, -1800)
+   - Load radius: 1 (loads 3x3 grid around player)
 
 2. **ChunkLoader.cs** - Runtime loader attached to persistent scene
    - Tracks player position
-   - Loads chunks within radius
-   - Unloads distant chunks
+   - Loads/unloads chunks within radius
+   - **NEW:** Supports Addressables (toggle `m_UseAddressables`)
    - Supports multiple spawn points via `CharacterSpawner.SpawnPoints`
 
 3. **ChunkSplitter.cs** (Editor) - Splits scene into chunks
    - Menu: **Project Klyra > World > Chunk Splitter**
+   - **FIXED:** World position capture bug (Jan 2025)
+     - Now captures position BEFORE unparenting
+     - Prevents spawners from going to wrong chunks
    - Auto-fit origin and grid size
-   - Handles grouped objects via bounds detection
-   - `ChunkKeepTogether` marker component for objects that shouldn't split
+   - Uses rendered bounds center (not pivot) for placement
+   - Respects `ChunkKeepTogether` component
 
-**Spawn Point Integration:**
-- ChunkLoader gets spawn points from CharacterSpawner (or its own array)
-- Loads chunks around ALL possible spawn points before player spawns
-- CharacterSpawner picks random spawn, ChunkLoader ensures chunks are ready
+4. **ChunkKeepTogether.cs** - Marker component
+   - Add to buildings/structures that should stay together
+   - Shows green wireframe gizmo when selected
+   - Prevents ChunkSplitter from breaking hierarchy
+
+5. **ChunkValidator.cs** (Editor) - Validates chunk placement
+   - Menu: **Project Klyra > World > Chunk Validator**
+   - Checks if objects are in correct chunks
+   - Shows accuracy percentage
+   - Auto-fixes misplaced objects
+
+6. **ChunkGridVisualizer.cs** (Editor) - Scene view overlay
+   - Menu: **Project Klyra > World > Toggle Chunk Grid Overlay**
+   - Shortcut: **Ctrl+Shift+G** (Cmd+Shift+G on Mac)
+   - Shows cyan chunk boundaries in Scene view
+   - Displays chunk coordinates and names
+   - Only shows labels when zoomed in
+
+### Editor Tools & Workflows
+
+**Before Splitting:**
+1. Toggle grid overlay (Ctrl+Shift+G) to visualize chunks
+2. Add `ChunkKeepTogether` to large buildings
+3. Run "Analyze Scene" to see object distribution
+4. Adjust chunk size if needed
+
+**After Splitting:**
+1. Run ChunkValidator to check accuracy
+2. Use "Fix All Misplaced Objects" if needed
+3. Test in Play mode
+
+**Debug Zombie Spawner Issues:**
+- `SpawnerDebugger` - Analyzes why spawners aren't working
+- `FixSpawnerReferences` - Fixes lost prefab references
 
 ### ChunkLoader Inspector Settings
 
@@ -1041,9 +1080,108 @@ World streaming system for large maps - loads/unloads scene chunks based on play
 |---------|-------------|
 | `m_Config` | ChunkConfig asset |
 | `m_Target` | Leave None - auto-finds player |
+| `m_UseAddressables` | Enable Addressables streaming (NEW) |
 | `m_LoadAllOnStart` | Load all chunks first, then stream |
 | `m_SpawnPoints` | Fallback spawn points if no CharacterSpawner |
 | `m_CharacterSpawner` | Reference to get spawn points from |
+| `m_ShowDebugInfo` | Show debug overlay and console logs |
+
+## Addressables Asset Streaming (NEW)
+
+System for downloading chunks on-demand to reduce initial build size.
+
+### Why Addressables?
+
+**Current:** 412 MB WebGL build → Can't fit on itch.io (200 MB limit)
+**With Addressables:** 80 MB initial + 330 MB streamed chunks → Fits on itch.io
+
+### Components Created
+
+**Location:** `Assets/Scripts/Editor/` and `Assets/Scripts/World/`
+
+1. **AddressablesSetup.cs** (Editor)
+   - Menu: **Project Klyra > World > Setup Addressables**
+   - One-click Addressables installation and configuration
+   - Automatically marks all chunk scenes as addressable
+   - Creates "Chunks" group with optimal settings for WebGL
+
+2. **AddressablesBuildScript.cs** (Editor)
+   - Menu: **Project Klyra > Build > ...**
+   - **Build Addressables Only** - Just build asset bundles
+   - **Build WebGL (with Addressables)** - Full automated build
+   - **Build WebGL (No Addressables)** - Regular build
+
+3. **AddressablesPreloader.cs** (Runtime)
+   - Pre-downloads chunks during main menu
+   - Shows progress bar
+   - Supports silent background download
+   - Caches chunks for instant loading on revisit
+
+4. **ChunkLoader.cs** (Updated)
+   - Toggle `m_UseAddressables` in Inspector
+   - Falls back to SceneManager if Addressables disabled
+   - Handles both local and remote asset loading
+
+### Addressables Workflow
+
+**Initial Setup (One-time):**
+1. Install Addressables package
+2. Run `Project Klyra > World > Setup Addressables`
+3. Enable `m_UseAddressables` on ChunkLoader
+
+**Every Build:**
+1. Run `Project Klyra > Build > Build WebGL (with Addressables)`
+2. Upload `Build/` folder to itch.io (80 MB)
+3. Upload `ServerData/` folder to GitHub Pages/Netlify (330 MB)
+
+**Hosting Options:**
+- **Option A:** Everything on itch.io (if compressed < 200 MB)
+- **Option B:** Build on itch.io, ServerData on GitHub Pages (recommended)
+- **Option C:** Everything on Netlify
+
+### Player Experience
+
+**Without Addressables (Current):**
+- Initial download: 412 MB
+- Load time: 30-60 seconds
+- Can't host on itch.io
+
+**With Addressables:**
+- Initial download: 80 MB (menu + persistent scene)
+- Main menu: 5-10 seconds
+- Pre-download chunks: 20-60 seconds (shows progress)
+- Gameplay: Instant (chunks cached)
+- Future plays: Instant (browser cache)
+
+### Performance Notes
+
+**Development (Editor):**
+- ❌ Addressables NOT used in Editor
+- Edit scenes normally, no impact
+- Play mode unchanged
+
+**Runtime (Players):**
+- First chunk visit: 2-3 second download
+- Subsequent visits: Instant (cached)
+- ChunkLoader pre-loads adjacent chunks (seamless)
+
+### Known Issues & Limitations
+
+**Build Size Still Too Large (412 MB):**
+- Even with Addressables, total size is 412 MB
+- itch.io browser limit: 200 MB
+- **Solution:** Host ServerData externally (GitHub Pages, Netlify)
+
+**Complexity:**
+- Two-step build process
+- External hosting required
+- More debugging complexity
+
+**Next Steps:**
+- Install Addressables package
+- Run setup tool
+- Configure hosting (GitHub Pages recommended)
+- Test build pipeline
 
 ## Open Questions
 - Player count per session?
