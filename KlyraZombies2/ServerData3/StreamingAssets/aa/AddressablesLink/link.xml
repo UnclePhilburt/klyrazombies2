@@ -1,0 +1,443 @@
+<linker>
+  <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="BackpackAttachmentHandler" preserve="all" />
+    <type fullname="BackpackEquipHandler" preserve="all" />
+    <type fullname="BloodEffectManager" preserve="all" />
+    <type fullname="CharacterInfoPopup" preserve="all" />
+    <type fullname="CharacterSpawner" preserve="all" />
+    <type fullname="ChunkConfig" preserve="all" />
+    <type fullname="ChunkLoader" preserve="all" />
+    <type fullname="DogRadialMenu" preserve="all" />
+    <type fullname="DogSpawner" preserve="all" />
+    <type fullname="FlashlightEquipHandler" preserve="all" />
+    <type fullname="FootstepVolumeController" preserve="all" />
+    <type fullname="GunshotReporter" preserve="all" />
+    <type fullname="InteractionHighlight" preserve="all" />
+    <type fullname="LootableContainer" preserve="all" />
+    <type fullname="LootableInteraction" preserve="all" />
+    <type fullname="LootTable" preserve="all" />
+    <type fullname="POIData" preserve="all" />
+    <type fullname="POITrigger" preserve="all" />
+    <type fullname="Readme" preserve="all" />
+    <type fullname="ShoulderSwap" preserve="all" />
+    <type fullname="SimpleInventoryUI" preserve="all" />
+    <type fullname="SimpleLootableStorage" preserve="all" />
+    <type fullname="SimpleLootUI" preserve="all" />
+    <type fullname="SkillNotificationUI" preserve="all" />
+    <type fullname="SmoothCameraController" preserve="all" />
+    <type fullname="StaminaSystem" preserve="all" />
+    <type fullname="SurfaceDebugger" preserve="all" />
+    <type fullname="WeaponAmmoDebug" preserve="all" />
+    <type fullname="ZombieAI" preserve="all" />
+    <type fullname="ZombieDamageBridge" preserve="all" />
+    <type fullname="ZombieHealth" preserve="all" />
+    <type fullname="ZombieManager" preserve="all" />
+    <type fullname="ZombieSpawner" preserve="all" />
+    <type fullname="LootTable/LootEntry" preserve="nothing" serialized="true" />
+    <type fullname="Readme/Section" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="DistantLands.Cozy.Blocks.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="DistantLands.Cozy.BlocksModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.BlockProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ColorBlock" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ColorBlockOverride" preserve="all" />
+    <type fullname="DistantLands.Cozy.BlocksModule/Block" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="DistantLands.Cozy.Eclipse.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="DistantLands.Cozy.Data.EclipseProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.EclipseModule" preserve="all" />
+  </assembly>
+  <assembly fullname="DistantLands.Cozy.ReSound.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="DistantLands.Cozy.Data.ReSoundDJ" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ReSoundSetlist" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ReSoundTrack" preserve="all" />
+    <type fullname="DistantLands.Cozy.ReSoundModule" preserve="all" />
+  </assembly>
+  <assembly fullname="DistantLands.Cozy.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="DistantLands.Cozy.CozyAtmosphereModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyClimateModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyParticles" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyThunder" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyTimeModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyTransitModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyWeather" preserve="all" />
+    <type fullname="DistantLands.Cozy.CozyWeatherModule" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.AtmosphereProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.AudioFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ClimateFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ClimateProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.CloudFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.EventFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.FilterFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ForecastProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.MultiFXProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ParticleFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.PerennialProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.PrecipitationFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.ThunderFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.VisualFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.WeatherProfile" preserve="all" />
+    <type fullname="DistantLands.Cozy.Data.WindFX" preserve="all" />
+    <type fullname="DistantLands.Cozy.ChanceEffector" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.CozyEcosystem" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.CozyEcosystem/WeatherPattern" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.CozyTransitModule/TimeBlock" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.CozyTransitModule/TimeWeightRelation" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.CozyWeather/Events" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.Data.AtmosphereProfile/SRPFlare" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.Data.MultiFXProfile/MultiFXType" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.Data.PerennialProfile/Month" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.MeridiemTime" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.Overridable`1" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.VariableProperty" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.WeatherRelation" preserve="nothing" serialized="true" />
+    <type fullname="DistantLands.Cozy.WeightedRandomChance" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.Shared.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Opsive.Shared.Audio.AudioConfig" preserve="all" />
+    <type fullname="Opsive.Shared.Audio.AudioManager" preserve="all" />
+    <type fullname="Opsive.Shared.Audio.AudioManagerModule" preserve="all" />
+    <type fullname="Opsive.Shared.Game.ObjectPool" preserve="all" />
+    <type fullname="Opsive.Shared.Game.Scheduler" preserve="all" />
+    <type fullname="Opsive.Shared.Input.InputManager.UnityInput" preserve="all" />
+    <type fullname="Opsive.Shared.Input.InputSystem.UnityInputSystem" preserve="all" />
+    <type fullname="Opsive.Shared.Input.PlayerInputProxy" preserve="all" />
+    <type fullname="Opsive.Shared.StateSystem.PersistablePreset" preserve="all" />
+    <type fullname="Opsive.Shared.Utility.GlobalDictionary" preserve="all" />
+    <type fullname="Opsive.Shared.Audio.AudioClipSet" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.StateSystem.State" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.Audio.AudioConfig/ClipSelection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.Audio.AudioModifier" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.Audio.BoolOverride" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.Audio.FloatOverride" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.Shared.UI.Text" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.UltimateCharacterController, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Opsive.UltimateCharacterController.Camera.CameraController" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Camera.CameraControllerHandler" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.AnimatorMonitor" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.CapsuleColliderPositioner" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.CharacterFootEffects" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.CharacterIK" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.CharacterLayerManager" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.ChildAnimatorMonitor" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Identifiers.CharacterColliderBaseIdentifier" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Identifiers.ThirdPersonObject" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.ItemHandler" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.UltimateCharacterLocomotion" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Character.UltimateCharacterLocomotionHandler" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.ShootableAction" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Items.CharacterItem" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Items.CharacterItemSlot" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Items.ItemPlacement" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Objects.MuzzleFlash" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Objects.ObjectIdentifier" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.SurfaceEffect" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.SurfaceIdentifier" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.SurfaceImpact" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.SurfaceManager" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.SurfaceType" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.ThirdPersonController.Camera.ObjectFader" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.ThirdPersonController.Items.ThirdPersonPerspectiveItem" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.CharacterAttributeManager" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.CharacterHealth" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.CharacterRespawner" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.DirectionalConstantForce" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.ParticlePooler" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.Remover" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.RigidbodyImpulse" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.CharacterItemActionLogger" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Effect.PlayAudioClip" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Impact.CheckTargetImpactConditionBehaviour" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Impact.ImpactEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Impact.SimpleDamage" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Impact.SpawnSurfaceEffect" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.ActionModuleGroup`1" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Repeat" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.BasicProjectile" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.CrosshairsSpread" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.DryFireSubstate" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.GenericItemEffects" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.GenericReloader" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.GenericShootableImpactModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.HitscanShooter" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.MuzzleEffect" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.RecoilEffect" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShellEffect" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableAmmoModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableClipModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableExtraModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableFireEffectModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableImpactModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableProjectileModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableReloaderModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.ShootableShooterModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.SimpleClip" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Shootable.SlotItemMonitorModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.Simple" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.TriggerModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.Actions.Modules.UsableActionModule" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.AnimatorAudioStates.AnimatorAudioStateSet" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.AnimatorAudioStates.AnimatorAudioStateSet/AnimatorAudioState" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Items.AnimatorAudioStates.Sequence" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Objects.IDObject`1" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Utility.AnimationSlotEventTrigger" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Fall" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.HeightChange" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.ItemEquipVerifier" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.Aim" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.EquipNext" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.EquipPrevious" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.EquipScroll" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.EquipUnequip" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.Reload" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.ToggleEquip" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Items.Use" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Jump" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.MoveTowards" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.Ragdoll" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.Abilities.SpeedChange" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Character.CharacterFootEffects/Foot" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityAbilityBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityFloatEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityFloatVector3Vector3GameObjectEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemAbilityBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemFloatBoolBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemIdentifierFloatBoolBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemIdentifierFloatEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityItemIntEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityMovementTypeBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityTransformEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityVector3Vector3GameObjectEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Events.UnityViewTypeBoolEvent" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Inventory.ItemSet" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Inventory.ItemSetGroup" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Motion.Spring" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.ImpactEffect" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.ObjectSurface" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.SurfaceSystem.UVTexture" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.ThirdPersonController.Camera.ViewTypes.Adventure" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.ThirdPersonController.Character.MovementTypes.Adventure" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Traits.Attribute" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Utility.MinMaxVector3" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Utility.ObjectSpawnInfo" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.CharacterInventoryBridge" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.InventoryItemSetManager" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.ItemCategoryItemSetRule" preserve="all" />
+    <type fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.InventoryItemAmmo" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateCharacterController.Integrations.UltimateInventorySystem.CharacterInventoryBridge/RemoveOnDeathOptions" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.UltimateInventorySystem, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventoryCollections.DynamicInventorySize" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventoryCollections.Inventory" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventoryCollections.InventoryIdentifier" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventorySystemManager" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.ItemCategory" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.ItemDefinition" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.ItemObject" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Crafting.CraftingCategory" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.DropsAndPickups.ItemObjectSpawner" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.DropsAndPickups.ItemObjectVisualizer" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.DropsAndPickups.ItemPickup" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Exchange.CurrencyOwner" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Interactions.Interactable" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Interactions.InventoryInteractor" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.ItemActions.ItemUser" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Storage.InventorySystemDatabase" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.UI.Item.ItemViewModules.AmountItemView" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.UI.Item.ItemViewModules.ItemView" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.UI.Item.ItemViewModules.NameItemView" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.AttributeSystem.ItemAttributeCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.AttributeSystem.ItemCategoryAttributeCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.AttributeSystem.ItemDefinitionAttributeCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.AttributeSystem.RequiredItemAttributeCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.AttributeSystem.RequiredItemDefinitionAttributeCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.Item" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.DataStructures.ItemAmount" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.DataStructures.ItemInfo" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.DynamicItemCategory" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.DynamicItemCategoryArray" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.DynamicItemDefinitionArray" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventoryCollections.DynamicInventorySize/SizeChangeOverflowOptions" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Core.InventoryCollections.ItemCollectionID" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Exchange.CurrencyCollection" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Input.InputType" preserve="nothing" serialized="true" />
+    <type fullname="Opsive.UltimateInventorySystem.Input.SimpleInput" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.UltimateInventorySystem.Demo, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Opsive.UltimateInventorySystem.Demo.UI.Character.Rotator" preserve="all" />
+    <type fullname="Opsive.UltimateInventorySystem.Demo.UI.WorldSpace.BillboardFX" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.AI.Navigation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Unity.AI.Navigation.NavMeshSurface" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.InputSystem, Version=1.17.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.InputSystem.InputActionAsset" preserve="all" />
+    <type fullname="UnityEngine.InputSystem.InputActionReference" preserve="all" />
+    <type fullname="UnityEngine.InputSystem.PlayerInput" preserve="all" />
+    <type fullname="UnityEngine.InputSystem.UI.InputSystemUIInputModule" preserve="all" />
+    <type fullname="UnityEngine.InputSystem.InputAction" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.InputActionMap" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.InputBinding" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.InputControlScheme" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.InputControlScheme/DeviceRequirement" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.PlayerInput/ControlsChangedEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.PlayerInput/DeviceLostEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.InputSystem.PlayerInput/DeviceRegainedEvent" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Rendering.LensFlareComponentSRP" preserve="all" />
+    <type fullname="UnityEngine.Rendering.LensFlareDataSRP" preserve="all" />
+    <type fullname="UnityEngine.Rendering.VolumeProfile" preserve="all" />
+    <type fullname="UnityEngine.Rendering.BoolParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.ClampedFloatParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.ClampedIntParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.ColorParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.FloatParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.LensFlareDataElementSRP" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.MinFloatParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.SRPLensFlareBlendMode" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.SRPLensFlareColorType" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.SRPLensFlareDistribution" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.SRPLensFlareType" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.TextureCurve" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.TextureGradient" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.TextureParameter" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Rendering.Universal.Bloom" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.ChromaticAberration" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.ColorAdjustments" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.UniversalAdditionalCameraData" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.UniversalAdditionalLightData" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.BloomFilterModeParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.Universal.DownscaleParameter" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rendering.Universal.TemporalAA/Settings" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneProvider" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="TMPro.TextMeshProUGUI" preserve="all" />
+    <type fullname="TMPro.TMP_FontAsset" preserve="all" />
+    <type fullname="TMPro.FaceInfo_Legacy" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.FontAssetCreationSettings" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.KerningTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_Character" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontFeatureTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontWeightPair" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.VertexGradient" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEditor.Audio.AudioMixerSnapshotController" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AI.NavMeshAgent" preserve="all" />
+    <type fullname="UnityEngine.AI.NavMeshData" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AnimationClip" preserve="all" />
+    <type fullname="UnityEngine.Animator" preserve="all" />
+    <type fullname="UnityEngine.Avatar" preserve="all" />
+    <type fullname="UnityEngine.RuntimeAnimatorController" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Audio.AudioMixer" preserve="all" />
+    <type fullname="UnityEngine.Audio.AudioMixerGroup" preserve="all" />
+    <type fullname="UnityEngine.AudioClip" preserve="all" />
+    <type fullname="UnityEngine.AudioListener" preserve="all" />
+    <type fullname="UnityEngine.AudioSource" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Camera" preserve="all" />
+    <type fullname="UnityEngine.Cubemap" preserve="all" />
+    <type fullname="UnityEngine.Flare" preserve="all" />
+    <type fullname="UnityEngine.FlareLayer" preserve="all" />
+    <type fullname="UnityEngine.GameObject" preserve="all" />
+    <type fullname="UnityEngine.Light" preserve="all" />
+    <type fullname="UnityEngine.LightmapSettings" preserve="all" />
+    <type fullname="UnityEngine.LODGroup" preserve="all" />
+    <type fullname="UnityEngine.Material" preserve="all" />
+    <type fullname="UnityEngine.Mesh" preserve="all" />
+    <type fullname="UnityEngine.MeshFilter" preserve="all" />
+    <type fullname="UnityEngine.MeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Object" preserve="all" />
+    <type fullname="UnityEngine.RectTransform" preserve="all" />
+    <type fullname="UnityEngine.ReflectionProbe" preserve="all" />
+    <type fullname="UnityEngine.RenderSettings" preserve="all" />
+    <type fullname="UnityEngine.Shader" preserve="all" />
+    <type fullname="UnityEngine.SkinnedMeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Sprite" preserve="all" />
+    <type fullname="UnityEngine.Texture2D" preserve="all" />
+    <type fullname="UnityEngine.Transform" preserve="all" />
+    <type fullname="UnityEngine.Events.PersistentCallGroup" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Events.UnityEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.RenderingLayerMask" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Color" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.RectOffset" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.ParticleSystem" preserve="all" />
+    <type fullname="UnityEngine.ParticleSystemRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.BoxCollider" preserve="all" />
+    <type fullname="UnityEngine.CapsuleCollider" preserve="all" />
+    <type fullname="UnityEngine.CharacterJoint" preserve="all" />
+    <type fullname="UnityEngine.ConstantForce" preserve="all" />
+    <type fullname="UnityEngine.MeshCollider" preserve="all" />
+    <type fullname="UnityEngine.PhysicsMaterial" preserve="all" />
+    <type fullname="UnityEngine.Rigidbody" preserve="all" />
+    <type fullname="UnityEngine.SphereCollider" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.TerrainModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Terrain" preserve="all" />
+    <type fullname="UnityEngine.TerrainData" preserve="all" />
+    <type fullname="UnityEngine.TerrainLayer" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.TerrainPhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.TerrainCollider" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Font" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.EventSystems.EventSystem" preserve="all" />
+    <type fullname="UnityEngine.UI.CanvasScaler" preserve="all" />
+    <type fullname="UnityEngine.UI.ContentSizeFitter" preserve="all" />
+    <type fullname="UnityEngine.UI.HorizontalLayoutGroup" preserve="all" />
+    <type fullname="UnityEngine.UI.Image" preserve="all" />
+    <type fullname="UnityEngine.UI.MaskableGraphic/CullStateChangedEvent" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Canvas" preserve="all" />
+    <type fullname="UnityEngine.CanvasRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.WindModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.WindZone" preserve="all" />
+  </assembly>
+  <assembly fullname="Opsive.Shared.Events">
+    <type fullname="Opsive.Shared.Events.UnityBoolEvent" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Opsive.Shared.Utility">
+    <type fullname="Opsive.Shared.Utility.Serialization" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.TextCoreFontEngineModule">
+    <type fullname="UnityEngine.TextCore.FaceInfo" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.Glyph" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphMetrics" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphRect" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.LowLevel.GlyphAdjustmentRecord" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.LowLevel.GlyphPairAdjustmentRecord" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.LowLevel.GlyphValueRecord" preserve="nothing" serialized="true" />
+  </assembly>
+</linker>

@@ -1,11 +1,8 @@
 using UnityEngine;
 using UnityEditor;
-
-#if UNITY_ADDRESSABLES
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Build;
-#endif
 
 /// <summary>
 /// Automated build script for Addressables + WebGL.
@@ -16,7 +13,6 @@ public class AddressablesBuildScript
     [MenuItem("Project Klyra/Build/Build Addressables Only")]
     public static void BuildAddressablesOnly()
     {
-        #if UNITY_ADDRESSABLES
         Debug.Log("[Build] Starting Addressables build...");
 
         AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -41,15 +37,11 @@ public class AddressablesBuildScript
         EditorUtility.DisplayDialog("Build Complete",
             $"Addressables build successful!\n\nDuration: {result.Duration:F2}s\n\nAssets are ready in ServerData folder.",
             "OK");
-        #else
-        EditorUtility.DisplayDialog("Error", "Addressables package not installed!", "OK");
-        #endif
     }
 
     [MenuItem("Project Klyra/Build/Build WebGL (with Addressables)")]
     public static void BuildWebGLWithAddressables()
     {
-        #if UNITY_ADDRESSABLES
         Debug.Log("[Build] Starting full build: Addressables + WebGL...");
 
         // Step 1: Build Addressables
@@ -122,9 +114,6 @@ public class AddressablesBuildScript
                 $"WebGL build failed with {report.summary.totalErrors} errors.\n\nCheck console for details.",
                 "OK");
         }
-        #else
-        EditorUtility.DisplayDialog("Error", "Addressables package not installed!", "OK");
-        #endif
     }
 
     [MenuItem("Project Klyra/Build/Build WebGL (No Addressables)")]

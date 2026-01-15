@@ -2,12 +2,10 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
-
-#if UNITY_ADDRESSABLES
+using System.Linq;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-#endif
 
 /// <summary>
 /// One-click setup tool for Addressables chunk streaming.
@@ -125,11 +123,22 @@ public class AddressablesSetup : EditorWindow
 
     private void CheckAddressablesInstalled()
     {
-        #if UNITY_ADDRESSABLES
-        m_HasAddressables = true;
-        #else
-        m_HasAddressables = false;
-        #endif
+        // Check if Addressables package is in manifest.json
+        string manifestPath = Path.Combine(Application.dataPath, "../Packages/manifest.json");
+        if (File.Exists(manifestPath))
+        {
+            string manifestContent = File.ReadAllText(manifestPath);
+            m_HasAddressables = manifestContent.Contains("com.unity.addressables");
+
+            if (m_HasAddressables)
+            {
+                Debug.Log("[AddressablesSetup] Addressables package detected in manifest!");
+            }
+        }
+        else
+        {
+            m_HasAddressables = false;
+        }
     }
 
     private void InstallAddressablesPackage()
@@ -163,7 +172,6 @@ public class AddressablesSetup : EditorWindow
 
     private void SetupAddressables()
     {
-        #if UNITY_ADDRESSABLES
         Debug.Log("[AddressablesSetup] Setting up Addressables...");
 
         // Get or create Addressables settings
@@ -179,6 +187,26 @@ public class AddressablesSetup : EditorWindow
             return;
         }
 
+        // Ensure Remote path variables exist
+        var profileSettings = settings.profileSettings;
+        var profileId = settings.activeProfileId;
+
+        if (!profileSettings.GetVariableNames().Contains("RemoteBuildPath"))
+        {
+            profileSettings.CreateValue("RemoteBuildPath", "[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]");
+            Debug.Log("[AddressablesSetup] Created RemoteBuildPath variable");
+        }
+
+        if (!profileSettings.GetVariableNames().Contains("RemoteLoadPath"))
+        {
+            profileSettings.CreateValue("RemoteLoadPath", "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]");
+            Debug.Log("[AddressablesSetup] Created RemoteLoadPath variable");
+        }
+
+        // Save settings after creating variables
+        EditorUtility.SetDirty(settings);
+        AssetDatabase.SaveAssets();
+
         // Get or create "Chunks" group
         AddressableAssetGroup chunksGroup = settings.FindGroup("Chunks");
         if (chunksGroup == null)
@@ -191,10 +219,33 @@ public class AddressablesSetup : EditorWindow
         var schema = chunksGroup.GetSchema<BundledAssetGroupSchema>();
         if (schema != null)
         {
-            schema.BuildPath.SetVariableByName(settings, "LocalBuildPath");
-            schema.LoadPath.SetVariableByName(settings, "LocalLoadPath");
-            schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
-            schema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4; // Fast decompression for WebGL
+            // Get variable names
+            var variables = profileSettings.GetVariableNames();
+
+            // Find RemoteBuildPath and RemoteLoadPath
+            string remoteBuildPathVar = variables.FirstOrDefault(v => v == "RemoteBuildPath");
+            string remoteLoadPathVar = variables.FirstOrDefault(v => v == "RemoteLoadPath");
+
+            if (!string.IsNullOrEmpty(remoteBuildPathVar) && !string.IsNullOrEmpty(remoteLoadPathVar))
+            {
+                // Set the profile values
+                profileSettings.SetValue(profileId, remoteBuildPathVar, "ServerData/[BuildTarget]");
+                profileSettings.SetValue(profileId, remoteLoadPathVar, "https://unclephilburt.github.io/klyrazombies2-assets/ServerData/[BuildTarget]");
+
+                // Set the schema to use these variables
+                schema.BuildPath.SetVariableByName(settings, remoteBuildPathVar);
+                schema.LoadPath.SetVariableByName(settings, remoteLoadPathVar);
+
+                schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+                schema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4; // Fast decompression for WebGL
+
+                Debug.Log("[AddressablesSetup] Build Path: ServerData/[BuildTarget]");
+                Debug.Log("[AddressablesSetup] Load Path: https://unclephilburt.github.io/klyrazombies2-assets/ServerData/[BuildTarget]");
+            }
+            else
+            {
+                Debug.LogError("[AddressablesSetup] Could not find RemoteBuildPath or RemoteLoadPath variables!");
+            }
         }
 
         // Find all chunk scenes
@@ -246,8 +297,5 @@ public class AddressablesSetup : EditorWindow
 
         // Open Addressables Groups window
         EditorApplication.ExecuteMenuItem("Window/Asset Management/Addressables/Groups");
-        #else
-        EditorUtility.DisplayDialog("Error", "Addressables package not installed!", "OK");
-        #endif
     }
 }

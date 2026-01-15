@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bb51c55413da49ab97008f0b09190ef, type: 3}
   m_Name: ChunkConfig
   m_EditorClassIdentifier: Assembly-CSharp::ChunkConfig
-  gridSizeX: 20
-  gridSizeZ: 20
-  chunkSize: 125
+  gridSizeX: 27
+  gridSizeZ: 19
+  chunkSize: 150
   loadRadius: 1
   chunkScenePrefix: Chunk
   persistentSceneName: Persistent
-  worldOrigin: {x: -1125, y: 0, z: -1500}
+  worldOrigin: {x: -1200, y: 0, z: -1650}

@@ -2,11 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-
-#if UNITY_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-#endif
 
 /// <summary>
 /// Pre-downloads Addressables chunks in the background during main menu.
@@ -70,7 +67,6 @@ public class AddressablesPreloader : MonoBehaviour
 
     private IEnumerator PreloadChunks()
     {
-        #if UNITY_ADDRESSABLES
         m_IsDownloading = true;
 
         // Show loading UI if not silent
@@ -140,11 +136,6 @@ public class AddressablesPreloader : MonoBehaviour
         // Addressables.Release(downloadHandle);
 
         OnDownloadComplete();
-        #else
-        Debug.LogWarning("[Preloader] Addressables not installed - skipping preload");
-        OnDownloadComplete();
-        yield break;
-        #endif
     }
 
     private List<string> GetChunkList()

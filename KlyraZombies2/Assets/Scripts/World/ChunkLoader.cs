@@ -2,12 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-#if UNITY_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
-#endif
 
 /// <summary>
 /// Loads and unloads world chunks based on player position.
@@ -53,10 +50,8 @@ public class ChunkLoader : MonoBehaviour
     private bool m_InitialLoadComplete = false;
     private bool m_StreamingEnabled = false;
 
-    #if UNITY_ADDRESSABLES
     // Track Addressables handles for proper cleanup
     private Dictionary<string, AsyncOperationHandle<SceneInstance>> m_AddressableHandles = new Dictionary<string, AsyncOperationHandle<SceneInstance>>();
-    #endif
 
     // Singleton for easy access
     public static ChunkLoader Instance { get; private set; }
@@ -300,8 +295,22 @@ public class ChunkLoader : MonoBehaviour
         if (m_ShowDebugInfo)
             Debug.Log($"[ChunkLoader] Initial {m_LoadedChunks.Count} chunks loaded around spawn points.");
 
-        // Wait a moment for things to settle
+        // Wait a moment for things to settle and player to spawn
         yield return new WaitForSeconds(0.5f);
+
+        // Find the player for tracking (same as LoadAllChunksThenStream does)
+        var spawnedPlayer = GameObject.FindGameObjectWithTag("Player");
+        if (spawnedPlayer != null)
+        {
+            m_Target = spawnedPlayer.transform;
+            m_CurrentChunk = m_Config.WorldToChunk(m_Target.position);
+            if (m_ShowDebugInfo)
+                Debug.Log($"[ChunkLoader] Found spawned player: {spawnedPlayer.name} at {spawnedPlayer.transform.position}, chunk {m_CurrentChunk}");
+        }
+        else if (m_ShowDebugInfo)
+        {
+            Debug.LogWarning("[ChunkLoader] No player found after initial load - will keep searching in Update()");
+        }
 
         // Enable streaming
         m_StreamingEnabled = true;
@@ -326,15 +335,20 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-        // Try to find player if we don't have a valid target
-        if (m_Target == null || !m_Target.gameObject.activeInHierarchy)
+        // Try to find player if we don't have a valid target (or target is ourselves)
+        bool needsPlayerSearch = m_Target == null ||
+                                  !m_Target.gameObject.activeInHierarchy ||
+                                  m_Target == transform; // Don't track ourselves!
+
+        if (needsPlayerSearch)
         {
             var player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
                 m_Target = player.transform;
+                m_CurrentChunk = m_Config.WorldToChunk(m_Target.position);
                 if (m_ShowDebugInfo)
-                    Debug.Log($"[ChunkLoader] Found player target: {player.name}");
+                    Debug.Log($"[ChunkLoader] Found player target: {player.name} at chunk {m_CurrentChunk}");
             }
             else
             {
@@ -446,7 +460,6 @@ public class ChunkLoader : MonoBehaviour
         if (m_ShowDebugInfo)
             Debug.Log($"[ChunkLoader] Loading chunk: {sceneName} (Addressables: {m_UseAddressables})");
 
-        #if UNITY_ADDRESSABLES
         if (m_UseAddressables)
         {
             // Use Addressables for loading
@@ -487,7 +500,6 @@ public class ChunkLoader : MonoBehaviour
 
             yield break;
         }
-        #endif
 
         // Use SceneManager for loading (non-Addressables mode)
         if (!IsSceneInBuild(sceneName))
@@ -541,7 +553,6 @@ public class ChunkLoader : MonoBehaviour
         if (m_ShowDebugInfo)
             Debug.Log($"[ChunkLoader] Loading chunk (immediate): {sceneName} (Addressables: {m_UseAddressables})");
 
-        #if UNITY_ADDRESSABLES
         if (m_UseAddressables)
         {
             // Use Addressables - activate immediately
@@ -570,7 +581,6 @@ public class ChunkLoader : MonoBehaviour
 
             yield break;
         }
-        #endif
 
         // Use SceneManager (non-Addressables mode)
         if (!IsSceneInBuild(sceneName))
@@ -609,7 +619,6 @@ public class ChunkLoader : MonoBehaviour
         if (m_ShowDebugInfo)
             Debug.Log($"[ChunkLoader] Unloading chunk: {sceneName} (Addressables: {m_UseAddressables})");
 
-        #if UNITY_ADDRESSABLES
         if (m_UseAddressables && m_AddressableHandles.ContainsKey(sceneName))
         {
             // Unload via Addressables
@@ -635,7 +644,6 @@ public class ChunkLoader : MonoBehaviour
 
             yield break;
         }
-        #endif
 
         // Use SceneManager (non-Addressables mode)
         var op = SceneManager.UnloadSceneAsync(sceneName);

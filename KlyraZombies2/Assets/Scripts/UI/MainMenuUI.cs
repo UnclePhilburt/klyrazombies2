@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using TMPro;
 
 /// <summary>
@@ -36,7 +39,16 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Name of the gameplay scene to load")]
     [SerializeField] private string m_GameSceneName = "Persistent";
 
+    [Tooltip("Use Addressables to load the game scene (for streaming from remote server)")]
+    [SerializeField] private bool m_UseAddressables = true;
+
+    [Header("Loading UI")]
+    [SerializeField] private GameObject m_LoadingPanel;
+    [SerializeField] private TextMeshProUGUI m_LoadingText;
+    [SerializeField] private Slider m_LoadingProgressBar;
+
     private int m_CurrentTrackIndex = 0;
+    private bool m_IsLoading = false;
     private int[] m_ShuffledIndices;
     private bool m_InSettingsPanel = false;
 
@@ -293,11 +305,78 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnPlayClicked()
     {
+        if (m_IsLoading) return;
+
         Debug.Log("[MainMenu] Loading game...");
         if (!string.IsNullOrEmpty(m_GameSceneName))
         {
-            SceneManager.LoadScene(m_GameSceneName);
+            if (m_UseAddressables)
+            {
+                StartCoroutine(LoadGameWithAddressables());
+            }
+            else
+            {
+                SceneManager.LoadScene(m_GameSceneName);
+            }
         }
+    }
+
+    private System.Collections.IEnumerator LoadGameWithAddressables()
+    {
+        m_IsLoading = true;
+
+        // Show loading UI
+        if (m_MainPanel != null) m_MainPanel.SetActive(false);
+        if (m_SettingsPanel != null) m_SettingsPanel.SetActive(false);
+        if (m_LoadingPanel != null) m_LoadingPanel.SetActive(true);
+
+        UpdateLoadingUI("Connecting to server...", 0f);
+
+        // Load the game scene via Addressables
+        var handle = Addressables.LoadSceneAsync(m_GameSceneName, LoadSceneMode.Single, true);
+
+        while (!handle.IsDone)
+        {
+            float progress = handle.PercentComplete;
+
+            // Show download progress
+            if (progress < 0.5f)
+            {
+                UpdateLoadingUI($"Downloading world data... {progress * 200:F0}%", progress * 2f);
+            }
+            else
+            {
+                UpdateLoadingUI($"Loading game... {(progress - 0.5f) * 200:F0}%", progress);
+            }
+
+            yield return null;
+        }
+
+        if (handle.Status == AsyncOperationStatus.Failed)
+        {
+            Debug.LogError($"[MainMenu] Failed to load game scene: {handle.OperationException}");
+            UpdateLoadingUI("Failed to load game. Check your connection.", 0f);
+
+            // Show error and return to menu after delay
+            yield return new WaitForSeconds(3f);
+
+            if (m_LoadingPanel != null) m_LoadingPanel.SetActive(false);
+            if (m_MainPanel != null) m_MainPanel.SetActive(true);
+            m_IsLoading = false;
+            yield break;
+        }
+
+        UpdateLoadingUI("Starting game...", 1f);
+        Debug.Log("[MainMenu] Game scene loaded successfully!");
+    }
+
+    private void UpdateLoadingUI(string text, float progress)
+    {
+        if (m_LoadingText != null)
+            m_LoadingText.text = text;
+
+        if (m_LoadingProgressBar != null)
+            m_LoadingProgressBar.value = progress;
     }
 
     private void OnSettingsClicked()
